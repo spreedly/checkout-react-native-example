@@ -2,6 +2,15 @@ import UIKit
 import React
 import React_RCTAppDelegate
 import ReactAppDependencyProvider
+import SpreedlyCheckout
+
+#if canImport(SpreedlyStripeAPM)
+import SpreedlyStripeAPM
+#endif
+
+#if canImport(SpreedlyBraintree)
+import SpreedlyBraintree
+#endif
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -29,6 +38,20 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
       launchOptions: launchOptions
     )
 
+    return true
+  }
+
+  func application(
+    _ app: UIApplication,
+    open url: URL,
+    options: [UIApplication.OpenURLOptionsKey: Any] = [:]
+  ) -> Bool {
+    #if canImport(SpreedlyBraintree)
+    if BraintreeURLHandler.handleOpen(url: url) {
+      return true
+    }
+    #endif
+    Spreedly.shared().handleOffsiteReturn(url: url)
     return true
   }
 }

@@ -23,5 +23,33 @@
             <category android:name="android.intent.category.LAUNCHER" />
         </intent-filter>
       </activity>
+
+      <activity
+      android:name=".OffsiteReturnActivity"
+      android:exported="true"
+      android:launchMode="singleTask">
+        <intent-filter>
+          <action android:name="android.intent.action.VIEW" />
+          <category android:name="android.intent.category.DEFAULT" />
+          <category android:name="android.intent.category.BROWSABLE" />
+          <data
+            android:scheme="checkoutreactnativeexample"
+            android:host="com.checkoutreactnativeexample.package"
+            android:path="/offsite/checkout" />
+        </intent-filter>
+     </activity>
+
+    <activity
+      android:name="com.spreedly.braintree.BraintreeAPMActivity"
+      android:exported="true"
+      android:launchMode="singleTop"
+      android:theme="@style/Theme.Spreedly.Transparent">
+      <intent-filter>
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data android:scheme="${applicationId}.braintree" />
+      </intent-filter>
+    </activity>
     </application>
 </manifest>

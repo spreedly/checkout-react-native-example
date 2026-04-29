@@ -54,6 +54,26 @@
 		<string>UIInterfaceOrientationPortrait</string>
 		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+	<dict>
+		<key>CFBundleURLSchemes</key>
+		<array>
+		<string>checkoutreactnativeexample</string>
+		</array>
+	</dict>
+	<dict>
+		<key>CFBundleTypeRole</key>
+		<string>Editor</string>
+		<key>CFBundleURLName</key>
+		<string>com.checkoutreactnativeexample.package.braintree</string>
+		<key>CFBundleURLSchemes</key>
+		<array>
+		<string>$(PRODUCT_BUNDLE_IDENTIFIER).spreedly.braintree</string>
+		</array>
+	</dict>
+</array>
+
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>

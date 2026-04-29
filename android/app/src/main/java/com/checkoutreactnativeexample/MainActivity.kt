@@ -13,6 +13,17 @@ class MainActivity : ReactActivity() {
    */
   override fun getMainComponentName(): String = "CheckoutReactNativeExample"
 
+  override fun onResume() {
+    super.onResume()
+    try {
+        val clazz = Class.forName("com.spreedly.sdk.ui.offsite.SpreedlyOffsiteCheckout")
+        val instanceField = clazz.getDeclaredField("INSTANCE")
+        val instance = instanceField.get(null)
+        val method = clazz.getDeclaredMethod("finalizeIfActive")
+        method.invoke(instance)
+    } catch (_: Exception) {}
+}
+
   /**
    * Returns the instance of the [ReactActivityDelegate]. We use [DefaultReactActivityDelegate]
    * which allows you to enable New Architecture with a single boolean flags [fabricEnabled]

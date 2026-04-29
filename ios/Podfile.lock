@@ -1,5 +1,25 @@
 PODS:
+  - Braintree (7.5.0):
+    - Braintree/Card (= 7.5.0)
+    - Braintree/Core (= 7.5.0)
+    - Braintree/PayPal (= 7.5.0)
+  - Braintree/Card (7.5.0):
+    - Braintree/Core
+  - Braintree/Core (7.5.0)
+  - Braintree/DataCollector (7.5.0):
+    - Braintree/Core
+  - Braintree/PayPal (7.5.0):
+    - Braintree/Core
+    - Braintree/DataCollector
+  - Braintree/Venmo (7.5.0):
+    - Braintree/Core
+  - DatadogCore (3.1.0):
+    - DatadogInternal (= 3.1.0)
+  - DatadogInternal (3.1.0)
+  - DatadogLogs (3.1.0):
+    - DatadogInternal (= 3.1.0)
   - FBLazyVector (0.85.2)
+  - Forter3DS (2.1.0)
   - hermes-engine (250829098.0.10):
     - hermes-engine/Pre-built (= 250829098.0.10)
   - hermes-engine/Pre-built (250829098.0.10)
@@ -1362,6 +1382,30 @@ PODS:
     - React-RCTFBReactNativeSpec
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
+  - react-native-config (1.6.1):
+    - react-native-config/App (= 1.6.1)
+  - react-native-config/App (1.6.1):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
   - react-native-safe-area-context (5.7.0):
     - hermes-engine
     - RCTRequired
@@ -1816,10 +1860,193 @@ PODS:
     - React-utils (= 0.85.2)
     - ReactNativeDependencies
   - ReactNativeDependencies (0.85.2)
+  - RNGestureHandler (2.31.1):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - RNScreens (4.24.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-RCTImage
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - RNScreens/common (= 4.24.0)
+    - Yoga
+  - RNScreens/common (4.24.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-RCTImage
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - Yoga
+  - SpreedlyBraintree (1.2.2):
+    - Braintree/Core (~> 7.0)
+    - Braintree/DataCollector (~> 7.0)
+    - Braintree/PayPal (~> 7.0)
+    - Braintree/Venmo (~> 7.0)
+    - SpreedlyCore
+  - SpreedlyBraintreeAPM (1.0.0):
+    - Braintree (~> 7.0)
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - SpreedlyBraintree
+    - SpreedlyCore
+    - SpreedlySecurity
+    - Yoga
+  - SpreedlyCheckout (1.0.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - SpreedlyCore
+    - SpreedlySecurity
+    - SpreedlyUI
+    - Yoga
+  - SpreedlyCheckoutStripeAPM (1.0.0):
+    - hermes-engine
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-Core-prebuilt
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - ReactNativeDependencies
+    - SpreedlyCore
+    - SpreedlySecurity
+    - SpreedlyStripeAPM
+    - StripePaymentSheet (~> 25.0)
+    - Yoga
+  - SpreedlyCore (1.2.2):
+    - DatadogCore (~> 3.1.0)
+    - DatadogLogs (~> 3.1.0)
+  - SpreedlySecurity (1.2.2)
+  - SpreedlyStripeAPM (1.2.2):
+    - SpreedlyCore
+    - StripePaymentSheet (~> 25.0)
+  - SpreedlyUI (1.2.2):
+    - SpreedlyCore
+    - SpreedlySecurity
+  - StripeApplePay (25.11.0):
+    - StripeCore (= 25.11.0)
+  - StripeCore (25.11.0)
+  - StripePayments (25.11.0):
+    - StripeCore (= 25.11.0)
+    - StripePayments/Stripe3DS2 (= 25.11.0)
+  - StripePayments/Stripe3DS2 (25.11.0):
+    - StripeCore (= 25.11.0)
+  - StripePaymentSheet (25.11.0):
+    - StripeApplePay (= 25.11.0)
+    - StripeCore (= 25.11.0)
+    - StripePayments (= 25.11.0)
+    - StripePaymentsUI (= 25.11.0)
+  - StripePaymentsUI (25.11.0):
+    - StripeCore (= 25.11.0)
+    - StripePayments (= 25.11.0)
+    - StripeUICore (= 25.11.0)
+  - StripeUICore (25.11.0):
+    - StripeCore (= 25.11.0)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
+  - Braintree (~> 7.0)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
+  - Forter3DS (from `https://bitbucket.org/forter-mobile/forter-ios.git`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
   - RCTRequired (from `../node_modules/react-native/Libraries/Required`)
@@ -1858,6 +2085,7 @@ DEPENDENCIES:
   - React-logger (from `../node_modules/react-native/ReactCommon/logger`)
   - React-Mapbuffer (from `../node_modules/react-native/ReactCommon`)
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
+  - react-native-config (from `../node_modules/react-native-config`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-networking (from `../node_modules/react-native/ReactCommon/react/networking`)
@@ -1893,11 +2121,37 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios/ReactCodegen`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
+  - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
+  - RNScreens (from `../node_modules/react-native-screens`)
+  - "SpreedlyBraintree (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.2.2`)"
+  - "SpreedlyBraintreeAPM (from `../node_modules/@spreedly/react-native-checkout-braintree-apm`)"
+  - "SpreedlyCheckout (from `../node_modules/@spreedly/react-native-checkout`)"
+  - "SpreedlyCheckoutStripeAPM (from `../node_modules/@spreedly/react-native-checkout-stripe-apm`)"
+  - "SpreedlyCore (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.2.2`)"
+  - "SpreedlySecurity (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.2.2`)"
+  - "SpreedlyStripeAPM (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.2.2`)"
+  - "SpreedlyUI (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.2.2`)"
+  - StripePaymentSheet (~> 25.0)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
+
+SPEC REPOS:
+  trunk:
+    - Braintree
+    - DatadogCore
+    - DatadogInternal
+    - DatadogLogs
+    - StripeApplePay
+    - StripeCore
+    - StripePayments
+    - StripePaymentSheet
+    - StripePaymentsUI
+    - StripeUICore
 
 EXTERNAL SOURCES:
   FBLazyVector:
     :path: "../node_modules/react-native/Libraries/FBLazyVector"
+  Forter3DS:
+    :git: https://bitbucket.org/forter-mobile/forter-ios.git
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-v250829098.0.10
@@ -1973,6 +2227,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   React-microtasksnativemodule:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/microtasks"
+  react-native-config:
+    :path: "../node_modules/react-native-config"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   React-NativeModulesApple:
@@ -2043,11 +2299,61 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   ReactNativeDependencies:
     :podspec: "../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec"
+  RNGestureHandler:
+    :path: "../node_modules/react-native-gesture-handler"
+  RNScreens:
+    :path: "../node_modules/react-native-screens"
+  SpreedlyBraintree:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.2.2
+  SpreedlyBraintreeAPM:
+    :path: "../node_modules/@spreedly/react-native-checkout-braintree-apm"
+  SpreedlyCheckout:
+    :path: "../node_modules/@spreedly/react-native-checkout"
+  SpreedlyCheckoutStripeAPM:
+    :path: "../node_modules/@spreedly/react-native-checkout-stripe-apm"
+  SpreedlyCore:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.2.2
+  SpreedlySecurity:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.2.2
+  SpreedlyStripeAPM:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.2.2
+  SpreedlyUI:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.2.2
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
+CHECKOUT OPTIONS:
+  Forter3DS:
+    :commit: 1a195a32b1f4b8ed729e098ebbce9810a237607c
+    :git: https://bitbucket.org/forter-mobile/forter-ios.git
+  SpreedlyBraintree:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.2.2
+  SpreedlyCore:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.2.2
+  SpreedlySecurity:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.2.2
+  SpreedlyStripeAPM:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.2.2
+  SpreedlyUI:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.2.2
+
 SPEC CHECKSUMS:
+  Braintree: 56e8980f4934e8858d065c21f4979ed08a3a884a
+  DatadogCore: d2f51c7fb4308cf3c25e55e2e7242e5d558ee71d
+  DatadogInternal: 7837b2ce3d525d429682532eeda697b181299fdc
+  DatadogLogs: 250894b5a99da5b924a019049c0d0326823cdbd6
   FBLazyVector: 26fd21c75314e101f280d401e97f27d54f3f7064
+  Forter3DS: 37a5b36373613322e67d096a22720cd813cfc44b
   hermes-engine: f64f43db4a015fc8f01b0aa35ea2c43437c221f0
   RCTDeprecation: c7a2768f905d76ca6d2cfefb26e4349eacbdfca3
   RCTRequired: 5e502c3553cfbed090a991c444448da452fb752e
@@ -2085,6 +2391,7 @@ SPEC CHECKSUMS:
   React-logger: 2c87840a9f6322a1226d0df337d9662f44ea6094
   React-Mapbuffer: 1fc10d873f00aa895836c316a9737ce7d43875ce
   React-microtasksnativemodule: 85ac7286ff84e8fc8e1956233748b8d4b2a6dcea
+  react-native-config: 6188f674e4f4b3bdfd43c22886fb04f3103793ff
   react-native-safe-area-context: 6b4966397ada0f7dd481e4486a2ef936834861a1
   React-NativeModulesApple: 993744f42aab769eb02bf5d256b6767c546d0bb5
   React-networking: 251bfddc651caca5e3039d1afa1d2eca890d0c56
@@ -2120,8 +2427,24 @@ SPEC CHECKSUMS:
   ReactCodegen: 5bd23df5c8ad6c87df0bc8ccd391bd37bf6c92d5
   ReactCommon: a804bb8d1dcf3ecdec3a77eb8bba19b7863bbbdb
   ReactNativeDependencies: b79c6bc5b852b88cd6e2e0b3394ba2b4e160999c
+  RNGestureHandler: 187c5c7936abf427bc4d22d6c3b1ac80ad1f63c0
+  RNScreens: 01b065ded2dfe7987bcce770ff3a196be417ff41
+  SpreedlyBraintree: 334e79bdc86120da8b9e49a868daa9ef9c74e4b1
+  SpreedlyBraintreeAPM: dd8c09dd815949847776316fb9d5306b53b98c60
+  SpreedlyCheckout: 3e70477d84a05d013049663a542eda27c2241cc9
+  SpreedlyCheckoutStripeAPM: 7d41545bc3443eb2cab017cbd45f75d4d46702ff
+  SpreedlyCore: 6e2c75ac89961d007f6c121066df9943cf78334a
+  SpreedlySecurity: 6fc1f04b31719ffac7264fdbbb0f81a31cea42ae
+  SpreedlyStripeAPM: 6be9aabd7bce31878c4f2f4eaaed075cb25217e2
+  SpreedlyUI: 4b0cc96f5b87f43aa127116b53ec45e5f55d200f
+  StripeApplePay: b74b487cdc4176b32ea3f250d63ceb7b0ab7dedb
+  StripeCore: c9d8b48d4b9b14e73edfa2ca714dea44c0849f73
+  StripePayments: c54ac68d13e5ef09c98aa5c12314a73d1e6a1fc6
+  StripePaymentSheet: 46ca981c6106b559d323d41b5ee9af0485252a63
+  StripePaymentsUI: e942824c2a21c67f41b3bf6c09e87ebe882dd5c5
+  StripeUICore: 9ee3c730f282fd34605f7ba00f2b77d80729d882
   Yoga: 04bb4bfeb02c0000b940c1e6e89e856cd8de5a71
 
-PODFILE CHECKSUM: b2fd88a8aaa475310b0c4725863e215220f9e49b
+PODFILE CHECKSUM: 234a6f475510ff259a4fe308afeb8e1c13eb9761
 
-COCOAPODS: 1.15.2
+COCOAPODS: 1.16.2

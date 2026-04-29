@@ -112,6 +112,7 @@
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				00EEFC60759A1932668264C0 /* [CP] Embed Pods Frameworks */,
 				E235C05ADACE081382539298 /* [CP] Copy Pods Resources */,
+				7FF9149EFAFEA9B7C8F1D044 /* [Spreedly] Stripe bundle names for SDK lookup */,
 			);
 			buildRules = (
 			);
@@ -199,6 +200,24 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-CheckoutReactNativeExample/Pods-CheckoutReactNativeExample-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		7FF9149EFAFEA9B7C8F1D044 /* [Spreedly] Stripe bundle names for SDK lookup */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "[Spreedly] Stripe bundle names for SDK lookup";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -e\nRESOURCES=\"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}\"\ncopy_stripe_bundle() {\n  local src=\"$1\" dest=\"$2\"\n  if [ -d \"${RESOURCES}/${src}\" ] && [ ! -d \"${RESOURCES}/${dest}\" ]; then\n    cp -R \"${RESOURCES}/${src}\" \"${RESOURCES}/${dest}\"\n    echo \"[Spreedly] Created ${dest} for Stripe SDK lookup\"\n  fi\n}\ncopy_stripe_bundle \"StripeCoreBundle.bundle\" \"Stripe_StripeCore.bundle\"\ncopy_stripe_bundle \"StripePaymentSheetBundle.bundle\" \"Stripe_StripePaymentSheet.bundle\"\ncopy_stripe_bundle \"StripeUICoreBundle.bundle\" \"Stripe_StripeUICore.bundle\"\ncopy_stripe_bundle \"StripePaymentsBundle.bundle\" \"Stripe_StripePayments.bundle\"\ncopy_stripe_bundle \"StripePaymentsUIBundle.bundle\" \"Stripe_StripePaymentsUI.bundle\"\ncopy_stripe_bundle \"Stripe3DS2.bundle\" \"Stripe_Stripe3DS2.bundle\"\n";
 		};
 		C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
