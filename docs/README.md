@@ -20,4 +20,4 @@
 | [Unified Privacy](guides/unified_privacy.md)               | Cross-platform privacy documentation                               |
 | [Testing Guide](guides/testing_guide.md)                   | Test cards, environments, and flow-by-flow testing                 |
 | [Security](guides/security.md)                             | Security policy, vulnerability reporting, and best practices       |
-| [RN 0.77+ Requirements](guides/rn_077_requirement.md)      | React Native 0.77+ version-specific requirements                  |
+| [RN 0.79+ Requirements](guides/rn_079_requirement.md)      | React Native 0.79+ version-specific requirements                  |

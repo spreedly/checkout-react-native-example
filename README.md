@@ -49,7 +49,7 @@ yarn ios     # or yarn android
 | [Stripe APM](docs/guides/stripe_apm_guide.md) | iDEAL, Bancontact, EPS, P24, SEPA via Stripe |
 | [Braintree Payments](docs/guides/braintree_payment_guide.md) | PayPal and Venmo via Braintree |
 | [EBANX Payments](docs/guides/ebanx_payment_guide.md) | EBANX alternative payment methods |
-| [RN 0.77+ Requirements](docs/guides/rn_077_requirement.md) | React Native 0.77+ version-specific requirements |
+| [RN 0.79+ Requirements](docs/guides/rn_079_requirement.md) | React Native 0.79+ version-specific requirements |
 
 ### Security & Privacy
 
@@ -68,7 +68,7 @@ yarn ios     # or yarn android
 
 ## Compatibility
 
-- **React Native**: 0.77+ (recommended 0.79+)
+- **React Native**: 0.79+
 - **React**: 18.2+
 - **Android**: minSdk 26 (Android 8.0+), targetSdk 34, compileSdk 36
 - **iOS**: 15.1+, Xcode 15+
