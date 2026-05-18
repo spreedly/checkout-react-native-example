@@ -46,7 +46,6 @@ See the complete [Security Integration Checklist](#-security-integration-checkli
     - [Performance Best Practices](#performance-best-practices)
     - [UX Best Practices](#ux-best-practices)
 13. [Troubleshooting](#troubleshooting)
-14. [Comprehensive Troubleshooting Checklist](#comprehensive-troubleshooting-checklist)
 
 ---
 
@@ -88,12 +87,11 @@ After receiving repository access, you'll need:
 
 The Spreedly SDK requires modern React Native versions to leverage the latest security features, performance improvements, and native module architecture enhancements essential for payment processing.
 
-- **React Native**: 0.77+ (recommended 0.79+)
+- **React Native**: **0.79.0+** (minimum supported)
   - **Required for**: New Architecture support, improved native module performance, and security patches
-  - **0.77+**: Minimum version with Kotlin Gradle plugin 2.0.21 (RN default), **Kotlin stdlib 2.3.10** for Spreedly native SDKs, and stable Fabric/TurboModules support
-  - **0.79+**: Recommended for latest security updates and performance optimizations
+  - **Android `buildscript`**: On **0.79.0+**, pin **`kotlin-gradle-plugin:${kotlinVersion}`**, **`kotlin-serialization:${kotlinVersion}`**, and **`compose-compiler-gradle-plugin:${kotlinVersion}`** (e.g. **2.3.10**) on the **root** classpath — the SDK’s `android/build.gradle` uses **`apply plugin: "org.jetbrains.kotlin.plugin.compose"`**, which requires the Compose compiler plugin to be resolvable from the host app. See [Step 5](#step-5-android-setup). **Kotlin stdlib 2.3.10** for Spreedly native SDKs.
 - **React**: 18.2+
-  - **Required for**: React Native 0.77+ compatibility and modern hook implementations
+  - **Required for**: React Native 0.79+ compatibility and modern hook implementations
   - **Concurrent Features**: Enables better performance for payment form interactions
 - **Node.js**: 18+
   - **Required for**: Modern JavaScript features, better package resolution, and build tooling
@@ -111,7 +109,8 @@ The Spreedly SDK requires modern React Native versions to leverage the latest se
 - **Target SDK**: **34**
 - **Compile SDK**: **36**
 - **NDK**: 27.1.12297006
-- **Kotlin**: **2.3.10** for **kotlin-stdlib** (`ext.kotlinVersion`); the **Kotlin Gradle plugin** stays at **React Native’s default (2.0.21)** — do **not** pin `kotlin-gradle-plugin` to 2.3.10 (see [Step 5](#step-5-android-setup)).
+- **Kotlin stdlib**: **2.3.10** via `ext.kotlinVersion` (required on all supported RN versions).
+- **Kotlin Gradle plugin + serialization + Compose (host `buildscript`)**: on **0.79.0+**, align **`kotlin-gradle-plugin`**, **`kotlin-serialization`**, and **`compose-compiler-gradle-plugin`** to **`${kotlinVersion}`** (see [Step 5](#step-5-android-setup)).
 - **Android Gradle Plugin**: **8.10.1+** (AGP 8.10.x supports `compileSdk` 36).
 - **Gradle**: **8.11.1+** (use `gradle-wrapper.properties`; required for AGP 8.10.x).
 
@@ -233,7 +232,8 @@ const fetchAuthParams = async () => {
 const initializeSpreedly = async () => {
   const authParams = await fetchAuthParams();
 
-  await SpreedlyCore.initSdk({
+  // initSdk is synchronous from JavaScript (returns void); do not await it.
+  SpreedlyCore.initSdk({
     token: authParams.certificateToken,
     nonce: authParams.nonce,
     signature: authParams.signature,
@@ -472,10 +472,10 @@ The Spreedly SDK uses private iOS packages that require additional configuration
 
 **Update your `ios/Podfile`:**
 
-You need to add **two specific lines** to your existing Podfile:
+You need to add **two additions** to your existing Podfile:
 
 1. **Add the require statement** at the top (after any existing requires)
-2. **Add the init function call** inside your target block
+2. **Add the init function call** inside your target block (after `use_react_native!`)
 
 ```ruby
 # ios/Podfile
@@ -496,61 +496,53 @@ target 'YourAppName' do
 
   use_react_native!(
     :path => config[:reactNativePath],
-    # Your existing React Native configurations
+    :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
 
   # 2. ADD THIS FUNCTION CALL (inside your target block)
   init_spreedly_checkout_pods()
 
-  # Your existing pods remain unchanged...
-end
-
-# Your existing post_install block remains the same...
-post_install do |installer|
-  react_native_post_install(
-    installer,
-    config[:reactNativePath],
-    :mac_catalyst_enabled => false
-  )
-
-  # 3. ADD THIS CALL to fix non-modular header issues with New Architecture
-  spreedly_post_install(installer)
+  post_install do |installer|
+    react_native_post_install(
+      installer,
+      config[:reactNativePath],
+      :mac_catalyst_enabled => false
+    )
+  end
 end
 ```
 
-**What These Changes Do:**
+**What these changes do:**
 
-- **Line 1**: Loads the Spreedly setup script that configures access to private iOS dependencies
-- **Line 2**: Initializes Spreedly-specific CocoaPods with automatic conditional loading based on installed packages
-- **Line 3**: Fixes non-modular header build errors when using React Native New Architecture with CocoaPods frameworks
+- **Require**: Loads the Spreedly setup script that configures access to private iOS dependencies.
+- **`init_spreedly_checkout_pods()`**: Adds core Spreedly pods and, when the matching npm packages are installed, Stripe and/or Braintree APM pods.
 
-**Conditional Pod Loading:**
+**Optional — New Architecture / non-modular headers:** If Xcode reports non-modular include errors in Pods, add **`spreedly_post_install(installer)`** inside your existing **`post_install`** block **after** **`react_native_post_install`**. The method is defined in the same Ruby file loaded by the `require` above.
 
-The setup script automatically detects which Spreedly packages you've installed and only includes the necessary pods:
+**Conditional pod loading:**
 
-- **Core packages** (always included): `SpreedlySecurity`, `SpreedlyCore`, `SpreedlyUI`
-- **Stripe APM** (only if `@spreedly/react-native-checkout-stripe-apm` is installed): `SpreedlyStripeAPM`, `StripePaymentSheet`
-- **Braintree APM** (only if `@spreedly/react-native-checkout-braintree-apm` is installed): `SpreedlyBraintree`, `Braintree`
-- **Forter 3DS** (pass `include_forter: true` to include): `Forter3DS`
+The setup script always includes **`Forter3DS`** (used for 3DS flows). It **conditionally** includes Stripe and Braintree pods when **`@spreedly/react-native-checkout-stripe-apm`** or **`@spreedly/react-native-checkout-braintree-apm`** is installed (or when you pass overrides — see below).
 
-**Manual Control (Optional):**
+- **Always included**: `Forter3DS`, `SpreedlySecurity`, `SpreedlyCore`, `SpreedlyUI`
+- **Stripe APM** (when the Stripe satellite package is installed): `SpreedlyStripeAPM`, `StripePaymentSheet`
+- **Braintree APM** (when the Braintree satellite package is installed): `SpreedlyBraintree`, `Braintree`
 
-You can also explicitly control which pods are included:
+**Manual control (optional):**
+
+You can force-include or force-exclude Stripe / Braintree pods:
 
 ```ruby
-# Explicit control
 init_spreedly_checkout_pods(
-  include_stripe: true,     # Force include Stripe pods
-  include_braintree: false,  # Force exclude Braintree pods
-  include_forter: true       # Include Forter 3DS pod
+  include_stripe: true,      # Force include Stripe pods
+  include_braintree: false   # Force exclude Braintree pods
 )
 ```
 
-**⚠️ Important**: Don't replace your entire Podfile - just add these three lines to your existing configuration.
+**⚠️ Important**: Don't replace your entire Podfile — add the **`require`** and **`init_spreedly_checkout_pods()`** to your existing configuration.
 
 #### Install Pods
 
-**After updating your Podfile with the two required lines above:**
+**After updating your Podfile with the additions above:**
 
 **Option 1: Standard Installation (Credentials in Podfile.lock)**
 
@@ -609,9 +601,15 @@ cd ..
 
 #### Version Compatibility Check
 
-⚠️ **IMPORTANT**: Before configuring Android dependencies, ensure your project uses compatible versions:
+⚠️ **IMPORTANT**: Before configuring Android dependencies, ensure your project uses compatible versions.
 
-**Check your `android/build.gradle` file and update if necessary:**
+**React Native 0.79.0+ (Android `buildscript`)** — Spreedly Android native AARs and **`kotlin-stdlib`** use **Kotlin 2.3** metadata. The React Native Gradle plugin ships a **lower** Kotlin Gradle Plugin (KGP) by default than Spreedly requires. **`ext.kotlinVersion = "2.3.10"` does not change the compiler** unless you also pin **`kotlin-gradle-plugin:${kotlinVersion}`** on the **root** `buildscript` classpath.
+
+- **Required on the root classpath**: **`kotlin-gradle-plugin:${kotlinVersion}`**, **`kotlin-serialization:${kotlinVersion}`**, and **`compose-compiler-gradle-plugin:${kotlinVersion}`** so subprojects compile with Kotlin **2.3** and the SDK’s **`apply plugin: "org.jetbrains.kotlin.plugin.compose"`** resolves correctly (whether you install from **GitHub Packages** or a **local `.tgz`**).
+
+Use the snippet below for **React Native 0.79+**. Set **`androidGradlePluginVersion`** to the AGP version that matches your React Native release (check `node_modules/@react-native/gradle-plugin/gradle/libs.versions.toml` or your RN upgrade notes).
+
+##### Host `android/build.gradle` — React Native **0.79.0+**
 
 ```gradle
 // android/build.gradle
@@ -625,9 +623,8 @@ buildscript {
         targetSdkVersion = 34
         ndkVersion = "27.1.12297006"
 
-        // kotlin-stdlib alignment with Spreedly native SDKs (Kotlin 2.3 metadata)
         kotlinVersion = "2.3.10"
-        androidGradlePluginVersion = "8.10.1"
+        androidGradlePluginVersion = "8.12.0"
     }
     repositories {
         google()
@@ -636,69 +633,48 @@ buildscript {
     dependencies {
         classpath("com.android.tools.build:gradle:${androidGradlePluginVersion}")
         classpath("com.facebook.react:react-native-gradle-plugin")
-        // Do NOT use kotlinVersion here — pin KGP to 2.3.10 breaks React Native’s Gradle plugin.
-        // Omit the version so Gradle resolves KGP 2.0.21 (React Native 0.77 default).
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        // Pin KGP — unpinned kotlin-gradle-plugin resolves to RN’s default and breaks Spreedly / stdlib 2.3
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-serialization:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:compose-compiler-gradle-plugin:${kotlinVersion}")
     }
 }
 
 apply plugin: "com.facebook.react.rootproject"
 
-// Spreedly native SDKs ship Kotlin 2.3 libraries while RN 0.77 uses KGP 2.0.21
 subprojects { subproject ->
     subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-        kotlinOptions {
-            freeCompilerArgs += "-Xskip-metadata-version-check"
+        compilerOptions {
+            freeCompilerArgs.add("-Xskip-metadata-version-check")
         }
     }
 }
 ```
 
+**What `spreedly_github_setup.gradle` does:**
+
+- Configures access to the GitHub Packages Maven repository and other required repos
+- Reads GitHub credentials from environment variables or a project-root **`.env`** file
+- You do **not** need a separate **`allprojects { repositories { ... } }`** block for Spreedly Maven URLs when this script is applied
+
 **Why these versions are required:**
 
-- **Kotlin stdlib 2.3.10**: Spreedly Android native artifacts (e.g. `0.13.x`) are compiled with Kotlin 2.3; `ext.kotlinVersion` drives `kotlin-stdlib` for Spreedly RN packages.
-- **Kotlin Gradle plugin unpinned**: React Native 0.77 expects **KGP 2.0.21**. Pinning `kotlin-gradle-plugin` to `$kotlinVersion` (2.3.10) causes Gradle plugin API mismatches.
-- **`-Xskip-metadata-version-check`**: Lets KGP 2.0.21 compile against Kotlin 2.3–metadata dependencies.
+- **Kotlin stdlib 2.3.10**: Spreedly Android native artifacts are compiled with Kotlin 2.3; `ext.kotlinVersion` drives **`kotlin-stdlib`** for Spreedly RN packages, but the **compiler** must match via **`kotlin-gradle-plugin:${kotlinVersion}`**.
+- **Compose compiler on the host classpath**: **`@spreedly/react-native-checkout`** uses **`apply plugin: "org.jetbrains.kotlin.plugin.compose"`**; Gradle resolves that id from **`compose-compiler-gradle-plugin:${kotlinVersion}`** on the **host** root `buildscript`.
+- **`compilerOptions` (not `kotlinOptions`)**: The `kotlinOptions` DSL is deprecated in KGP 2.x. Use `compilerOptions { freeCompilerArgs.add(...) }` to prevent duplicate compiler argument injection that causes `sourceInformation` errors.
+- **`-Xskip-metadata-version-check`**: Keep when the compiler consumes **Kotlin 2.3-metadata** libraries; many **0.79+** apps still use this block.
 - **Android Gradle Plugin 8.10.1+**: Required for **`compileSdk` 36** and compatibility with `androidx.browser:browser:1.9.0` AAR metadata (transitive from Spreedly native SDKs).
 - **Gradle 8.11.1+**: Required for AGP 8.10.x — set in **`android/gradle/wrapper/gradle-wrapper.properties`** (`distributionUrl=.../gradle-8.11.1-bin.zip`).
-- **NDK 27.1.12297006**: Required for React Native 0.77+ native module compilation
+- **NDK 27.1.12297006**: Required for React Native 0.79+ native module compilation
 
-**Version Compatibility Matrix:**
+**Version compatibility matrix:**
 
-| React Native | Kotlin (stdlib) | KGP (RN) | Android Gradle Plugin | Gradle  | Status                                             |
-| ------------ | --------------- | -------- | --------------------- | ------- | -------------------------------------------------- |
-| 0.77+        | 2.3.10          | 2.0.21   | 8.10.1+               | 8.11.1+ | ✅ **Supported**                                   |
-| 0.76         | —               | 1.9.25   | —                     | —       | ❌ **Not Supported** (Kotlin / toolchain mismatch) |
-| 0.75         | —               | 1.9.25   | —                     | —       | ❌ **Not Supported**                               |
+| React Native | Kotlin (stdlib) | Host `buildscript` classpath                                                                                          | Android Gradle Plugin | Gradle  | Status               |
+| ------------ | --------------- | --------------------------------------------------------------------------------------------------------------------- | --------------------- | ------- | -------------------- |
+| 0.79+        | 2.3.10          | **`kotlin-gradle-plugin`**, **`kotlin-serialization`**, **`compose-compiler-gradle-plugin`** → **`${kotlinVersion}`** | 8.10.1+ (match RN)    | 8.11.1+ | ✅ **Supported**     |
+| < 0.79       | —               | —                                                                                                                     | —                     | —       | ❌ **Not supported** |
 
-⚠️ **Important**: If you're upgrading from an older React Native version, update **AGP, Gradle wrapper, `compileSdk`, kotlin stdlib, and** the `subprojects` compiler flag **together** to avoid compatibility issues.
-
-#### Configure Private Android Dependencies
-
-The Spreedly SDK uses private Android packages that require additional configuration.
-
-**Update your `android/build.gradle`:**
-
-```gradle
-// android/build.gradle
-apply from: "../node_modules/@spreedly/react-native-checkout/scripts/spreedly_github_setup.gradle"
-
-buildscript {
-    // your existing buildscript configuration
-}
-
-allprojects {
-    // Repository configuration is handled by spreedly_github_setup.gradle
-    // No additional repository configuration needed
-}
-```
-
-**What the Gradle setup does:**
-
-- Configures access to GitHub Packages Maven repository
-- Reads GitHub credentials from environment variables or `.env` file
-- Automatically handles authentication for private Android dependencies
-- Maintains fallback to standard repositories (Google, Maven Central)
+⚠️ **Important**: If you're upgrading from an older React Native version, update **AGP, Gradle wrapper, `compileSdk`, Kotlin stdlib, and** the `subprojects` compiler flag **together** to avoid compatibility issues.
 
 Also ensure **`android/gradle/wrapper/gradle-wrapper.properties`** uses **Gradle 8.11.1+** (e.g. `distributionUrl=https\://services.gradle.org/distributions/gradle-8.11.1-bin.zip`). AGP **8.10.1** requires a compatible Gradle version; mismatches cause sync failures before dependency resolution.
 
@@ -749,116 +725,19 @@ module.exports = {
 
 ---
 
-## Quick Setup Checklist
-
-Before proceeding with integration, ensure you have completed these steps:
-
-### ✅ Pre-Integration Checklist
-
-- [ ] **Repository Access**: Confirmed access to all three private repositories
-- [ ] **GitHub Token**: Created with `read:packages`, `repo`, and `read:org` permissions
-- [ ] **Credentials Ready**: `GITHUB_USERNAME` and `GITHUB_TOKEN` available
-- [ ] **Package Manager**: Configured for GitHub Packages (NPM/Yarn)
-- [ ] **Version Compatibility**: Verified **Kotlin stdlib 2.3.10**, **AGP 8.10.1+**, **Gradle wrapper 8.11.1+**, and **`-Xskip-metadata-version-check`** (see [Step 5](#step-5-android-setup))
-- [ ] **iOS Configuration**: Updated Podfile with `spreedly_pods_setup.rb`
-- [ ] **Android Configuration**: Updated `build.gradle` with `spreedly_github_setup.gradle`
-- [ ] **Environment Variables**: Set `GITHUB_USERNAME` and `GITHUB_TOKEN`
-- [ ] **Security Setup**: Used secure iOS setup script (optional but recommended)
-
-### 🚀 Quick Installation Commands
-
-```bash
-# 1. Check version compatibility (IMPORTANT for Android)
-# Ensure your android/build.gradle has:
-# - kotlinVersion = "2.3.10" (stdlib; KGP unpinned — RN 2.0.21)
-# - Android Gradle Plugin 8.10.1+ and Gradle wrapper 8.11.1+
-# - subprojects { KotlinCompile freeCompilerArgs += "-Xskip-metadata-version-check" }
-
-# 2. Configure package manager (choose one)
-npm config set @spreedly:registry https://npm.pkg.github.com
-npm config set //npm.pkg.github.com/:_authToken YOUR_GITHUB_TOKEN
-
-# 3. Set environment variables (REQUIRED before installation)
-export GITHUB_USERNAME=your_username
-export GITHUB_TOKEN=your_token
-
-# 4. Install SDK
-npm install @spreedly/react-native-checkout
-
-# 5. iOS setup (secure method)
-sh ./node_modules/@spreedly/react-native-checkout/scripts/setup_local_dev_ios.sh
-cd ios && pod install && cd ..
-
-# 6. Verify Android setup and build
-cd android && ./gradlew dependencies --configuration implementation | grep spreedly
-./gradlew build  # Verify build works with correct Kotlin version
-```
-
----
-
 ## Production Integration Checklist
 
 Use this checklist before shipping to production users.
 
-| Item                  | What to verify                                                       | Reference                                                                                         |
-| --------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
-| Package access        | GitHub Packages credentials are configured and valid                 | [Installation](#installation)                                                                     |
-| Backend auth          | Backend issues fresh auth parameters per payment session             | [Authentication Parameters](#authentication-parameters)                                           |
-| SDK init timing       | SDK initialization completes before rendering payment UI             | [Quick Start](#quick-start)                                                                       |
-| Error handling        | App handles failure states and maps SDK errors correctly             | [Error Handling](#error-handling)                                                                 |
-| Security controls     | No sensitive values in logs, secure storage and UI controls reviewed | [Security](security.md)                                                                           |
-| Privacy and telemetry | Team reviewed privacy and centralized logging behavior               | [Unified Privacy](unified_privacy.md), [Central Logging](../development/CENTRAL_LOGGING_GUIDE.md) |
-| Platform minimums     | Android and iOS deployment targets satisfy SDK requirements          | [Prerequisites](#prerequisites), [RN 0.77+ Requirements](rn_077_requirement.md)                   |
-
----
-
-## 🚀 Quick Reference
-
-### Most Common Integration Patterns
-
-**1. Basic Payment Form (Recommended for most apps):**
-
-```typescript
-// Three essential fields for card payments
-<SPLTextField formFieldType={FormFieldTypes.CARD} label="Card Number" />
-<SPLTextField formFieldType={FormFieldTypes.EXPIRY_DATE} label="MM/YY" />
-<SPLTextField formFieldType={FormFieldTypes.CVV} label="CVV" />
-```
-
-**2. Express Checkout (Fastest integration):**
-
-```typescript
-// One-line payment solution
-SpreedlyCore.paymentBottomSheet({ yearFormat: '4' });
-```
-
-**3. SDK Initialization (Required first step):**
-
-```typescript
-// Always fetch fresh auth params from your backend
-const authParams = await fetchAuthParams();
-await SpreedlyCore.initSdk({
-  ...authParams,
-  environmentKey: process.env.SPREEDLY_ENVIRONMENT_KEY,
-});
-```
-
-**4. Handle Payment Results:**
-
-```typescript
-// Use SDK's result mapping for consistent handling
-const mapped = mapPaymentResult(result);
-if (mapped.kind === 'success') {
-  // Send mapped.token to your backend
-}
-```
-
-### ⚡ Common Gotchas to Avoid
-
-- ❌ **Don't use** `fieldType` → ✅ **Use** `formFieldType`
-- ❌ **Don't use** `placeholder` → ✅ **Use** `label`
-- ❌ **Don't hardcode** auth params → ✅ **Fetch from backend**
-- ❌ **Don't use** `TextInput` for card data → ✅ **Use** `SPLTextField`
+| Item                  | What to verify                                                       | Reference                                                                       |
+| --------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Package access        | GitHub Packages credentials are configured and valid                 | [Installation](#installation)                                                   |
+| Backend auth          | Backend issues fresh auth parameters per payment session             | [Authentication Parameters](#authentication-parameters)                         |
+| SDK init timing       | SDK initialization completes before rendering payment UI             | [Quick Start](#quick-start)                                                     |
+| Error handling        | App handles failure states and maps SDK errors correctly             | [Error Handling](#error-handling)                                               |
+| Security controls     | No sensitive values in logs, secure storage and UI controls reviewed | [Security](security.md)                                                         |
+| Privacy and telemetry | Team reviewed privacy and logging behavior                           | [Unified Privacy](unified_privacy.md)                                           |
+| Platform minimums     | Android and iOS deployment targets satisfy SDK requirements          | [Prerequisites](#prerequisites), [RN 0.79+ Requirements](rn_079_requirement.md) |
 
 ---
 
@@ -869,14 +748,42 @@ if (mapped.kind === 'success') {
 **IMPORTANT**: Always wait for SDK initialization to complete before rendering SPLTextField or ExpressCheckout components. Rendering these components before the SDK is ready can cause errors on Android and iOS.
 
 ```typescript
-// ✅ CORRECT: Wait for SDK initialization
-const { isLoading } = useSpreedlyInit();
+// ✅ CORRECT: Wait until init has run (same pattern as Basic SDK Initialization below)
+import React, { useEffect, useState } from 'react';
+import { ActivityIndicator } from 'react-native';
+import {
+  SpreedlyCore,
+  SPLTextField,
+  FormFieldTypes,
+  type SpreedlySDKInitOptions,
+} from '@spreedly/react-native-checkout';
 
-if (isLoading) {
-  return <ActivityIndicator />;
+export function PaymentScreenAfterInit() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const authParams = await fetchAuthParams(); // define like in Basic SDK Initialization below
+      const options: SpreedlySDKInitOptions = {
+        token: authParams.certificateToken,
+        nonce: authParams.nonce,
+        signature: authParams.signature,
+        certificateToken: authParams.certificateToken,
+        timestamp: authParams.timestamp.toString(),
+        environmentKey: 'YOUR_ENV_KEY',
+        forterSiteId: '',
+      };
+      SpreedlyCore.initSdk(options);
+      setIsLoading(false);
+    })();
+  }, []);
+
+  if (isLoading) {
+    return <ActivityIndicator />;
+  }
+
+  return <SPLTextField formFieldType={FormFieldTypes.CARD} label="Card number" />;
 }
-
-return <SPLTextField formFieldType={FormFieldTypes.CARD} />;
 ```
 
 ```typescript
@@ -907,11 +814,11 @@ export function App() {
           signature: authParams.signature,
           certificateToken: authParams.certificateToken,
           timestamp: authParams.timestamp.toString(),
-          environmentKey: process.env.SPREEDLY_ENVIRONMENT_KEY, // From Spreedly
+          environmentKey: process.env.SPREEDLY_ENVIRONMENT_KEY, // From Spreedly — use react-native-config or similar in production
           forterSiteId: process.env.FORTER_SITE_ID || '', // Empty string if not using Forter
         };
 
-        await SpreedlyCore.initSdk(options);
+        SpreedlyCore.initSdk(options);
         console.log('✅ Spreedly SDK initialized successfully');
       } catch (error) {
         console.error('❌ Failed to initialize Spreedly SDK:', error);
@@ -928,9 +835,7 @@ export function App() {
     return <ActivityIndicator style={{ flex: 1 }} />;
   }
 
-  return (
-    // Your app components with Spreedly fields
-  );
+  return <>{/* Your app components with Spreedly fields */}</>;
 }
 
 // Helper function to fetch auth params from your backend
@@ -1015,120 +920,30 @@ SpreedlyCore.setParam('ALLOW_BLANK_NAME', false);
 SpreedlyCore.setParam('ALLOW_BLANK_NAME', true);
 ```
 
-**When to use `ALLOW_BLANK_NAME: false` (Default - Recommended):**
-
-- **Fraud Prevention**: Cardholder names help verify the legitimacy of transactions
-- **Compliance Requirements**: Many payment processors and regulations require cardholder names
-- **Chargeback Protection**: Having complete cardholder information strengthens dispute resolution
-- **Business Requirements**: When your business model requires complete customer information
-
-**When to use `ALLOW_BLANK_NAME: true` (Use with caution):**
-
-- **Guest Checkout**: For simplified anonymous transactions
-- **Specific Processor Requirements**: Some processors don't require names for certain transaction types
-- **Legacy System Compatibility**: When integrating with systems that don't collect names
-
-⚠️ **Important Considerations:**
-
-- Even when allowing blank names, the field validation will still check format if a name is provided
-- Some payment processors may reject transactions without cardholder names
-- Consider your fraud prevention strategy when allowing blank names
-
 **`ALLOW_EXPIRED_DATE` Parameter**
 
-Controls whether expired credit cards are accepted during validation.
+Controls whether expired credit cards are accepted during validation. Defaults to `false` (recommended for production). Set to `true` only for testing environments or legacy data migration.
 
 ```typescript
-// Strict validation - expired cards are rejected (recommended for live transactions)
-SpreedlyCore.setParam('ALLOW_EXPIRED_DATE', false);
-
-// Lenient validation - expired cards are accepted
-SpreedlyCore.setParam('ALLOW_EXPIRED_DATE', true);
-```
-
-**When to use `ALLOW_EXPIRED_DATE: false` (Default - Recommended):**
-
-- **Live Payment Processing**: Expired cards will be declined by processors anyway
-- **User Experience**: Prevents users from submitting forms that will fail
-- **Fraud Prevention**: Expired cards are often associated with fraudulent activity
-- **Data Quality**: Ensures only valid, current payment methods are collected
-
-**When to use `ALLOW_EXPIRED_DATE: true` (Special cases only):**
-
-- **Testing Environments**: When using test cards that may be expired
-- **Card Storage**: When storing cards for future use (though not recommended)
-- **Legacy Data Migration**: When importing existing card data that may include expired cards
-- **Specific Business Logic**: When your application handles expiration validation separately
-
-⚠️ **Security Implications:**
-
-- Allowing expired dates in production can lead to failed transactions
-- Users may become frustrated if they can submit expired cards that later fail
-- Consider implementing client-side warnings even when allowing expired dates
-
-**Example: Environment-Specific Configuration**
-
-```typescript
-// Configure validation based on environment
-const isProduction = process.env.NODE_ENV === 'production';
-const isTestEnvironment =
-  process.env.SPREEDLY_ENVIRONMENT_KEY?.includes('test');
-
-// Strict validation for production
-if (isProduction && !isTestEnvironment) {
-  SpreedlyCore.setParam('ALLOW_BLANK_NAME', false);
-  SpreedlyCore.setParam('ALLOW_EXPIRED_DATE', false);
-} else {
-  // More lenient for development/testing
-  SpreedlyCore.setParam('ALLOW_BLANK_NAME', true);
-  SpreedlyCore.setParam('ALLOW_EXPIRED_DATE', true);
-}
-```
-
-**Example: Business Logic-Based Configuration**
-
-```typescript
-// Configure based on checkout type
-const configureForCheckoutType = (
-  checkoutType: 'guest' | 'registered' | 'subscription'
-) => {
-  switch (checkoutType) {
-    case 'guest':
-      // Allow blank names for guest checkout
-      SpreedlyCore.setParam('ALLOW_BLANK_NAME', true);
-      SpreedlyCore.setParam('ALLOW_EXPIRED_DATE', false);
-      break;
-
-    case 'registered':
-      // Require complete information for registered users
-      SpreedlyCore.setParam('ALLOW_BLANK_NAME', false);
-      SpreedlyCore.setParam('ALLOW_EXPIRED_DATE', false);
-      break;
-
-    case 'subscription':
-      // Strict validation for recurring payments
-      SpreedlyCore.setParam('ALLOW_BLANK_NAME', false);
-      SpreedlyCore.setParam('ALLOW_EXPIRED_DATE', false);
-      break;
-  }
-};
+SpreedlyCore.setParam('ALLOW_EXPIRED_DATE', false); // Recommended
 ```
 
 ### Dynamic Field Configuration
 
 Dynamic field configuration allows you to adapt your payment forms based on business logic, user preferences, or contextual requirements. This approach provides flexibility while maintaining security and validation.
 
-**Real-World Use Cases:**
-
-- **E-commerce**: Different fields for digital vs. physical products
-- **Subscription Services**: Additional fields for recurring payments
-- **B2B Payments**: Corporate billing information requirements
-- **International Sales**: Country-specific field requirements
-- **Guest vs. Registered Users**: Different information collection strategies
-
 #### Basic Dynamic Configuration Example
 
 ```typescript
+import React, { useState } from 'react';
+import { View, Switch, Text } from 'react-native';
+import {
+  SPLTextField,
+  FormFieldTypes,
+  AdditionalFields,
+  type FieldDescriptor,
+} from '@spreedly/react-native-checkout';
+
 export function DynamicForm() {
   const [includeShipping, setIncludeShipping] = useState(false);
 
@@ -1179,27 +994,6 @@ export function DynamicForm() {
 ### Understanding Payment Results
 
 Payment result handling is a critical part of the integration that determines how your app responds to different payment outcomes. The SDK provides structured result objects that help you implement robust payment flows.
-
-**Payment Flow Overview:**
-
-```
-User Submits Payment → SDK Processes → Result Generated → Your App Handles Result
-                                           ↓
-                                   ┌─────────────────┐
-                                   │ PaymentResultRN │
-                                   └─────────────────┘
-                                           ↓
-                                   ┌─────────────────┐
-                                   │ MappedOutcome   │ ← Simplified handling
-                                   └─────────────────┘
-```
-
-**Why Result Mapping Matters:**
-
-- **Consistency**: Provides uniform handling across Express Checkout and Hosted Fields
-- **Error Categorization**: Groups similar errors for appropriate user messaging
-- **Business Logic**: Enables different handling based on failure type (retry vs. abort)
-- **User Experience**: Helps provide meaningful feedback to users
 
 The SDK returns `PaymentResultRN` objects that can be mapped to simplified outcomes:
 
@@ -1370,7 +1164,7 @@ export function usePaymentWithRetry() {
         await new Promise((resolve) =>
           setTimeout(resolve, Math.pow(2, retryCount) * 1000)
         );
-        return submitPayment(fields, options);
+        return submitPayment(formFieldTypes, options);
       }
 
       setRetryCount(0); // Reset on success or non-retryable error
@@ -1381,7 +1175,7 @@ export function usePaymentWithRetry() {
         await new Promise((resolve) =>
           setTimeout(resolve, Math.pow(2, retryCount) * 1000)
         );
-        return submitPayment(fields, options);
+        return submitPayment(formFieldTypes, options);
       }
       throw error;
     }
@@ -1395,92 +1189,7 @@ export function usePaymentWithRetry() {
 
 ## Customization
 
-### Theme Configuration
-
-The Spreedly SDK supports comprehensive theming with automatic dark mode support. For complete theming documentation, see the [Theme Customization Guide](./theme_guide.md).
-
-**Quick Theme Example:**
-
-```typescript
-import { SpreedlyCore, SPLTextField, FormFieldTypes } from '@spreedly/react-native-checkout';
-
-// Set global theme with dark mode support
-SpreedlyCore.setGlobalTheme({
-  theme: {
-    primaryColor: '#6366F1',
-    secondaryColor: '#8B5CF6',
-    formBorderColor: '#D1D5DB',
-    formBackgroundColor: '#FFFFFF',
-    fieldBackgroundColor: '#F9FAFB',
-    fieldLabelColor: '#6B7280',
-    borderRadius: 12,
-    fieldShape: 'rounded',
-  },
-  darkTheme: {
-    primaryColor: '#818CF8',
-    secondaryColor: '#A78BFA',
-    formBorderColor: '#374151',
-    formBackgroundColor: '#1F2937',
-    fieldBackgroundColor: '#111827',
-    fieldLabelColor: '#9CA3AF',
-    borderRadius: 12,
-    fieldShape: 'rounded',
-  },
-});
-
-// Or apply theme to individual components
-<SPLTextField
-  formFieldType={FormFieldTypes.CARD}
-  label="Card Number"
-  theme={lightTheme}
-  darkTheme={darkTheme}
-/>
-```
-
-**📖 Complete Theming Documentation**: See [theme_guide.md](./theme_guide.md) for:
-
-- Global theme configuration
-- Component-level theming
-- Dark mode implementation
-- Pre-built theme examples
-- Platform-specific behavior
-- Accessibility guidelines
-
-### Custom Field Styling
-
-For styling the wrapper containers around SDK components:
-
-```typescript
-import { StyleSheet } from 'react-native';
-import { SPLTextField, FormFieldTypes } from '@spreedly/react-native-checkout';
-
-export const fieldStyles = StyleSheet.create({
-  container: {
-    marginBottom: 16,
-  },
-  fieldWrapper: {
-    borderWidth: 2,
-    borderColor: '#007AFF',
-    borderRadius: 12,
-    padding: 4,
-  },
-});
-
-export function StyledPaymentField() {
-  return (
-    <View style={fieldStyles.container}>
-      <View style={fieldStyles.fieldWrapper}>
-        <SPLTextField
-          formFieldType={FormFieldTypes.CARD}
-          label="Card Number"
-        />
-      </View>
-    </View>
-  );
-}
-```
-
-**Note**: The `style` prop on `SPLTextField` applies to the native wrapper view, not the internal field styling. Use `theme` and `darkTheme` props to customize the field appearance itself.
+For complete theme and styling documentation (global theming, component-level theming, dark mode, pre-built themes, accessibility), see [theme_guide.md](./theme_guide.md). A basic theme example is shown in [Advanced Configuration > Global SDK Configuration](#global-sdk-configuration).
 
 ---
 
@@ -1746,43 +1455,21 @@ const CORRECT_EXAMPLE = {
 };
 ```
 
-**Environment Variable Management:**
+**Environment variable management:**
 
-```bash
-# Create .env file in project root
-echo "SPREEDLY_ENVIRONMENT_KEY=your_key_here" > .env
-echo ".env" >> .gitignore
+Create a `.env` file in the project root and add `.env` to `.gitignore`. In the app, load values with a package such as **`react-native-config`** (install separately), for example:
 
-# Load environment variables in your app
+```typescript
 import Config from 'react-native-config';
+
 const environmentKey = Config.SPREEDLY_ENVIRONMENT_KEY;
 ```
-
-**Key Rotation Policy:**
-
-- **Immediate Rotation Required If:**
-  - Credentials are accidentally committed to version control
-  - Credentials are exposed in logs or error messages
-  - Team member with access leaves the organization
-  - Suspicious activity detected in your Spreedly account
-
-- **Regular Rotation Schedule:**
-  - Rotate environment keys every 90 days (quarterly)
-  - Rotate GitHub tokens every 90 days
-  - Document rotation dates and maintain audit trail
 
 #### 2. Mobile App Security
 
 **Screenshot and Screen Recording Prevention**
 
 Payment screens should implement additional security measures to prevent unauthorized capture of sensitive information. The Spreedly SDK provides built-in `ScreenSecurity` module to help protect payment flows from screenshots and screen recording.
-
-**Security Concerns:**
-
-- Screenshots can capture sensitive payment data
-- Screen recording apps may operate without visible indicators
-- App switcher thumbnails can expose payment information
-- Screen sharing during video calls poses data exposure risks
 
 #### Built-in Screenshot Prevention
 
@@ -1831,46 +1518,6 @@ export default App;
 - ✅ Screenshots/recordings show black screen (system behavior)
 - ⚠️ No detection events available (Android platform limitation)
 
-**Platform Comparison:**
-
-| Feature                    | iOS                                                            | Android                                                        |
-| -------------------------- | -------------------------------------------------------------- | -------------------------------------------------------------- |
-| Screenshot Prevention      | ✅ Manual activation via `ScreenSecurity.activateProtection()` | ✅ Manual activation via `ScreenSecurity.activateProtection()` |
-| Screenshot Behavior        | Shows custom background color                                  | Shows black screen (system behavior)                           |
-| Screen Recording Detection | ✅ Available via event listeners                               | ❌ Not available (Android limitation)                          |
-| Configuration Required     | Yes - must call activate/deactivate                            | Yes - must call activate/deactivate                            |
-| Implementation Method      | UITextField overlay technique                                  | FLAG_SECURE window flag                                        |
-
-**Important Notes:**
-
-- **Both Platforms**: You must explicitly activate and deactivate screenshot protection using the `ScreenSecurity` module.
-- **Activation Timing**: Call `activateProtection()` after app initialization to avoid interfering with React Native bridge initialization.
-- **App Store Compliance**: Screenshot protection is compliant with both App Store and Play Store guidelines when used for security purposes.
-- **User Experience**: Consider informing users why screenshot protection is active to avoid confusion.
-- **Background Color**: On iOS, choose a background color that matches your app's theme. On Android, the system always shows black.
-- **Android Limitation**: Android's FLAG_SECURE provides prevention but no detection events. iOS provides both prevention and detection.
-
-**Additional Security Measures:**
-
-Beyond the built-in `ScreenSecurity` module, consider these additional protections:
-
-- Implement session timeouts for payment screens
-- Display security warnings before payment entry
-- Consider biometric authentication for payment actions
-- Clear sensitive data when app enters background
-
-**Note**: The Spreedly SDK's `SPLTextField` components automatically implement security measures including:
-
-- Preventing text selection and copying
-- Disabling clipboard access for sensitive fields
-- Secure text entry for payment data
-
-**Further Reading:**
-
-- React Native Security Best Practices
-- Mobile Payment Security Guidelines (PCI Mobile Payment Acceptance Security Guidelines)
-- Platform-specific security documentation for iOS and Android
-
 #### 3. Token Storage Security
 
 **CRITICAL: Never Store Payment Tokens Insecurely**
@@ -1893,37 +1540,7 @@ Payment tokens received from the Spreedly SDK should **NEVER** be stored in inse
 - [ ] **Never log token values** in console or crash reports
 - [ ] **Validate backend response** before considering payment complete
 
-#### 4. Repository Access Security
-
-**Protect GitHub Credentials:**
-
-```bash
-# ❌ DON'T commit credentials to version control
-echo ".env" >> .gitignore
-echo "Podfile.lock" >> .gitignore  # If using secure iOS setup
-
-# ✅ DO use environment variables
-export GITHUB_TOKEN=ghp_xxxxxxxxxxxx
-```
-
-**Use Secure iOS Setup:**
-
-```bash
-# ✅ Prevent credentials in Podfile.lock
-./node_modules/@spreedly/react-native-checkout/scripts/setup_local_dev_ios.sh
-
-# ❌ DON'T commit Podfile.lock with embedded credentials
-```
-
-**Rotate Tokens Regularly:**
-
-```bash
-# Generate new tokens quarterly
-# Update tokens in all environments (local, CI/CD)
-# Revoke old tokens after updating
-```
-
-#### 5. Validation Security
+#### 4. Validation Security
 
 **Validate on Both Client and Server:**
 
@@ -2008,79 +1625,23 @@ Use this comprehensive checklist to ensure your integration follows all security
 - [ ] Team trained on security best practices
 - [ ] Security incident response plan documented
 
-#### Monitoring & Compliance
-
-- [ ] Payment transaction logging implemented (without card data)
-- [ ] Security event monitoring in place
-- [ ] Regular security audits scheduled
-- [ ] PCI DSS compliance requirements reviewed
-- [ ] Privacy policy updated for payment processing
-- [ ] User data handling complies with regulations (GDPR, CCPA, etc.)
-
-**Security Review Schedule:**
-
-- **Weekly**: Review payment transaction logs for anomalies
-- **Monthly**: Review security event logs and failed authentication attempts
-- **Quarterly**: Rotate credentials (API keys, GitHub tokens)
-- **Annually**: Complete security audit and penetration testing
-- **After Changes**: Security review for any payment flow modifications
-
-**🚨 Security Incident Response:**
-
-If you discover a security issue:
-
-1. **Immediate Actions:**
-   - Rotate all compromised credentials immediately
-   - Disable affected payment methods temporarily
-   - Notify your security team and Spreedly support
-   - Document the incident with timestamps
-
-2. **Investigation:**
-   - Determine scope of potential data exposure
-   - Review access logs and transaction history
-   - Identify root cause and attack vector
-
-3. **Resolution:**
-   - Implement fixes for identified vulnerabilities
-   - Test fixes in staging environment
-   - Deploy to production with monitoring
-   - Update security documentation
-
-4. **Post-Incident:**
-   - Conduct post-mortem review
-   - Update security procedures
-   - Train team on lessons learned
-   - Notify affected users if required by regulations
-
 ---
 
 ### Performance Best Practices
 
-**Why Performance Matters in Payment Flows:**
-
-Payment forms are critical conversion points where even small delays can lead to cart abandonment. Users expect instant feedback and smooth interactions. Poor performance in payment flows directly impacts revenue and user satisfaction.
-
-**📈 Performance Impact:**
-
-Slow payment forms = lost revenue. Key metrics to monitor:
-
-- **Time to Interactive**: How quickly users can start entering payment data
-- **Validation Response**: Delay between input and validation feedback
-- **Form Submission**: Duration from submit to result
-- **Memory Usage**: RAM consumption during payment flows
-
 1. **Initialize SDK early**:
 
 ```typescript
-// Initialize in App component or root
+// Initialize in App component or root (initSdk is synchronous — void)
 useEffect(() => {
   SpreedlyCore.initSdk(options);
-}, []); // Only once
+}, []); // Only once — ensure `options` is populated (e.g. after fetching auth params)
 ```
 
 2. **Debounce validation**:
 
 ```typescript
+// Install: yarn add use-debounce
 import { useDebouncedCallback } from 'use-debounce';
 
 const debouncedValidation = useDebouncedCallback(
@@ -2098,26 +1659,6 @@ const MemoizedTextField = React.memo(SPLTextField);
 ```
 
 ### UX Best Practices
-
-**Why UX Matters in Payment Forms:**
-
-Payment forms are often the final step in a user's journey. Poor UX at this critical moment can cause users to abandon their purchase, even after investing time in product selection. Great payment UX builds trust and confidence.
-
-**UX Principles for Payment Forms:**
-
-- **Clarity**: Users should always understand what's happening and what's expected
-- **Feedback**: Immediate response to user actions builds confidence
-- **Error Prevention**: Guide users toward success rather than just catching errors
-- **Accessibility**: Ensure all users can complete payments regardless of abilities
-- **Trust**: Visual and interaction design should reinforce security and reliability
-
-**Common UX Pitfalls to Avoid:**
-
-- ❌ Unclear error messages ("Invalid input")
-- ❌ No loading states during processing
-- ❌ Sudden layout shifts during validation
-- ❌ Inaccessible form controls
-- ❌ Overwhelming users with too many fields at once
 
 1. **Provide clear feedback**:
 
@@ -2147,17 +1688,7 @@ const shouldShowName =
   shouldShowCVV && fieldValidation[FormFieldTypes.CVV] === true;
 ```
 
-3. **Accessibility support**:
-
-```typescript
-<SPLTextField
-  formFieldType={FormFieldTypes.CARD}
-  label="Card Number"
-  accessibilityLabel="Credit card number"
-  accessibilityHint="Enter your 16-digit card number"
-  testID="card-number-field"
-/>
-```
+3. **Accessibility support**: Wrap fields in a **`View`** (or use your design system) and set **`accessibilityLabel`** / **`testID`** on the wrapper; **`SPLTextField`** exposes the props documented in [API Reference > Components](#spltextfield).
 
 ---
 
@@ -2165,60 +1696,11 @@ const shouldShowName =
 
 This section covers the most frequently encountered issues during Spreedly SDK integration, along with their root causes and step-by-step solutions. Understanding these common problems can save significant development time and help you implement robust error handling.
 
-**How to Use This Section:**
-
-1. **Identify Symptoms**: Match error messages or behaviors with the problem descriptions
-2. **Understand Root Causes**: Learn why these issues occur to prevent recurrence
-3. **Apply Solutions**: Follow step-by-step instructions for your specific platform
-4. **Verify Fixes**: Use the provided verification commands to confirm resolution
-5. **Implement Prevention**: Apply best practices to avoid similar issues
-
-**When to Seek Additional Help:**
-
-- If solutions don't resolve your specific issue
-- When encountering errors not covered in this guide
-- For environment-specific problems (CI/CD, corporate networks, etc.)
-- When integrating with custom build systems or monorepos
-
-**Debugging Strategy:**
-
-1. **Start with Environment**: Verify all prerequisites are met
-2. **Check Credentials**: Ensure GitHub access and tokens are valid
-3. **Isolate the Problem**: Test with minimal reproduction cases
-4. **Review Logs**: Examine build logs for specific error details
-5. **Test Incrementally**: Add complexity gradually after basic setup works
-
 ### Common Issues
-
-**Issue Categories:**
-
-- 🔐 **Authentication & Access**: GitHub credentials and repository access
-- 📦 **Package Resolution**: Dependency installation and version conflicts
-- 🛠️ **Build Configuration**: Platform-specific build setup issues
-- 🚀 **Runtime Errors**: SDK initialization and usage problems
-- 🔧 **Development Environment**: Local setup and tooling issues
 
 #### 1. **Private Repository Access Issues** 🔐
 
 **Problem**: Build fails with "Could not resolve dependency" or "Authentication failed"
-
-**Root Cause Analysis:**
-
-This is the most common issue when integrating the Spreedly SDK. It occurs because:
-
-- **Missing Repository Access**: Your GitHub account doesn't have access to Spreedly's private repositories
-- **Invalid Credentials**: GitHub token is expired, has insufficient permissions, or is incorrectly configured
-- **Network Issues**: Corporate firewalls or proxy settings blocking GitHub Packages access
-- **Configuration Errors**: Incorrect package manager setup for private repositories
-
-**Impact**: Without proper access, your build process cannot download the SDK dependencies, preventing compilation and deployment.
-
-**When This Occurs:**
-
-- During `npm install` or `yarn install`
-- During Android Gradle sync (`./gradlew build`)
-- During iOS pod installation (`pod install`)
-- In CI/CD pipelines when credentials aren't properly configured
 
 **Android Solutions**:
 
@@ -2252,8 +1734,8 @@ rm -rf Pods/ Podfile.lock
 cd ios
 pod install --verbose
 
-# Check if Spreedly pods are accessible
-pod search SpreedlyCore --silent
+# Spreedly pods are private — they will not appear in public `pod search` results.
+# Successful `pod install` with Spreedly pods listed is the verification signal.
 ```
 
 #### 2. **Pod Setup Script Not Found**
@@ -2338,32 +1820,6 @@ echo ".env" >> .gitignore
 #### 4. **SDK Initialization Fails** 🚀
 
 **Problem**: `SpreedlyCore.initSdk()` throws an error
-
-**Root Cause Analysis:**
-
-SDK initialization failures typically occur due to:
-
-- **Missing Authentication Parameters**: Required fields like `token`, `nonce`, or `signature` are undefined or empty
-- **Invalid Credentials**: Authentication parameters are malformed or expired
-- **Network Connectivity**: Unable to reach Spreedly servers for validation
-- **Timing Issues**: Attempting to initialize before React Native bridge is ready
-- **Environment Mismatch**: Using test credentials in production or vice versa
-
-**Common Error Messages:**
-
-- `"Environment key is required"` → Missing or empty environment key
-- `"Invalid signature"` → Signature doesn't match expected value
-- `"Network request failed"` → Connectivity or server issues
-- `"SDK already initialized"` → Attempting to initialize multiple times
-
-**Impact**: Without proper initialization, no SDK methods will work, preventing payment processing entirely.
-
-**Prevention Strategy:**
-
-- Always validate authentication parameters before calling `initSdk()`
-- Implement proper error handling and retry logic
-- Use environment-specific configuration management
-- Initialize early in your app lifecycle but after React Native is ready
 
 **Solutions**:
 
@@ -2457,34 +1913,40 @@ android {
 **Problem**: Build fails with Kotlin-related errors like:
 
 - `Could not find org.jetbrains.kotlin:kotlin-compose-compiler-plugin-embeddable:X.X.X`
+- `Multiple values are not allowed for plugin option androidx.compose.compiler.plugins.kotlin:sourceInformation`
 - `Kotlin version mismatch` errors
 - Compose compilation errors
 
-**Root Cause**: Version mismatch between your project's Kotlin version and the Spreedly SDK's requirements.
+**Root Cause**: Version mismatch between your project's Kotlin version and the Spreedly SDK's requirements. The SDK uses Jetpack Compose and kotlinx-serialization, which require their Gradle plugins on the host app's buildscript classpath at versions matching KGP.
 
-**Solution**: Update your `android/build.gradle` to use compatible versions:
+**Solution**: Update your root **`android/build.gradle`** to match [Step 5](#step-5-android-setup), including **`compose-compiler-gradle-plugin:${kotlinVersion}`** on the **`buildscript`** classpath alongside **`kotlin-gradle-plugin`** and **`kotlin-serialization`**.
 
 ```gradle
-// android/build.gradle
+// android/build.gradle — minimal example; use Step 5 for the full snippet (apply spreedly_github_setup.gradle, ext, etc.)
 buildscript {
     ext {
         kotlinVersion = "2.3.10"
-        androidGradlePluginVersion = "8.10.1"
+        androidGradlePluginVersion = "8.12.0"
     }
     dependencies {
         classpath("com.android.tools.build:gradle:${androidGradlePluginVersion}")
-        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:kotlin-serialization:${kotlinVersion}")
+        classpath("org.jetbrains.kotlin:compose-compiler-gradle-plugin:${kotlinVersion}")
     }
 }
 
 subprojects { subproject ->
     subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-        kotlinOptions {
-            freeCompilerArgs += "-Xskip-metadata-version-check"
+        compilerOptions {
+            freeCompilerArgs.add("-Xskip-metadata-version-check")
         }
     }
 }
 ```
+
+> **Note**: Use `compilerOptions { freeCompilerArgs.add(...) }` instead of the deprecated `kotlinOptions { freeCompilerArgs += ... }`. The old API can cause duplicate compiler argument injection, which triggers the `sourceInformation` error.
 
 **Verification steps**:
 
@@ -2500,11 +1962,30 @@ cd android
 
 **Common version combinations that work:**
 
-- **React Native 0.77+**: **Kotlin stdlib 2.3.10** + **KGP 2.0.21** (unpinned classpath) + **AGP 8.10.1+** + **Gradle 8.11.1+**
-- **React Native 0.76**: Not supported (ships Kotlin 1.9.25 / incompatible toolchain)
-- **React Native 0.75 and below**: Not supported by Spreedly SDK
+- **React Native 0.79.0+**: **Kotlin stdlib 2.3.10** + **KGP + serialization + compose-compiler-gradle-plugin** on **`${kotlinVersion}`** (see [Step 5](#step-5-android-setup)).
+- **React Native 0.78 and below**: Not supported by current Spreedly SDK releases (use **0.79+**; see [RN 0.79+ Requirements](rn_079_requirement.md)).
 
-#### 10. **`checkDebugAarMetadata` / `androidx.browser` AAR metadata failures**
+#### 10. **`Multiple values are not allowed for plugin option sourceInformation`**
+
+**Problem**: Build fails with:
+
+```
+e: Multiple values are not allowed for plugin option
+    androidx.compose.compiler.plugins.kotlin:sourceInformation
+```
+
+**Root Cause**:
+
+1. The deprecated `kotlinOptions { freeCompilerArgs += ... }` DSL re-adds arguments every time Gradle evaluates the task, doubling flags including the Compose compiler's built-in `sourceInformation`.
+2. A missing or version-mismatched **`compose-compiler-gradle-plugin`** on the host **`buildscript`** classpath, or Kotlin / Compose plugins not aligned to **`${kotlinVersion}`**.
+
+**Solution**:
+
+1. Follow [Step 5](#step-5-android-setup): pin **`kotlin-gradle-plugin`**, **`kotlin-serialization`**, and **`compose-compiler-gradle-plugin`** to **`${kotlinVersion}`** on the root classpath.
+2. Migrate from `kotlinOptions { freeCompilerArgs += ... }` to `compilerOptions { freeCompilerArgs.add(...) }` in the `subprojects` block.
+3. Clean and rebuild: `cd android && ./gradlew clean && ./gradlew app:assembleDebug`.
+
+#### 10b. **`checkDebugAarMetadata` / `androidx.browser` AAR metadata failures**
 
 **Problem**: Build fails during `:app:checkDebugAarMetadata` with errors mentioning **`androidx.browser:browser:1.9.0`** (or similar), requiring a higher **`compileSdkVersion`** or compatible **AGP**.
 
@@ -2520,9 +2001,9 @@ cd android
 
 **Problem**: Gradle fails with errors involving **`KotlinTopLevelExtension`**, or **class/interface mismatch** when applying the React Native or Android Gradle plugins.
 
-**Root Cause**: **`classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")`** with **`kotlinVersion = "2.3.10"`** forces **KGP 2.3.10**, which is **incompatible** with **React Native 0.77’s** Gradle plugin expectations (built for **KGP 2.0.21**).
+**Root Cause**: Mismatched KGP version across the classpath, or leaving **`kotlin-gradle-plugin`** unpinned so it resolves to React Native’s default (**~2.1.x** on recent RN lines) while Spreedly uses **Kotlin 2.3** artifacts.
 
-**Solution**: **Remove the version** from the Kotlin Gradle plugin classpath — use **`classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")`** only — and keep **`kotlinVersion = "2.3.10"`** for **stdlib** resolution. Retain the **`-Xskip-metadata-version-check`** `subprojects` block from [Step 5](#step-5-android-setup).
+**Solution**: Pin **`kotlin-gradle-plugin`**, **`kotlin-serialization`**, and **`compose-compiler-gradle-plugin`** to **`${kotlinVersion}`** (e.g. **2.3.10**) on the host root `buildscript` classpath (see [Step 5](#step-5-android-setup)). Retain the **`-Xskip-metadata-version-check`** `subprojects` block.
 
 #### 12. **Android Lint Failures with Kotlin 2.3.10**
 
@@ -2534,7 +2015,7 @@ cd android
 
 **Root Cause**: Android Lint can have compatibility issues with newer Kotlin versions and Compose.
 
-**Solution**: The Spreedly SDK automatically handles many lint compatibility issues. The SDK's `packages/core/android/build.gradle` already includes the necessary lint configuration to prevent these failures.
+**Solution**: The Spreedly SDK automatically handles many lint compatibility issues. The published package’s **`android/build.gradle`** (under **`node_modules/@spreedly/react-native-checkout/android/build.gradle`**) includes lint configuration to prevent these failures.
 
 If you're still experiencing lint issues, verify that you're using the correct Kotlin **stdlib** version:
 
@@ -2554,213 +2035,6 @@ cd android
 ./gradlew lintDebug  # Test lint analysis
 ./gradlew build      # Full build with lint
 ```
-
-### Debug Mode
-
-Enable debug logging for troubleshooting:
-
-```typescript
-if (__DEV__) {
-  console.log('Spreedly SDK Debug Mode Enabled');
-
-  SpreedlyEventEmitter.addListener(
-    SpreedlyEventTypes.PAYMENT_BOTTOM_SHEET_RESULT,
-    (result) => {
-      const mapped = mapPaymentResult(result);
-      console.log('Payment result kind:', mapped.kind);
-    }
-  );
-}
-```
-
-### Performance Monitoring
-
-```typescript
-export function usePerformanceMonitoring() {
-  useEffect(() => {
-    const startTime = Date.now();
-
-    return () => {
-      const endTime = Date.now();
-      console.log(`Component lifecycle: ${endTime - startTime}ms`);
-    };
-  }, []);
-}
-```
-
-## Comprehensive Troubleshooting Checklist
-
-Use this checklist to systematically diagnose and resolve integration issues:
-
-### 🔍 **Pre-Integration Verification**
-
-- [ ] **Repository Access Confirmed**
-  - [ ] Access granted to all three private repositories
-  - [ ] GitHub username added to Spreedly organization
-  - [ ] Repository access tested (can view repositories in browser)
-
-- [ ] **GitHub Token Setup**
-  - [ ] Personal Access Token created with correct permissions
-  - [ ] Token includes `read:packages`, `repo`, and `read:org` scopes
-  - [ ] Token is not expired (check expiration date)
-  - [ ] Token tested with GitHub API calls
-
-- [ ] **Environment Variables**
-  - [ ] `GITHUB_USERNAME` set correctly
-  - [ ] `GITHUB_TOKEN` set correctly
-  - [ ] Variables accessible in build environment
-  - [ ] `.env` file in correct location (project root)
-  - [ ] `.env` file added to `.gitignore`
-
-### 📦 **Package Installation Verification**
-
-- [ ] **Package Manager Configuration**
-  - [ ] `.npmrc` or `.yarnrc` configured for GitHub Packages
-  - [ ] Registry configuration points to correct GitHub Packages URL
-  - [ ] Authentication token properly referenced
-  - [ ] No conflicting registry configurations
-
-- [ ] **Installation Process**
-  - [ ] `npm install` or `yarn install` completes without errors
-  - [ ] SDK package appears in `node_modules/@spreedly/react-native-checkout`
-  - [ ] Package version matches expected version
-  - [ ] Dependencies resolved correctly
-
-### 🛠️ **Platform-Specific Setup**
-
-**Android Checklist:**
-
-- [ ] **Version Compatibility**
-  - [ ] Kotlin **stdlib** **2.3.10** (`ext.kotlinVersion`); **KGP** unpinned (resolves **2.0.21** with RN 0.77)
-  - [ ] Android Gradle Plugin **8.10.1** or higher
-  - [ ] Gradle wrapper **8.11.1** or higher
-  - [ ] **`-Xskip-metadata-version-check`** on `KotlinCompile` tasks (root `subprojects` block)
-  - [ ] React Native 0.77 or higher
-
-- [ ] **Gradle Configuration**
-  - [ ] `spreedly_github_setup.gradle` applied in `android/build.gradle`
-  - [ ] Environment variables accessible during Gradle sync
-  - [ ] No conflicting repository configurations
-  - [ ] Gradle sync completes successfully
-
-- [ ] **Build Verification**
-  - [ ] `./gradlew dependencies` shows Spreedly dependencies
-  - [ ] `./gradlew build` completes without errors
-  - [ ] No lint failures related to Kotlin compatibility
-
-**iOS Checklist:**
-
-- [ ] **CocoaPods Setup**
-  - [ ] `spreedly_pods_setup.rb` required in Podfile
-  - [ ] `init_spreedly_checkout_pods()` called in Podfile
-  - [ ] CocoaPods version is latest
-  - [ ] Xcode version 15 or higher
-
-- [ ] **Pod Installation**
-  - [ ] `pod install` completes without errors
-  - [ ] Spreedly pods appear in `Pods/` directory
-  - [ ] No credential-related errors during installation
-  - [ ] Podfile.lock contains Spreedly dependencies
-
-- [ ] **Xcode Build**
-  - [ ] Project opens in Xcode without errors
-  - [ ] Build succeeds for both simulator and device
-  - [ ] No missing framework errors
-
-### 🚀 **Runtime Verification**
-
-- [ ] **SDK Initialization**
-  - [ ] All authentication parameters provided
-  - [ ] Parameters are valid and not expired
-  - [ ] `initSdk()` completes without errors
-  - [ ] Network connectivity available
-  - [ ] Correct environment (test vs. production)
-
-- [ ] **Component Integration**
-  - [ ] `SPLTextField` components render correctly
-  - [ ] Field validation callbacks fire properly
-  - [ ] No console errors during field interactions
-  - [ ] Payment submission works end-to-end
-
-### 🔧 **Development Environment**
-
-- [ ] **Metro/Bundler**
-  - [ ] Metro cache cleared if needed
-  - [ ] No bundle resolution errors
-  - [ ] TypeScript compilation succeeds (if using TypeScript)
-  - [ ] No import/export errors
-
-- [ ] **Device/Simulator Testing**
-  - [ ] Tested on physical devices
-  - [ ] Tested on simulators/emulators
-  - [ ] Both debug and release builds work
-  - [ ] Performance acceptable on target devices
-
-### 🌐 **Network and Security**
-
-- [ ] **Corporate Environment**
-  - [ ] Proxy settings configured if needed
-  - [ ] Firewall allows GitHub Packages access
-  - [ ] SSL/TLS certificates trusted
-  - [ ] VPN doesn't interfere with package resolution
-
-- [ ] **CI/CD Pipeline**
-  - [ ] Environment variables available in CI
-  - [ ] Build agents have necessary permissions
-  - [ ] Caching strategies don't interfere with private packages
-  - [ ] Deployment process includes all necessary dependencies
-
-### 🐛 **Common Issue Quick Checks**
-
-- [ ] **"Package not found" errors**
-  - [ ] Verify repository access
-  - [ ] Check token permissions
-  - [ ] Confirm package manager configuration
-
-- [ ] **"Authentication failed" errors**
-  - [ ] Verify token is not expired
-  - [ ] Check token has correct scopes
-  - [ ] Ensure environment variables are set
-
-- [ ] **Build failures**
-  - [ ] Check version compatibility matrix
-  - [ ] Verify all setup scripts ran successfully
-  - [ ] Clear caches and retry clean build
-
-- [ ] **Runtime errors**
-  - [ ] Validate SDK initialization parameters
-  - [ ] Check network connectivity
-  - [ ] Verify environment configuration
-
-### 📞 **When to Contact Support**
-
-Contact Spreedly support if:
-
-- [ ] All checklist items pass but issues persist
-- [ ] Encountering errors not covered in documentation
-- [ ] Need assistance with enterprise/corporate environment setup
-- [ ] Require help with custom build configurations
-- [ ] Experience issues specific to your payment processor integration
-
-**OK to share with Spreedly Support:**
-
-- SDK version (`@spreedly/react-native-checkout` version from `package.json`)
-- Approximate time of the issue (UTC)
-- Masked `environmentKey` (first 4 characters only)
-- Session ID from Datadog global attributes (if SDK telemetry is active)
-- Error type / error code from `mapPaymentResult` (e.g., `API_ERROR`, `NETWORK_ERROR`)
-- HTTP status code if shown in error details
-- Device OS and platform level (e.g., Android 14, iOS 17)
-- React Native version
-- Steps to reproduce the issue
-
-**Never share with Spreedly Support:**
-
-- Full card number or CVV
-- Full `environmentKey`
-- Raw error responses that could contain tokens or PII
-- Complete auth signatures or certificate tokens
-- Contents of `.env` files or GitHub tokens
 
 ---
 
