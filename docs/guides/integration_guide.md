@@ -55,7 +55,7 @@ See the complete [Security Integration Checklist](#-security-integration-checkli
 
 ⚠️ **IMPORTANT**: Before integrating the Spreedly SDK, your team must have access to these private repositories:
 
-1. **Main SDK Repository**: `https://github.com/spreedly/checkout-react-native`
+1. **Distribution packages**: `https://github.com/spreedly/checkout-react-native-packages` (`@spreedly/react-native-checkout` on GitHub Packages)
 2. **iOS Native Package**: `https://github.com/spreedly/checkout-ios-package`
 3. **Android Native Package**: `https://github.com/spreedly/checkout-android-maven`
 
@@ -139,8 +139,8 @@ The Environment Key is a unique identifier for your Spreedly environment that's 
 
 1. **Contact Spreedly**: Your Environment Key will be provided by your Spreedly representative or support team
 2. **Environment Types**:
-   - **Test Environment**: For development and testing (e.g., `test_abc123def456`)
-   - **Production Environment**: For live transactions (e.g., `prod_xyz789ghi012`)
+   - **Test Environment**: Keys are prefixed with `test_` and supplied by Spreedly (exact format varies; never commit the real value)
+   - **Production Environment**: Live keys prefixed with `prod_` where applicable (exact format varies; never commit the real value)
 3. **Security**: Store this key securely and never commit it to version control
 
 **Example Configuration:**
@@ -201,9 +201,9 @@ Your backend must implement an endpoint (commonly `/api/v1/auth/params`) that:
 
 ```json
 {
-  "nonce": "abc123def456ghi789",
-  "signature": "hmac_sha256_signature_here",
-  "certificateToken": "cert_token_abc123",
+  "nonce": "<nonce_from_your_backend>",
+  "signature": "<hmac_signature_from_your_backend>",
+  "certificateToken": "<certificate_token_from_your_backend>",
   "timestamp": 1640995200
 }
 ```
@@ -591,7 +591,7 @@ cd ..
 **Script search order for `.env` file:**
 
 1. `./.env` (your project root - recommended)
-2. `./example/.env` (your project's example directory)
+2. `./.env` at the project root (see `.env.example`)
 3. SDK's example directory (fallback)
 4. SDK's root directory (fallback)
 
@@ -1442,16 +1442,16 @@ Payment applications are high-value targets for attackers. Following security be
 **Critical: Never Hardcode Credentials**
 
 ```typescript
-// ❌ NEVER DO THIS - Hardcoded credentials
+// ❌ NEVER DO THIS — anti-pattern illustrating hardcoded secrets
 const BAD_EXAMPLE = {
-  environmentKey: 'test_abc123def456', // NEVER hardcode
-  apiKey: 'sk_live_123456789', // NEVER hardcode
+  environmentKey: 'PASTE_REAL_ENV_KEY_ONLY_IN_SECURE_STORAGE', // NEVER ship like this in source
+  paymentGatewaySecret: 'PASTE_REAL_SECRET_ONLY_IN_BACKEND', // NEVER in mobile source
 };
 
-// ✅ CORRECT - Use environment variables
+// ✅ CORRECT - Use environment variables / secure config (never commit .env)
 const CORRECT_EXAMPLE = {
   environmentKey: process.env.SPREEDLY_ENVIRONMENT_KEY,
-  // Environment key should be in .env file, never committed
+  // Sensitive signing keys must live on your backend only
 };
 ```
 
@@ -1801,7 +1801,7 @@ echo ".env" >> .gitignore
 **The script searches for `.env` in this order:**
 
 1. Your project root (`./.env`) - **recommended location**
-2. Your project's example directory (`./example/.env`)
+2. Your project root (`.env` — see `.env.example`)
 3. SDK's directories (fallback)
 
 **Common locations where users mistakenly put .env:**
@@ -2043,8 +2043,8 @@ cd android
 For additional support and questions:
 
 - **Documentation**: [Spreedly Documentation](https://docs.spreedly.com)
-- **GitHub Issues**: [React Native SDK Issues](https://github.com/spreedly/checkout-react-native/issues)
-- **Support**: Contact Spreedly Support
+- **Support Portal**: [spreedly.com/support](https://spreedly.com/support/)
+- **Distribution packages**: [checkout-react-native-packages](https://github.com/spreedly/checkout-react-native-packages)
 
 ---
 

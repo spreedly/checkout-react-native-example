@@ -1,6 +1,10 @@
 # Spreedly Checkout React Native Example App
 
-A React Native example app demonstrating payment flows using the Spreedly Checkout SDK, including card payments, 3D Secure, offsite payments, Stripe APM, Braintree, and EBANX.
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](LICENSE)
+
+**Demonstration only — not for production.** This sample app shows integration patterns for the [Spreedly Checkout React Native SDK](https://github.com/spreedly/checkout-react-native-packages). Do not ship it as-is to end users.
+
+This example demonstrates payment flows using the Spreedly Checkout SDK, including card payments, 3D Secure, offsite payments, Stripe APM, Braintree, and EBANX.
 
 ## Getting Started
 
@@ -74,18 +78,21 @@ yarn ios     # or yarn android
 - **iOS**: 15.1+, Xcode 15+
 - **Architectures**: Legacy and New Architecture (Fabric/TurboModules)
 
+## Support
+
+- **Spreedly Documentation**: [docs.spreedly.com](https://docs.spreedly.com/)
+- **Support Portal**: [spreedly.com/support](https://spreedly.com/support/)
+- **Distribution packages**: [checkout-react-native-packages](https://github.com/spreedly/checkout-react-native-packages)
+- **Security**: [SECURITY.md](SECURITY.md)
+
 ## License
 
-Copyright 2025-2026 Spreedly, Inc.
+Copyright 2025 Spreedly, Inc.
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
 
-    http://www.apache.org/licenses/LICENSE-2.0
+## Legal
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+- [Terms of Service](https://legal.spreedly.com/#terms)
+- [Privacy Policy](https://legal.spreedly.com/#privacy-policy)
+- [License](LICENSE) (Apache 2.0)

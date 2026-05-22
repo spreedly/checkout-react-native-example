@@ -67,7 +67,7 @@ You do **not** need `@spreedly/react-native-checkout-braintree-apm` for Stripe A
 
 ### iOS (CocoaPods)
 
-The SDK's podspec (`packages/core/SpreedlyCheckout.podspec`) declares these dependencies automatically:
+The `@spreedly/react-native-checkout` iOS podspec declares these dependencies automatically:
 
 | Pod                  | Version     | Purpose                      |
 | -------------------- | ----------- | ---------------------------- |
@@ -81,8 +81,12 @@ The SDK's podspec (`packages/core/SpreedlyCheckout.podspec`) declares these depe
 **Podfile setup:**
 
 ```ruby
-# Load Spreedly pod setup script
-load '../../packages/core/scripts/spreedly_pods_setup.rb'
+# Load Spreedly pod setup script (from @spreedly/react-native-checkout)
+require Pod::Executable.execute_command('node', ['-p',
+  'require.resolve(
+    "@spreedly/react-native-checkout/scripts/spreedly_pods_setup.rb",
+    {paths: [process.argv[1]]},
+  )', __dir__]).strip
 
 target 'YourApp' do
   # ... React Native config ...
@@ -107,7 +111,7 @@ end
 
 #### 1. Stripe Bundle Support Script (Critical)
 
-When using CocoaPods with static linking (the default in React Native), Stripe's resource bundles may be named differently at runtime than what the Stripe SDK expects. The `packages/core/scripts/spreedly_stripe_bundle_support.rb` script resolves this by creating symlinks with the expected names during the build process.
+When using CocoaPods with static linking (the default in React Native), Stripe's resource bundles may be named differently at runtime than what the Stripe SDK expects. The Spreedly setup script (`spreedly_stripe_bundle_support.rb` in `@spreedly/react-native-checkout`) resolves this by creating symlinks with the expected names during the build process.
 
 **What it does:**
 
@@ -124,7 +128,7 @@ The script adds a **Run Script Build Phase** named `[Spreedly] Stripe bundle nam
 
 **How to use it:**
 
-The script is located at `packages/core/scripts/spreedly_stripe_bundle_support.rb` and exposes the `apply_spreedly_stripe_support` function. Call it in your Podfile's `post_install` block:
+The script exposes `apply_spreedly_stripe_support` (loaded via `init_spreedly_checkout_pods` / your Podfile `post_install`). Call it in your Podfile's `post_install` block:
 
 ```ruby
 post_install do |installer|

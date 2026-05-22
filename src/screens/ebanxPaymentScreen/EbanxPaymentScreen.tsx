@@ -116,11 +116,14 @@ enum EbanxStage {
   CHECKOUT = 'CHECKOUT',
 }
 
+/** Published EBANX sandbox test document ID (see docs/guides/ebanx_payment_guide.md). */
+const EBANX_SANDBOX_DOCUMENT_ID = '853.513.468-93';
+
 interface EbanxPaymentScreenProps {}
 
 const EbanxPaymentScreen: React.FC<EbanxPaymentScreenProps> = () => {
   const { isLoading, initError, initSpreedly } = useSpreedlyInit();
-  const documentId = '853.513.468-93';
+  const documentId = EBANX_SANDBOX_DOCUMENT_ID;
   const isDark = useColorScheme() === 'dark';
   const styles = createStyles(isDark);
 

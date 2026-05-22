@@ -448,7 +448,7 @@ Declined: 4000 0000 0000 0002
 ## Support
 
 - 📖 [Spreedly API Documentation](https://docs.spreedly.com/)
-- 💻 Examples: `example/src/screens/expressCheckout/ExpressCheckout.tsx`, `example/src/screens/paymentBottomSheetAdditionalFields/PaymentBottomSheetAdditionalFields.tsx` (`otherFields`)
+- 💻 Examples: `src/screens/paymentBottomSheet/PaymentBottomSheet.tsx`, `src/screens/paymentBottomSheetAdditionalFields/PaymentBottomSheetAdditionalFields.tsx` (`otherFields`)
 - 🎨 Theming: See [theme_guide.md](./theme_guide.md)
 - ⚙️ Requires React Native 0.79+
 
