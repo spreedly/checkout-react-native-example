@@ -260,29 +260,19 @@ adb logcat | grep -E "(Spreedly|SpreedlyCheckout)"
 
 Filter the Xcode console by `Spreedly` to see native SDK log output.
 
-## Verifying Telemetry (Datadog)
+## Verifying Telemetry
 
-The SDK sends telemetry to Datadog automatically via native platform logging.
-
-1. **Datadog console** -- Go to [Datadog Logs](https://app.datadoghq.com/logs) and query by platform:
-   - Android: `service:checkout-android-sdk`
-   - iOS: `service:checkout-ios-sdk`
-
-2. **Expected events** -- After a payment flow, you should see events like SDK initialization, payment method creation, and flow completion.
-
-3. **Timing** -- Logs upload approximately every 5 seconds. Wait briefly after a flow before checking Datadog.
-
-For telemetry setup and troubleshooting, see [Central Logging Guide](../development/CENTRAL_LOGGING_GUIDE.md).
+The SDK sends telemetry via native platform logging. For telemetry setup and verification in your environment, contact [Spreedly Support](https://spreedly.com/support/).
 
 ## Running the Example App
 
-The SDK includes an example app (`example/`) with screens for every payment flow. This is the fastest way to verify SDK behavior end-to-end.
+This repository is the official example app with screens for every payment flow. It is the fastest way to verify SDK behavior end-to-end.
 
-1. Clone the repo, create `.env` with your credentials
+1. Clone the repo, create `.env` from `.env.example` with your credentials
 2. Install dependencies: `yarn`
-3. Start Metro: `yarn example start`
-4. Run on Android: `yarn example android`
-5. Run on iOS: `yarn example ios`
+3. Start Metro: `yarn start`
+4. Run on Android: `yarn android`
+5. Run on iOS: `yarn ios`
 
 The example app includes screens for: Express Checkout (Payment Bottom Sheet), Hosted Fields, CVV Recaching, 3DS Challenge, 3DS Gateway-Specific, Offsite Payments, EBANX, Stripe APM, and Braintree APM.
 
@@ -292,4 +282,3 @@ The example app includes screens for: Express Checkout (Payment Bottom Sheet), H
 - [Integration Guide -- Troubleshooting](integration_guide.md#troubleshooting) -- Symptom-based troubleshooting
 - [Express Checkout Guide](express_checkout_guide.md) -- Payment bottom sheet details
 - [Security](security.md) -- Screenshot protection, data handling, PCI compliance
-- [Central Logging Guide](../development/CENTRAL_LOGGING_GUIDE.md) -- Datadog setup and verification

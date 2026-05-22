@@ -218,8 +218,8 @@ Expected backend response:
 
 ```json
 {
-  "managedOrderToken": "mot_abc123xyz789",
-  "transactionToken": "txn_def456uvw012"
+  "managedOrderToken": "<managed_order_token_from_backend>",
+  "transactionToken": "<transaction_token_from_backend>"
 }
 ```
 

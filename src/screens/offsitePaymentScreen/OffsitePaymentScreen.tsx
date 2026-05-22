@@ -278,7 +278,7 @@ const OffsitePaymentScreen: React.FC<OffsitePaymentScreenProps> = () => {
         paymentMethodType: selectedProvider,
         redirectUrl:
           'https://developer.spreedly.com/docs/paypal-commerce-platform-offsite-payments',
-        email: 'test@test.com',
+        email: 'user@example.com',
       };
 
       await OffsitePayment.submitPayment(config);

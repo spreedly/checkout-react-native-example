@@ -1,0 +1,11 @@
+# CocoaPods artifacts and lockfile checksums are not application secrets.
+title = "checkout-react-native-example"
+
+[extend]
+useDefault = true
+
+[allowlist]
+paths = [
+  "ios/Podfile.lock",
+  "ios/Pods/",
+]

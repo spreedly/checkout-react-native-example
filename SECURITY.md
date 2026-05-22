@@ -1,14 +1,8 @@
 # Security Policy
 
-For the repository vulnerability disclosure policy GitHub expects at the repo root (including Trust Center email), see [SECURITY.md](../../SECURITY.md).
-
-The guidance below relates to integrating the Checkout SDK securely in your applications.
-
----
-
 ## Reporting Security Vulnerabilities
 
-Spreedly takes security seriously and appreciates your help in keeping our products and services secure. If you discover a security vulnerability in the Spreedly React Native Checkout SDK, please report it to us using one of the following methods:
+Spreedly takes security seriously and appreciates your help in keeping our products and services secure. If you discover a security vulnerability, please report it to us using one of the following methods:
 
 ### Option 1: Spreedly Help Center
 
@@ -23,12 +17,9 @@ Email our security team directly at **security@spreedly.com** with details about
 When reporting a security vulnerability, please include:
 
 - A clear description of the vulnerability
-- The SDK version affected (check your `package.json`)
-- Platform(s) affected (iOS, Android, or both)
 - Steps to reproduce the issue
 - Potential impact of the vulnerability
 - Any suggested fixes or mitigations (if available)
-- Sample code or test case demonstrating the issue (if applicable)
 
 ## Response Timeline
 
@@ -41,8 +32,5 @@ We ask that you:
 - Allow us a reasonable amount of time to address the vulnerability before public disclosure
 - Act in good faith to avoid privacy violations, destruction of data, and interruption or degradation of our services
 - Not access or modify data that does not belong to you
-- Not exploit the vulnerability beyond what is necessary to demonstrate the issue
-
----
 
 Thank you for helping keep Spreedly and our customers secure.

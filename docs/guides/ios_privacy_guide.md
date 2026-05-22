@@ -18,7 +18,7 @@ Two required components:
 
 ### Implementation Status
 
-✅ **Implemented:** `packages/core/ios/PrivacyInfo.xcprivacy` is included and bundled automatically
+✅ **Implemented:** The Spreedly Checkout iOS SDK includes `PrivacyInfo.xcprivacy` and bundles it automatically
 
 ### What It Declares
 
@@ -40,7 +40,7 @@ Two required components:
 
 **For SDK Developers:**
 
-- ✅ Already implemented in `packages/core/ios/PrivacyInfo.xcprivacy`
+- ✅ Already implemented in the Spreedly Checkout iOS SDK privacy manifest
 - ✅ Automatically bundled via CocoaPods
 
 **For App Developers:**
