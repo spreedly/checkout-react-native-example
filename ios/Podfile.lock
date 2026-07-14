@@ -11,13 +11,6 @@ PODS:
   - Braintree/PayPal (7.5.0):
     - Braintree/Core
     - Braintree/DataCollector
-  - Braintree/Venmo (7.5.0):
-    - Braintree/Core
-  - DatadogCore (3.1.0):
-    - DatadogInternal (= 3.1.0)
-  - DatadogInternal (3.1.0)
-  - DatadogLogs (3.1.0):
-    - DatadogInternal (= 3.1.0)
   - FBLazyVector (0.85.2)
   - Forter3DS (2.1.0)
   - hermes-engine (250829098.0.10):
@@ -1406,7 +1399,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context (5.7.0):
+  - react-native-safe-area-context (5.8.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1418,8 +1411,8 @@ PODS:
     - React-graphics
     - React-ImageManager
     - React-jsi
-    - react-native-safe-area-context/common (= 5.7.0)
-    - react-native-safe-area-context/fabric (= 5.7.0)
+    - react-native-safe-area-context/common (= 5.8.0)
+    - react-native-safe-area-context/fabric (= 5.8.0)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1430,7 +1423,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context/common (5.7.0):
+  - react-native-safe-area-context/common (5.8.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1452,7 +1445,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - react-native-safe-area-context/fabric (5.7.0):
+  - react-native-safe-area-context/fabric (5.8.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1882,7 +1875,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNScreens (4.24.0):
+  - RNScreens (4.18.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1904,9 +1897,9 @@ PODS:
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
-    - RNScreens/common (= 4.24.0)
+    - RNScreens/common (= 4.18.0)
     - Yoga
-  - RNScreens/common (4.24.0):
+  - RNScreens/common (4.18.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1929,13 +1922,9 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - SpreedlyBraintree (1.2.2):
-    - Braintree/Core (~> 7.0)
-    - Braintree/DataCollector (~> 7.0)
-    - Braintree/PayPal (~> 7.0)
-    - Braintree/Venmo (~> 7.0)
+  - SpreedlyBraintree (1.4.1):
     - SpreedlyCore
-  - SpreedlyBraintreeAPM (1.0.0):
+  - SpreedlyBraintreeAPM (1.0.10):
     - Braintree (~> 7.0)
     - hermes-engine
     - RCTRequired
@@ -1961,7 +1950,7 @@ PODS:
     - SpreedlyCore
     - SpreedlySecurity
     - Yoga
-  - SpreedlyCheckout (1.0.0):
+  - SpreedlyCheckout (1.0.10):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -1986,7 +1975,7 @@ PODS:
     - SpreedlySecurity
     - SpreedlyUI
     - Yoga
-  - SpreedlyCheckoutStripeAPM (1.0.0):
+  - SpreedlyCheckoutStripeAPM (1.0.10):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2012,14 +2001,11 @@ PODS:
     - SpreedlyStripeAPM
     - StripePaymentSheet (~> 25.0)
     - Yoga
-  - SpreedlyCore (1.2.2):
-    - DatadogCore (~> 3.1.0)
-    - DatadogLogs (~> 3.1.0)
-  - SpreedlySecurity (1.2.2)
-  - SpreedlyStripeAPM (1.2.2):
+  - SpreedlyCore (1.4.1)
+  - SpreedlySecurity (1.4.1)
+  - SpreedlyStripeAPM (1.4.1):
     - SpreedlyCore
-    - StripePaymentSheet (~> 25.0)
-  - SpreedlyUI (1.2.2):
+  - SpreedlyUI (1.4.1):
     - SpreedlyCore
     - SpreedlySecurity
   - StripeApplePay (25.11.0):
@@ -2123,23 +2109,20 @@ DEPENDENCIES:
   - ReactNativeDependencies (from `../node_modules/react-native/third-party-podspecs/ReactNativeDependencies.podspec`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - "SpreedlyBraintree (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.2.2`)"
+  - "SpreedlyBraintree (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.4.1`)"
   - "SpreedlyBraintreeAPM (from `../node_modules/@spreedly/react-native-checkout-braintree-apm`)"
   - "SpreedlyCheckout (from `../node_modules/@spreedly/react-native-checkout`)"
   - "SpreedlyCheckoutStripeAPM (from `../node_modules/@spreedly/react-native-checkout-stripe-apm`)"
-  - "SpreedlyCore (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.2.2`)"
-  - "SpreedlySecurity (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.2.2`)"
-  - "SpreedlyStripeAPM (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.2.2`)"
-  - "SpreedlyUI (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.2.2`)"
+  - "SpreedlyCore (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.4.1`)"
+  - "SpreedlySecurity (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.4.1`)"
+  - "SpreedlyStripeAPM (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.4.1`)"
+  - "SpreedlyUI (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.4.1`)"
   - StripePaymentSheet (~> 25.0)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
     - Braintree
-    - DatadogCore
-    - DatadogInternal
-    - DatadogLogs
     - StripeApplePay
     - StripeCore
     - StripePayments
@@ -2305,7 +2288,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   SpreedlyBraintree:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.2.2
+    :tag: 1.4.1
   SpreedlyBraintreeAPM:
     :path: "../node_modules/@spreedly/react-native-checkout-braintree-apm"
   SpreedlyCheckout:
@@ -2314,16 +2297,16 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@spreedly/react-native-checkout-stripe-apm"
   SpreedlyCore:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.2.2
+    :tag: 1.4.1
   SpreedlySecurity:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.2.2
+    :tag: 1.4.1
   SpreedlyStripeAPM:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.2.2
+    :tag: 1.4.1
   SpreedlyUI:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.2.2
+    :tag: 1.4.1
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2333,28 +2316,25 @@ CHECKOUT OPTIONS:
     :git: https://bitbucket.org/forter-mobile/forter-ios.git
   SpreedlyBraintree:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.2.2
+    :tag: 1.4.1
   SpreedlyCore:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.2.2
+    :tag: 1.4.1
   SpreedlySecurity:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.2.2
+    :tag: 1.4.1
   SpreedlyStripeAPM:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.2.2
+    :tag: 1.4.1
   SpreedlyUI:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.2.2
+    :tag: 1.4.1
 
 SPEC CHECKSUMS:
   Braintree: 56e8980f4934e8858d065c21f4979ed08a3a884a
-  DatadogCore: d2f51c7fb4308cf3c25e55e2e7242e5d558ee71d
-  DatadogInternal: 7837b2ce3d525d429682532eeda697b181299fdc
-  DatadogLogs: 250894b5a99da5b924a019049c0d0326823cdbd6
   FBLazyVector: 26fd21c75314e101f280d401e97f27d54f3f7064
   Forter3DS: 37a5b36373613322e67d096a22720cd813cfc44b
-  hermes-engine: f64f43db4a015fc8f01b0aa35ea2c43437c221f0
+  hermes-engine: 6751114aa8668b6b6cedd2be1302a4d998d1fa96
   RCTDeprecation: c7a2768f905d76ca6d2cfefb26e4349eacbdfca3
   RCTRequired: 5e502c3553cfbed090a991c444448da452fb752e
   RCTSwiftUI: 5ce3ccbdc58b78cc4ebbaace01709ec22d58e131
@@ -2363,7 +2343,7 @@ SPEC CHECKSUMS:
   React: 13cf8451582adb1bb324306e1893b91d1cba28c6
   React-callinvoker: 91e6a605826b684ad2e623811253b4d0c4196bef
   React-Core: 46818de5f211b2a2759ac823b591af8a0a95c2c1
-  React-Core-prebuilt: cb9e3d5493ca22a3868220970fa675e3439839a5
+  React-Core-prebuilt: 0f0879ba0ffad3a2fece4a24b69ccd03f0208a1c
   React-CoreModules: a6a37afee48d4a31ab398640b0795462647d5c67
   React-cxxreact: 2ec3e2f7a8ae9303460d4ba94cde183ea90d64cd
   React-debug: 0d21117b897ce0359c9d2c9dfe952f237476a14a
@@ -2392,7 +2372,7 @@ SPEC CHECKSUMS:
   React-Mapbuffer: 1fc10d873f00aa895836c316a9737ce7d43875ce
   React-microtasksnativemodule: 85ac7286ff84e8fc8e1956233748b8d4b2a6dcea
   react-native-config: 6188f674e4f4b3bdfd43c22886fb04f3103793ff
-  react-native-safe-area-context: 6b4966397ada0f7dd481e4486a2ef936834861a1
+  react-native-safe-area-context: fb5c8ee9f6dd62ef710611b3d370c501f42a4ac0
   React-NativeModulesApple: 993744f42aab769eb02bf5d256b6767c546d0bb5
   React-networking: 251bfddc651caca5e3039d1afa1d2eca890d0c56
   React-oscompat: ed8fa636665935e962d4091180ba6f07dcad7ea9
@@ -2426,17 +2406,17 @@ SPEC CHECKSUMS:
   ReactAppDependencyProvider: 22e2265d86a4e871e5e858f4e7ef1c8d01103680
   ReactCodegen: 5bd23df5c8ad6c87df0bc8ccd391bd37bf6c92d5
   ReactCommon: a804bb8d1dcf3ecdec3a77eb8bba19b7863bbbdb
-  ReactNativeDependencies: b79c6bc5b852b88cd6e2e0b3394ba2b4e160999c
+  ReactNativeDependencies: 8d5d6ff7141ef5b4fe6c769d4e621f33c1666bca
   RNGestureHandler: 187c5c7936abf427bc4d22d6c3b1ac80ad1f63c0
-  RNScreens: 01b065ded2dfe7987bcce770ff3a196be417ff41
-  SpreedlyBraintree: 334e79bdc86120da8b9e49a868daa9ef9c74e4b1
-  SpreedlyBraintreeAPM: dd8c09dd815949847776316fb9d5306b53b98c60
-  SpreedlyCheckout: 3e70477d84a05d013049663a542eda27c2241cc9
-  SpreedlyCheckoutStripeAPM: 7d41545bc3443eb2cab017cbd45f75d4d46702ff
-  SpreedlyCore: 6e2c75ac89961d007f6c121066df9943cf78334a
-  SpreedlySecurity: 6fc1f04b31719ffac7264fdbbb0f81a31cea42ae
-  SpreedlyStripeAPM: 6be9aabd7bce31878c4f2f4eaaed075cb25217e2
-  SpreedlyUI: 4b0cc96f5b87f43aa127116b53ec45e5f55d200f
+  RNScreens: f5dcb048ce454032efb873adbc502f64e0a85f8b
+  SpreedlyBraintree: 6a08900a0f7db82cc6400a8e14f6d3288414b333
+  SpreedlyBraintreeAPM: d2aa308ff7e76b5ca76ebf61e95b577653a48b47
+  SpreedlyCheckout: 3d074af5f5aca573a8606f2cbb7879367b617da5
+  SpreedlyCheckoutStripeAPM: 74b2857936eed4836904b375dc6d155897733f47
+  SpreedlyCore: 65c35cfe85e936889fa3a74c9c5adf00da123392
+  SpreedlySecurity: c745dc64fec4a6066304d1cc1ecfa2425e82de5b
+  SpreedlyStripeAPM: 4f7289ceb56d64b16d0137186fbc0f7df6d5cc31
+  SpreedlyUI: 2a96185c6f6f7745b06c70259553273873fc769e
   StripeApplePay: b74b487cdc4176b32ea3f250d63ceb7b0ab7dedb
   StripeCore: c9d8b48d4b9b14e73edfa2ca714dea44c0849f73
   StripePayments: c54ac68d13e5ef09c98aa5c12314a73d1e6a1fc6
