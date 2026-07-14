@@ -19,6 +19,7 @@ import {
   mapPaymentResult,
   PresentationMode,
   type PaymentResultRN,
+  type RecacheResult,
 } from '@spreedly/react-native-checkout';
 import { useSpreedlyInit } from '../../hooks/useSpreedlyInit';
 import CustomButton from '../../components/customButton/CustomButton';
@@ -57,6 +58,9 @@ const Recaching: React.FC<RecachingProps> = ({}) => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [selectedCard, setSelectedCard] = useState<PaymentMethod | null>(null);
   const [recachedToken, setRecachedToken] = useState<string | null>(null);
+  const [paymentMethodUpdatedAt, setPaymentMethodUpdatedAt] = useState<
+    string | null
+  >(null);
   const [labelText, setLabelText] = useState<string>('');
   const [placeholderText, setPlaceholderText] = useState<string>('');
   const [buttonText, setButtonText] = useState<string>('');
@@ -79,8 +83,8 @@ const Recaching: React.FC<RecachingProps> = ({}) => {
   useEffect(() => {
     const subscription = SpreedlyEventEmitter.addListener(
       SpreedlyEventTypes.RECACHE_RESULT,
-      (result: PaymentResultRN) => {
-        const mapped = mapPaymentResult(result);
+      (result: RecacheResult) => {
+        const mapped = mapPaymentResult(result as PaymentResultRN);
 
         switch (mapped.kind) {
           case 'initial':
@@ -89,20 +93,28 @@ const Recaching: React.FC<RecachingProps> = ({}) => {
           case 'canceled':
             setErrorMessage('CVV recaching cancelled by user');
             setRecachedToken(null);
+            setPaymentMethodUpdatedAt(null);
             break;
           case 'failed':
-            if ((result as any).status !== 'processing') {
+            if (result.status !== 'processing') {
               setErrorMessage(mapped.message);
             }
             setRecachedToken(null);
+            setPaymentMethodUpdatedAt(null);
             break;
           case 'success':
             setRecachedToken(mapped.token);
+            setPaymentMethodUpdatedAt(
+              result.status === 'completed'
+                ? (result.paymentMethodUpdatedAt ?? null)
+                : null
+            );
             setErrorMessage(null);
             break;
           case 'validation':
             setErrorMessage(mapped.message);
             setRecachedToken(null);
+            setPaymentMethodUpdatedAt(null);
             break;
         }
       }
@@ -245,6 +257,7 @@ const Recaching: React.FC<RecachingProps> = ({}) => {
         error instanceof Error ? error.message : 'Unknown error occurred';
       setErrorMessage(errorMsg);
       setRecachedToken(null);
+      setPaymentMethodUpdatedAt(null);
       Alert.alert('Error', errorMsg);
     }
   };
@@ -552,6 +565,11 @@ const Recaching: React.FC<RecachingProps> = ({}) => {
       <View style={styles.resultContainer} testID="result-container">
         <Text style={styles.resultTitle}>Recached Token:</Text>
         <Text style={styles.tokenText}>{recachedToken}</Text>
+        {paymentMethodUpdatedAt ? (
+          <Text style={styles.tokenText} testID="recache-updated-at">
+            Updated at: {paymentMethodUpdatedAt}
+          </Text>
+        ) : null}
       </View>
     );
   };

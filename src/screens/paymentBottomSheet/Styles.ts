@@ -5,13 +5,12 @@ import {
   verticalScale,
 } from '../../styles/typography';
 import { createAppStyles } from '../../styles/AppStyles';
-import { Gray } from '../../styles/AppColors';
+import { Blue, Gray } from '../../styles/AppColors';
 
 export const createStyles = (isDark: boolean) => {
   const appStyles = createAppStyles(isDark);
 
-  return StyleSheet.create({
-    ...appStyles,
+  const screenStyles = StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: isDark ? '#111827' : Gray.gray50,
@@ -206,6 +205,13 @@ export const createStyles = (isDark: boolean) => {
       color: isDark ? '#D1D5DB' : '#4B5563',
       fontFamily: 'Poppins',
     },
+    configHint: {
+      fontSize: scaledFont(11),
+      lineHeight: Math.round(scaledFont(11) * 1.35),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+      marginBottom: 12,
+    },
     toggleSwitch: {
       transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
     },
@@ -321,7 +327,79 @@ export const createStyles = (isDark: boolean) => {
       color: isDark ? '#F9FAFB' : '#374151',
       fontFamily: 'Poppins',
     },
+    expressQAPanel: {
+      marginTop: 12,
+      padding: 10,
+      borderRadius: 8,
+      backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+      width: '100%',
+    },
+    expressQATitle: {
+      fontSize: scaledFont(13),
+      fontWeight: '600',
+      color: isDark ? '#F9FAFB' : Gray.gray700,
+      fontFamily: 'Poppins',
+      marginBottom: 8,
+    },
+    expressQASubtitle: {
+      fontSize: scaledFont(10),
+      fontWeight: '600',
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+      marginBottom: 6,
+    },
+    expressQARowGroup: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+    },
+    expressQARow: {
+      minWidth: 72,
+      marginBottom: 4,
+    },
+    expressQARowLabel: {
+      fontSize: scaledFont(10),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+    },
+    expressQARowValue: {
+      fontSize: scaledFont(11),
+      color: isDark ? '#D1D5DB' : Gray.gray600,
+      fontFamily: 'Poppins',
+    },
+    expressQARowValueHighlight: {
+      fontSize: scaledFont(11),
+      fontWeight: '600',
+      color: isDark ? '#F9FAFB' : Gray.gray700,
+      fontFamily: 'Poppins',
+    },
+    expressQANote: {
+      fontSize: scaledFont(10),
+      lineHeight: Math.round(scaledFont(10) * 1.4),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+      marginTop: 8,
+    },
+    expressQAFootnote: {
+      fontSize: scaledFont(10),
+      lineHeight: Math.round(scaledFont(10) * 1.4),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+      marginTop: 8,
+    },
+    resetPaymentStateButton: {
+      backgroundColor: Blue.blue600,
+      shadowColor: Blue.blue600,
+      marginBottom: 12,
+    },
+    resetPaymentStateButtonText: {
+      color: '#FFFFFF',
+      fontWeight: '600',
+    },
   });
+
+  return { ...appStyles, ...screenStyles } as typeof appStyles &
+    typeof screenStyles;
 };
 
 export const styles = createStyles(false);

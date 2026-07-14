@@ -2,21 +2,24 @@ import { logError, logInfo } from '@spreedly/react-native-checkout';
 import Config from 'react-native-config';
 
 const BRAINTREE_PURCHASE_API_URL =
-  Config.API_BASE_URL + '/api/v1/braintree-purchase';
+  Config.API_BASE_URL + '/api/v1/create-purchase';
 
 const getBraintreeConfirmUrl = (transactionToken: string) =>
   `${Config.API_BASE_URL}/api/v1/transactions/${transactionToken}/confirm`;
 
+export type BraintreePaymentMethodType = 'paypal' | 'venmo';
+
 export interface BraintreePurchaseParams {
   amount: number;
   currency_code: string;
+  payment_method_type: BraintreePaymentMethodType;
   redirect_url: string;
   callback_url: string;
 }
 
 export interface BraintreePurchaseResponse {
   transaction_token: string;
-  client_token: string;
+  client_token?: string;
   state: string;
 }
 
@@ -37,27 +40,60 @@ export interface BraintreeConfirmResponse {
   errors?: Array<{ key: string; message: string }>;
 }
 
+function buildBraintreeGatewaySpecificFields(
+  paymentMethodType: BraintreePaymentMethodType
+) {
+  if (paymentMethodType === 'venmo') {
+    return {
+      braintree: {
+        venmo_flow_type: 'multi_use',
+        venmo_profile_id: '12345',
+      },
+    };
+  }
+
+  return {
+    braintree: {
+      paypal_flow_type: 'checkout',
+    },
+  };
+}
+
 /**
- * Creates a pending Braintree APM purchase.
- * The backend calls Spreedly's purchase API with offsite_sync: true
- * and returns the transaction token + Braintree client_token.
+ * Creates a pending Braintree APM purchase via the merchant backend.
  */
 export async function purchaseBraintreeAPM(
   params: BraintreePurchaseParams
 ): Promise<BraintreePurchaseResponse> {
-  const { amount, currency_code, redirect_url, callback_url } = params;
-
-  const requestBody = {
+  const {
     amount,
     currency_code,
-    channel: 'app',
+    payment_method_type,
     redirect_url,
     callback_url,
+  } = params;
+
+  const requestBody = {
+    gateway: 'braintree',
+    transaction: {
+      amount,
+      currency_code,
+      channel: 'app',
+      redirect_url,
+      callback_url,
+      payment_method: {
+        payment_method_type,
+        offsite_sync: true,
+      },
+      gateway_specific_fields:
+        buildBraintreeGatewaySpecificFields(payment_method_type),
+    },
   };
 
   logInfo('BraintreePurchase', 'Initiating Braintree APM purchase request', {
     amount,
     currency_code,
+    payment_method_type,
     redirect_url,
     callback_url,
   });

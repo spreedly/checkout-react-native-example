@@ -137,7 +137,7 @@ const OffsitePaymentScreen: React.FC<OffsitePaymentScreenProps> = () => {
               amount: product.price,
               currency_code: 'USD',
               redirect_url:
-                'checkoutreactnativeexample://com.checkoutreactnativeexample.package/offsite/checkout',
+                'spreedlyapp://com.spreedly.rn.app/offsite/checkout',
               callback_url: 'https://developer.spreedly.com/docs/ach-payments',
             });
 
@@ -204,8 +204,8 @@ const OffsitePaymentScreen: React.FC<OffsitePaymentScreenProps> = () => {
 
     try {
       OffsitePayment.initializeObserver();
-    } catch (error) {
-      console.error('Failed to initialize offsite payment observer:', error);
+    } catch {
+      console.error('Failed to initialize offsite payment observer');
     }
 
     // Subscribe to offsite payment results
@@ -220,8 +220,8 @@ const OffsitePaymentScreen: React.FC<OffsitePaymentScreenProps> = () => {
       subscription.remove();
       try {
         OffsitePayment.cleanup();
-      } catch (error) {
-        console.error('Failed to cleanup offsite payment:', error);
+      } catch {
+        console.error('Failed to cleanup offsite payment');
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -278,12 +278,12 @@ const OffsitePaymentScreen: React.FC<OffsitePaymentScreenProps> = () => {
         paymentMethodType: selectedProvider,
         redirectUrl:
           'https://developer.spreedly.com/docs/paypal-commerce-platform-offsite-payments',
-        email: 'user@example.com',
+        email: 'test@test.com',
       };
 
       await OffsitePayment.submitPayment(config);
     } catch (error) {
-      console.error('Failed to submit offsite payment:', error);
+      console.error('Failed to submit offsite payment');
       setStage(null);
       setIsProcessing(false);
       setErrorMessage((error as Error).message || 'Failed to start payment');

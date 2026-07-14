@@ -131,6 +131,15 @@ import { SPLTextField, FormFieldTypes } from '@spreedly/react-native-checkout';
 <SPLTextField formFieldType={FormFieldTypes.CVV} label="CVV" />
 ```
 
+### ACH Bank Account
+
+1. Initialize the SDK with fresh backend-signed parameters
+2. **Drop-in sheet:** subscribe to `SpreedlyEventTypes.ACH_BANK_ACCOUNT_BOTTOM_SHEET_RESULT`, call `SpreedlyCore.achBankAccountBottomSheet()`, complete the form, verify `mapPaymentResult(result).kind === 'success'`
+3. **Custom form:** render `SPLTextField` fields for `ROUTING_NUMBER`, `ACCOUNT_NUMBER`, and name; call `SpreedlyCore.createBankAccount()`; verify `result.status === 'completed'`
+4. Confirm the payment method token is sent to your backend and not stored in local persistence
+
+See [ACH Bank Account Guide](ach_bank_account_guide.md) for configuration and PCI notes.
+
 ### CVV Recaching
 
 1. Initialize the SDK
@@ -258,27 +267,40 @@ adb logcat | grep -E "(Spreedly|SpreedlyCheckout)"
 
 **iOS (Xcode):**
 
-Filter the Xcode console by `Spreedly` to see native SDK log output.
+Filter the Xcode console by `Spreedly` to see SDK log output.
 
-## Verifying Telemetry
+## Verifying Telemetry (Datadog)
 
-The SDK sends telemetry via native platform logging. For telemetry setup and verification in your environment, contact [Spreedly Support](https://spreedly.com/support/).
+The SDK sends telemetry to Datadog automatically via native platform logging.
+
+1. **Datadog console** -- Go to [Datadog Logs](https://app.datadoghq.com/logs) and filter by the native layer service name for each platform:
+   - Android native logs: `service:checkout-android-sdk`
+   - iOS native logs: `service:checkout-ios-sdk`
+
+2. **Expected events** -- After a payment flow, you should see events like SDK initialization, payment method creation, and flow completion.
+
+3. **Timing** -- Logs upload approximately every 5 seconds. Wait briefly after a flow before checking Datadog.
+
+For telemetry setup and troubleshooting, see [Central Logging Guide](../development/CENTRAL_LOGGING_GUIDE.md).
 
 ## Running the Example App
 
-This repository is the official example app with screens for every payment flow. It is the fastest way to verify SDK behavior end-to-end.
+The SDK includes an example app (`example/`) with screens for every payment flow. This is the fastest way to verify SDK behavior end-to-end.
 
-1. Clone the repo, create `.env` from `.env.example` with your credentials
+1. Clone the repo, create `.env` with your credentials
 2. Install dependencies: `yarn`
-3. Start Metro: `yarn start`
-4. Run on Android: `yarn android`
-5. Run on iOS: `yarn ios`
+3. Start Metro: `yarn example start`
+4. Run on Android: `yarn example android`
+5. Run on iOS: `yarn example ios`
 
-The example app includes screens for: Express Checkout (Payment Bottom Sheet), Hosted Fields, CVV Recaching, 3DS Challenge, 3DS Gateway-Specific, Offsite Payments, EBANX, Stripe APM, and Braintree APM.
+The example app includes screens for: Express Checkout (Payment Bottom Sheet), Hosted Fields, ACH Bank Account (sheet and custom form), CVV Recaching, 3DS Challenge, 3DS Gateway-Specific, Offsite Payments, EBANX, Stripe APM, and Braintree APM.
 
 ## See Also
 
 - [Integration Guide](integration_guide.md) -- Installation, initialization, and complete walkthrough
 - [Integration Guide -- Troubleshooting](integration_guide.md#troubleshooting) -- Symptom-based troubleshooting
 - [Express Checkout Guide](express_checkout_guide.md) -- Payment bottom sheet details
-- [Security](security.md) -- Screenshot protection, data handling, PCI compliance
+- [Security](security.md) -- Screenshot protection,, data handling, PCI compliance and vulnerability reporting policy
+- [Security](security.md) -- Screen capture protection via `ScreenSecurity`
+- [Hosted Fields — PAN display and field state](hosted_fields_guide.md#pan-display-masking-and-hosted-field-snapshots) -- Merchant-safe field callbacks
+- [Central Logging Guide](../development/CENTRAL_LOGGING_GUIDE.md) -- Datadog setup and verification

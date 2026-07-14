@@ -27,11 +27,11 @@ Express Checkout provides a pre-built, fully-featured payment form that can be i
 
 **What the SDK does for you:**
 
-- ✅ Displays secure, native payment form UI
-- ✅ Handles all form validation automatically
-- ✅ Collects card details securely (PCI compliant)
-- ✅ Returns tokenized payment method
-- ✅ Manages form state and error handling
+- Displays secure, native payment form UI
+- Handles all form validation automatically
+- Collects card details securely (PCI compliant)
+- Returns tokenized payment method
+- Manages form state and error handling
 
 **What you need to do:**
 
@@ -39,6 +39,14 @@ Express Checkout provides a pre-built, fully-featured payment form that can be i
 - Listen for payment results via event emitter
 - Send token to your backend for processing
 - Handle success/error states in your UI
+
+### Platform embedding
+
+**Android**: Call **`SpreedlyCore.paymentBottomSheet`** whenever you need to present checkout; the packaged native sheet attaches to your current **`Activity`**.
+
+**iOS**: **`paymentBottomSheet`** is supported imperatively via the bridge. You may also embed **`PaymentBottomSheet`** declaratively alongside your React Native tree depending on UX needs—see the **[Integration Guide — Show a payment UI](./integration_guide.md#show-a-payment-ui)** section for a minimal Express example, and [Platform embedding](#platform-embedding) below for declarative use.
+
+For a condensed Express-oriented verification list alongside Hosted Fields workflows, see **[Hosted Fields and Express capabilities](./hosted_and_express_capabilities.md#express-checkout)**.
 
 ## Minimal Integration
 
@@ -186,15 +194,27 @@ return (
 
 ### PaymentBottomSheetOptions
 
-| Property           | Type                | Default                          | Description                                                                                                         |
-| ------------------ | ------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| `allowBlankName`   | `boolean`           | `false`                          | Allow submission without cardholder name                                                                            |
-| `allowExpiredDate` | `boolean`           | `false`                          | Allow expired cards (for testing)                                                                                   |
-| `yearFormat`       | `YearFormat`        | `YearFormat.FourDigit`           | Year format for expiry (YY or YYYY)                                                                                 |
-| `nameDisplayMode`  | `NameDisplayMode`   | `NameDisplayMode.SeparateFields` | Show name as one field or first/last                                                                                |
-| `otherFields`      | `FieldDescriptor[]` | `undefined`                      | Extra fields beyond the default card form; each item uses `type` (a `FormFieldTypes` value) and optional `required` |
-| `theme`            | `BaseThemeConfig`   | SDK default                      | Light mode theme                                                                                                    |
-| `darkTheme`        | `BaseThemeConfig`   | SDK default                      | Dark mode theme                                                                                                     |
+| Property           | Type                | Default                          | Description                                                                                                                                                                                 |
+| ------------------ | ------------------- | -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `allowBlankName`   | `boolean`           | `false`                          | Allow submission without cardholder name                                                                                                                                                    |
+| `allowBlankDate`   | `boolean`           | `false`                          | Allow submission without expiry date (for testing or card-on-file flows)                                                                                                                    |
+| `allowExpiredDate` | `boolean`           | `false`                          | Allow expired cards (for testing)                                                                                                                                                           |
+| `yearFormat`       | `YearFormat`        | `YearFormat.FourDigit`           | Year format for expiry (YY or YYYY)                                                                                                                                                         |
+| `nameDisplayMode`  | `NameDisplayMode`   | `NameDisplayMode.SeparateFields` | Show name as one field or first/last                                                                                                                                                        |
+| `cardNumberFormat` | `string`            | SDK default (commonly `PRETTY`)  | Initial card number display for the sheet (`PRETTY`, `PLAIN`, `MASKED`). Maps to express display config on native (iOS `CardFormDropInDisplayConfig`, Android `PaymentSheetDisplayConfig`). |
+| `enableAutofill`   | `boolean`           | `true`                           | OS autofill on sheet fields. Same native display config as `cardNumberFormat` (not part of theme colors).                                                                                   |
+| `otherFields`      | `FieldDescriptor[]` | `undefined`                      | Extra fields beyond the default card form; each item uses `type` (a `FormFieldTypes` value) and optional `required`                                                                         |
+| `theme`            | `BaseThemeConfig`   | SDK default                      | Light mode **colors** (`PaymentSheetConfig` on Android). Does not set autofill or initial PAN format.                                                                                       |
+| `darkTheme`        | `BaseThemeConfig`   | SDK default                      | Dark mode **colors** (Android uses this when the device is in dark mode).                                                                                                                   |
+
+Pass **`cardNumberFormat`** and **`enableAutofill`** on `SpreedlyCore.paymentBottomSheet()` or embedded **`PaymentBottomSheet`** props. Changing only **`theme`** / **`darkTheme`** does not change autofill or initial card format — pass display options explicitly. **`keyboardType`** and **`textContentType`** are not available; keyboard layout follows each field's type. See [Hosted Fields — Keyboard and autofill behavior](./hosted_fields_guide.md#keyboard-and-autofill-behavior).
+
+```typescript
+SpreedlyCore.paymentBottomSheet({
+  cardNumberFormat: 'PRETTY',
+  enableAutofill: false,
+});
+```
 
 ### Configuration Examples
 
@@ -372,7 +392,7 @@ useEffect(() => {
 
 ### 2. Handle All Event States
 
-Use `mapPaymentResult()` and handle all `mapped.kind` values to ensure robust error handling.
+Use `mapPaymentResult()` and handle every `mapped.kind` value.
 
 ### 3. Send Token to Backend Immediately
 
@@ -432,6 +452,38 @@ Declined: 4000 0000 0000 0002
 
 ---
 
+## Troubleshooting
+
+### Express autofill or initial card format ignored
+
+- **`theme`** / **`darkTheme`** only affect sheet **colors** on Android (`PaymentSheetConfig`). They do not set **`enableAutofill`** or initial **`cardNumberFormat`**.
+- Pass **`enableAutofill`** and **`cardNumberFormat`** on **`SpreedlyCore.paymentBottomSheet()`** or **`PaymentBottomSheet`** props each time you present the sheet.
+
+---
+
+## Example app: Payment Bottom Sheet
+
+| Control                                                     | API                                                                                                                       |
+| ----------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Pretty / Plain / Masked** segments                        | `SpreedlyCore.setNumberFormat` (singleton; sheet CARD/CVV follow `hostedCardDisplayState`)                                |
+| **Toggle mask** switch                                      | `SpreedlyCore.toggleMask()`; readout syncs via `getHostedCardDisplayState()`                                              |
+| **Express QA** panel                                        | Global `hostedCardDisplayState` readout (no per-field snapshots — `CardFormDropIn` has no `onFieldStateChange`)           |
+| **Reset payment state** button (above Payment Bottom Sheet) | `SpreedlyCore.resetPaymentState()` — clears hosted values; mask/format on the merchant screen persist after sheet dismiss |
+
+`cardNumberFormat` and `enableAutofill` are still passed in `paymentBottomSheet()` options so the sheet seeds correctly when global display state is default.
+
+---
+
+## Manual verification checklist
+
+Use this short list alongside your release testing of Express flows (see **[Hosted Fields and Express capabilities — Express Checkout](./hosted_and_express_capabilities.md#express-checkout)** for the fuller narrative):
+
+1. Listener on **`SpreedlyEventTypes.PAYMENT_BOTTOM_SHEET_RESULT`** returns **`success`**, **`canceled`**, **`validation`**, and **`failed`** as expected across happy path and dismissal.
+2. Optional flags (**`allowBlankName`**, **`allowExpiredDate`**, **`allowBlankDate`**, **`cardNumberFormat`**, **`enableAutofill`**) match product rules.
+3. **`otherFields`** render and validate correctly when requesting billing ZIP or locale-specific inputs.
+
+---
+
 ## Summary
 
 **Key Steps:**
@@ -448,7 +500,8 @@ Declined: 4000 0000 0000 0002
 ## Support
 
 - 📖 [Spreedly API Documentation](https://docs.spreedly.com/)
-- 💻 Examples: `src/screens/paymentBottomSheet/PaymentBottomSheet.tsx`, `src/screens/paymentBottomSheetAdditionalFields/PaymentBottomSheetAdditionalFields.tsx` (`otherFields`)
+- 💻 Examples: `example/src/screens/paymentBottomSheet/PaymentBottomSheet.tsx` (Express QA), `example/src/screens/paymentBottomSheetAdditionalFields/PaymentBottomSheetAdditionalFields.tsx` (`otherFields`)
+- 🗺 Capability map vs Hosted Fields: **[Hosted Fields and Express capabilities](./hosted_and_express_capabilities.md)**
 - 🎨 Theming: See [theme_guide.md](./theme_guide.md)
 - ⚙️ Requires React Native 0.79+
 

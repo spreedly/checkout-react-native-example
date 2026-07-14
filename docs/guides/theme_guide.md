@@ -14,8 +14,24 @@ interface BaseThemeConfig {
   fieldLabelColor: string; // Labels and placeholders
   borderRadius: number; // Corner radius (e.g., 8, 12, 16)
   fieldShape: string; // 'rounded' or 'square'
+  placeholderColor?: string;
+  textColor?: string;
+  disabledTextColor?: string;
+  iconColor?: string;
 }
 ```
+
+## Optional keys and where React Native reads them today
+
+Those four optional **`BaseThemeConfig` fields** (**`placeholderColor`**, **`textColor`**, **`disabledTextColor`**, **`iconColor`**) are passed through on the **`@spreedly/react-native-checkout`** theme object. **`SPLTextField`** and **`SpreedlyCore.paymentBottomSheet`** apply them on Android (Compose field styling) and iOS for labels, placeholders, typography, trailing icons, and disabled states—including the programmatic bottom sheet on Android.
+
+Apple platforms **`setGlobalTheme`**, component-level **`theme` / `darkTheme`**, **`SpreedlyThemeUtils`** today build palette objects using the seven **required** fields only. Supplying optional colors in JSON does not error, but **`iOS`** does not remap those extras into **`SpreedlyUI`** helpers yet unless that native stack adds matching keys later. Omit the quad if you rely entirely on **`fieldLabelColor`** on Apple—or accept that Android gets finer typography control while **`iOS`** follows standard palette mapping.
+
+Whenever you widen those colors as part of a **single design token file**, declare them in TypeScript for consistent typing across platforms and deliberately test hosted fields on Android with optional keys populated.
+
+Capability cross-reference: **[Hosted Fields and Express capabilities](./hosted_and_express_capabilities.md)**.
+
+Mobile hosted fields use **`CustomThemeConfig`** tokens (`primaryColor`, `fieldBackgroundColor`, `fieldLabelColor`, `borderRadius`, optional `placeholderColor` / `textColor`, etc.) via **`SpreedlyCore.setGlobalTheme`**, per-component **`theme` / `darkTheme`**, or Express Checkout theme props. Web **`setStyle`** CSS does not apply on mobile — see **[From legacy iFrame](./migration/from-legacy.md#styling-from-iframe-setstyle)**.
 
 ## Global Theme
 
@@ -71,9 +87,13 @@ Override global theme for specific components:
 SpreedlyCore.paymentBottomSheet({
   theme: lightTheme,
   darkTheme: darkTheme,
+  cardNumberFormat: 'PRETTY',
+  enableAutofill: true,
   // ... other options
 });
 ```
+
+**Express display vs theme:** `theme` / `darkTheme` carry **`BaseThemeConfig` colors only**. **`cardNumberFormat`** and **`enableAutofill`** are separate top-level options on `paymentBottomSheet()` / `<PaymentBottomSheet>` (native `PaymentSheetDisplayConfig` on Android, `CardFormDropInDisplayConfig` on iOS). Do not nest them under `theme`. See [Express Checkout — Configuration](./express_checkout_guide.md#configuration-options).
 
 ## Dark Mode
 

@@ -2,6 +2,8 @@
 
 Use this guide when you add **PayPal** or **Venmo** through a Braintree gateway in Spreedly. For project setup (Gradle, Podfile, `initSdk`, env vars), use the [Integration guide](integration_guide.md) first.
 
+**See also:** [MONOREPO.md](../development/MONOREPO.md) for how core vs satellite packages split native dependencies.
+
 ## Table of contents
 
 - [Overview](#overview)
@@ -105,7 +107,7 @@ func application(
 }
 ```
 
-Reference: [ios/CheckoutReactNativeExample/AppDelegate.swift](../../ios/CheckoutReactNativeExample/AppDelegate.swift).
+Reference: [example/ios/SpreedlyCheckoutExample/AppDelegate.swift](../../example/ios/SpreedlyCheckoutExample/AppDelegate.swift).
 
 After return, the native layer completes the flow; results are delivered to JS via `BraintreeAPM.addListener` (see below).
 
@@ -157,21 +159,21 @@ From `@spreedly/react-native-checkout-braintree-apm`.
 
 ### `BraintreeAPMCheckoutConfig`
 
-| Field                    | Notes                                                                                                                        |
-| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------- |
-| `transactionToken`       | From Spreedly purchase response.                                                                                             |
-| `paymentType`            | `'paypal'` or `'venmo'`.                                                                                                     |
-| `merchantDisplayName`    | Shown in the authorization UI.                                                                                               |
-| `clientToken`            | Optional in TypeScript; **required at runtime**. From `transaction.gateway_specific_response_fields.braintree.client_token`. |
-| `amount`, `currencyCode` | Strings, e.g. `"75.00"`, `"USD"`.                                                                                            |
+| Field                    | Notes                                                                                                                                                                                                        |
+| ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `transactionToken`       | From Spreedly purchase response.                                                                                                                                                                             |
+| `paymentType`            | `'paypal'` or `'venmo'`.                                                                                                                                                                                     |
+| `merchantDisplayName`    | Shown in the authorization UI.                                                                                                                                                                               |
+| `clientToken`            | **Optional.** The SDK fetches `client_token` from transaction status before launch. Pass from `transaction.gateway_specific_response_fields.braintree.client_token` only as a fallback when status omits it. |
+| `amount`, `currencyCode` | Strings, e.g. `"75.00"`, `"USD"`.                                                                                                                                                                            |
 
 ### `BraintreeAPMResult`
 
-| `status`   | Meaning                                                                                                         |
-| ---------- | --------------------------------------------------------------------------------------------------------------- |
-| `success`  | If `nonce` is set, call your backend **confirm** with that nonce. If no nonce, treat per your gateway response. |
-| `failed`   | `state === 'pending'` can mean timeout—verify transaction server-side.                                          |
-| `canceled` | User dismissed the flow.                                                                                        |
+| `status`   | Meaning                                                                                                                                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `success`  | If `nonce` is set, call your backend **confirm** with that nonce. Optional `paymentMethodType` (`paypal` / `venmo`) and `venmoUsername` (Android Venmo). If no nonce, treat per your gateway response. |
+| `failed`   | `state === 'pending'` can mean timeout—verify transaction server-side.                                                                                                                                 |
+| `canceled` | User dismissed the flow. Optional `message` and `paymentMethodType` (Android).                                                                                                                         |
 
 ---
 
@@ -181,8 +183,8 @@ From `@spreedly/react-native-checkout-braintree-apm`.
 
 Create a pending transaction via Spreedly Purchase API (Braintree gateway). The app needs:
 
-- **Transaction token**
-- **Client token** from `transaction.gateway_specific_response_fields.braintree.client_token`
+- **Transaction token** (required for `presentCheckout`)
+- **Client token** (optional fallback) from `transaction.gateway_specific_response_fields.braintree.client_token` when you want to pass it explicitly; otherwise it is read from transaction status
 
 Also pass **`redirect_url`** / **`callback_url`** your backend and Spreedly expect (must align with the URL scheme you registered).
 
@@ -221,7 +223,7 @@ await BraintreeAPM.presentCheckout({
 
 ### 4. Handle result
 
-On `success` with `nonce`, POST to your backend to call Spreedly **confirm** (e.g. `state: 'Successful'`, `nonce`, `payment_method_type: 'paypal' | 'venmo'`).
+On `success` with `nonce`, POST to your backend to call Spreedly **confirm** (e.g. `state: 'Successful'`, `nonce`, `payment_method_type` from the result’s `paymentMethodType` when present, or your configured `paymentType`).
 
 ### 5. Cleanup
 
@@ -233,13 +235,12 @@ On screen unmount, `remove` the listener and call `BraintreeAPM.cleanup()`.
 
 ### Native validation (before sheet opens)
 
-| Message                         | Cause                              |
-| ------------------------------- | ---------------------------------- |
-| `transactionToken is required`  | Missing token                      |
-| `paymentType is required`       | Missing or invalid type            |
-| `clientToken is required`       | Missing client token from purchase |
-| `Unsupported payment type`      | Not `paypal` or `venmo`            |
-| `SDK not initialized` (Android) | `initSdk` not called               |
+| Message                         | Cause                   |
+| ------------------------------- | ----------------------- |
+| `transactionToken is required`  | Missing token           |
+| `paymentType is required`       | Missing or invalid type |
+| `Unsupported payment type`      | Not `paypal` or `venmo` |
+| `SDK not initialized` (Android) | `initSdk` not called    |
 
 ### Android timeout
 

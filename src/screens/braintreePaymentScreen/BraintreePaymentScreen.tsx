@@ -66,6 +66,33 @@ enum BraintreeStage {
   CONFIRMING = 'CONFIRMING',
 }
 
+type BraintreePaymentType = PaymentMethod['type'];
+
+const normalizePaymentMethodType = (
+  value: string | undefined
+): BraintreePaymentType | undefined => {
+  const normalized = value?.toLowerCase();
+  if (normalized === 'paypal' || normalized === 'venmo') {
+    return normalized;
+  }
+  return undefined;
+};
+
+const resolveConfirmPaymentMethodType = (
+  result: BraintreeAPMResult,
+  checkoutPaymentType: BraintreePaymentType | null,
+  selectedPaymentType: BraintreePaymentType | undefined
+): BraintreePaymentType | undefined => {
+  if (result.status !== 'success') {
+    return undefined;
+  }
+  return (
+    normalizePaymentMethodType(result.paymentMethodType) ??
+    checkoutPaymentType ??
+    selectedPaymentType
+  );
+};
+
 const BraintreePaymentScreen: React.FC = () => {
   const { isLoading, initError, initSpreedly } = useSpreedlyInit();
   const isDark = useColorScheme() === 'dark';
@@ -82,6 +109,9 @@ const BraintreePaymentScreen: React.FC = () => {
 
   const stageRef = React.useRef(stage);
   const selectedMethodRef = React.useRef(selectedMethod);
+  const checkoutPaymentTypeRef = React.useRef<BraintreePaymentType | null>(
+    null
+  );
   const transactionTokenRef = React.useRef<string | null>(null);
 
   React.useEffect(() => {
@@ -95,6 +125,21 @@ const BraintreePaymentScreen: React.FC = () => {
   const handleBraintreeResult = useCallback(
     async (result: BraintreeAPMResult) => {
       if (result.status === 'success' && result.nonce) {
+        const paymentMethodType = resolveConfirmPaymentMethodType(
+          result,
+          checkoutPaymentTypeRef.current,
+          selectedMethodRef.current?.type
+        );
+
+        if (!paymentMethodType) {
+          setStage(BraintreeStage.SELECTING);
+          setIsProcessing(false);
+          setErrorMessage(
+            'Unable to determine payment method type for confirmation'
+          );
+          return;
+        }
+
         setStage(BraintreeStage.CONFIRMING);
         try {
           await confirmBraintreeAPM({
@@ -102,7 +147,7 @@ const BraintreePaymentScreen: React.FC = () => {
               result.transactionToken || transactionTokenRef.current || '',
             state: 'Successful',
             nonce: result.nonce,
-            payment_method_type: selectedMethodRef.current?.type || 'paypal',
+            payment_method_type: paymentMethodType,
           });
           setStage(BraintreeStage.SELECTING);
           setIsProcessing(false);
@@ -189,17 +234,21 @@ const BraintreePaymentScreen: React.FC = () => {
       const response = await purchaseBraintreeAPM({
         amount: selectedProduct.price,
         currency_code: 'USD',
-        redirect_url: 'checkoutreactnativeexample://com.checkoutreactnativeexample.package/braintree/checkout',
+        payment_method_type: selectedMethod.type,
+        redirect_url: 'spreedlyapp://com.spreedly.rn.app/braintree/checkout',
         callback_url: 'https://developer.spreedly.com/docs/braintree-payments',
       });
 
       transactionTokenRef.current = response.transaction_token;
+      checkoutPaymentTypeRef.current = selectedMethod.type;
 
       await BraintreeAPM.presentCheckout({
         transactionToken: response.transaction_token,
         paymentType: selectedMethod.type,
         merchantDisplayName: 'Spreedly Test Store',
-        clientToken: response.client_token,
+        ...(response.client_token
+          ? { clientToken: response.client_token }
+          : {}),
         amount: formatPrice(selectedProduct.price),
         currencyCode: 'USD',
       });

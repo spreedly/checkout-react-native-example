@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -17,10 +17,14 @@ import {
   SpreedlyEventEmitter,
   SpreedlyEventTypes,
   type PaymentResultRN,
+  type CardNumberFormatName,
+  type PaymentBottomSheetOptions,
+  type HostedCardDisplayStatePayload,
 } from '@spreedly/react-native-checkout';
 import { useSpreedlyInit } from '../../hooks/useSpreedlyInit';
 import { createStyles } from './Styles';
 import CustomButton from '../../components/customButton/CustomButton';
+import ExpressQAPanel from '../../components/expressQA/ExpressQAPanel';
 import {
   DefaultThemeConfig,
   DarkThemeConfig,
@@ -43,6 +47,16 @@ enum ThemeConfigType {
 
 interface PaymentBottomSheetProps {}
 
+const PAN_FORMAT_HELP_CAPTION =
+  'Pretty: grouped spaced digits. Plain: all digits visible. Masked: every digit * while typing.';
+
+function normalizeCardNumberFormat(raw: string): CardNumberFormatName {
+  const upper = raw.trim().toUpperCase();
+  if (upper === 'PLAIN') return 'PLAIN';
+  if (upper === 'MASKED') return 'MASKED';
+  return 'PRETTY';
+}
+
 const PaymentBottomSheet: React.FC<PaymentBottomSheetProps> = ({}) => {
   // Detect system color scheme
   const isDark = useColorScheme() === 'dark';
@@ -63,6 +77,59 @@ const PaymentBottomSheet: React.FC<PaymentBottomSheetProps> = ({}) => {
     ThemeConfigType.DEFAULT
   );
   const [useCustomTheme, setUseCustomTheme] = useState(false);
+  const [cardNumberFormat, setCardNumberFormat] =
+    useState<CardNumberFormatName>('PRETTY');
+  const [panMasked, setPanMasked] = useState(false);
+  const [globalDisplayState, setGlobalDisplayState] =
+    useState<HostedCardDisplayStatePayload | null>(null);
+  const [sheetEnableAutofill, setSheetEnableAutofill] = useState(true);
+
+  const refreshGlobalDisplayState = useCallback(
+    async (syncFormatControls = true) => {
+      if (isLoading || initError) return;
+      try {
+        const state = await SpreedlyCore.getHostedCardDisplayState();
+        setGlobalDisplayState(state);
+        if (syncFormatControls) {
+          setPanMasked(state.panMasked);
+          setCardNumberFormat(
+            normalizeCardNumberFormat(state.cardNumberFormat)
+          );
+        }
+      } catch {
+        console.error('Failed to refresh global display state');
+      }
+    },
+    [isLoading, initError]
+  );
+
+  useEffect(() => {
+    if (isLoading || initError) return;
+    SpreedlyCore.setNumberFormat(cardNumberFormat);
+    refreshGlobalDisplayState().catch(() => {});
+  }, [isLoading, initError, cardNumberFormat, refreshGlobalDisplayState]);
+
+  useEffect(() => {
+    refreshGlobalDisplayState().catch(() => {});
+  }, [refreshGlobalDisplayState]);
+
+  const updatePanMask = async (nextMasked: boolean) => {
+    if (isLoading || initError || nextMasked === panMasked) return;
+    try {
+      SpreedlyCore.toggleMask();
+      await refreshGlobalDisplayState();
+    } catch {
+      setErrorMessage('Failed to toggle card mask');
+    }
+  };
+
+  const performExpressReset = async () => {
+    SpreedlyCore.resetPaymentState();
+    setPaymentToken(null);
+    setPaymentStatus('idle');
+    setErrorMessage(null);
+    await refreshGlobalDisplayState();
+  };
 
   useEffect(() => {
     const subscription = SpreedlyEventEmitter.addListener(
@@ -70,6 +137,7 @@ const PaymentBottomSheet: React.FC<PaymentBottomSheetProps> = ({}) => {
       async (result: PaymentResultRN) => {
         const mapped = mapPaymentResult(result);
         setPaymentStatus(result.status);
+        refreshGlobalDisplayState(false).catch(() => {});
 
         switch (mapped.kind) {
           case 'initial':
@@ -90,8 +158,8 @@ const PaymentBottomSheet: React.FC<PaymentBottomSheetProps> = ({}) => {
             if (mapped.shouldRetain) {
               try {
                 await retainCVV(mapped.token);
-              } catch (error) {
-                console.error('Failed to retain CVV:');
+              } catch {
+                console.error('Failed to retain CVV');
               }
             }
             break;
@@ -105,7 +173,7 @@ const PaymentBottomSheet: React.FC<PaymentBottomSheetProps> = ({}) => {
     return () => {
       subscription.remove();
     };
-  }, []);
+  }, [refreshGlobalDisplayState]);
 
   const getSelectedConfigObject = () => {
     if (!useCustomTheme) {
@@ -172,12 +240,14 @@ const PaymentBottomSheet: React.FC<PaymentBottomSheetProps> = ({}) => {
     setErrorMessage(null);
 
     try {
-      let options: any = {
+      const options: PaymentBottomSheetOptions = {
         allowBlankName,
         allowExpiredDate,
         allowBlankDate,
         yearFormat,
         nameDisplayMode,
+        cardNumberFormat,
+        enableAutofill: sheetEnableAutofill,
       };
 
       // Add both theme and darkTheme if custom theme is enabled
@@ -248,6 +318,24 @@ const PaymentBottomSheet: React.FC<PaymentBottomSheetProps> = ({}) => {
               value={allowBlankDate}
               onValueChange={setAllowBlankDate}
               testID="allow-blank-date-switch"
+            />
+          </View>
+          <View style={styles.toggleRow}>
+            <Text style={styles.toggleLabel}>Enable autofill (PAN & CVC)</Text>
+            <CustomSwitch
+              value={sheetEnableAutofill}
+              onValueChange={setSheetEnableAutofill}
+              testID="sheet-enable-autofill-switch"
+            />
+          </View>
+          <View style={styles.toggleRow}>
+            <Text style={styles.toggleLabel} testID="pbs-toggle-mask-label">
+              Toggle mask
+            </Text>
+            <CustomSwitch
+              value={panMasked}
+              onValueChange={updatePanMask}
+              testID="pbs-toggle-mask-switch"
             />
           </View>
           <View style={styles.yearFormatRow}>
@@ -338,6 +426,46 @@ const PaymentBottomSheet: React.FC<PaymentBottomSheetProps> = ({}) => {
               </TouchableOpacity>
             </View>
           </View>
+          <View style={styles.yearFormatRow}>
+            <Text
+              style={styles.yearFormatLabel}
+              testID="pbs-card-number-format-label"
+            >
+              Card number format
+            </Text>
+            <View style={styles.segmentedControl}>
+              {(['PRETTY', 'PLAIN', 'MASKED'] as const).map((fmt) => (
+                <TouchableOpacity
+                  key={fmt}
+                  style={[
+                    styles.segmentButton,
+                    cardNumberFormat === fmt && styles.segmentButtonActive,
+                  ]}
+                  onPress={() => setCardNumberFormat(fmt)}
+                  testID={`pbs-card-format-${fmt.toLowerCase()}`}
+                >
+                  <Text
+                    style={[
+                      styles.segmentButtonText,
+                      cardNumberFormat === fmt &&
+                        styles.segmentButtonTextActive,
+                    ]}
+                  >
+                    {fmt === 'PRETTY'
+                      ? 'Pretty'
+                      : fmt === 'PLAIN'
+                        ? 'Plain'
+                        : 'Masked'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+          <Text style={styles.configHint}>{PAN_FORMAT_HELP_CAPTION}</Text>
+          <ExpressQAPanel
+            globalDisplayState={globalDisplayState}
+            styles={styles}
+          />
         </View>
 
         <View style={styles.themeConfigContainer}>
@@ -405,6 +533,15 @@ const PaymentBottomSheet: React.FC<PaymentBottomSheetProps> = ({}) => {
         </View>
 
         <View style={styles.cardContainer}>
+          <CustomButton
+            title="Reset payment state"
+            onPress={() => {
+              performExpressReset().catch(() => {});
+            }}
+            testID="pbs-reset-payment-state-button"
+            style={styles.resetPaymentStateButton}
+            textStyle={styles.resetPaymentStateButtonText}
+          />
           <CustomButton
             title="Payment Bottom Sheet"
             onPress={handlePaymentBottomSheet}
