@@ -43,6 +43,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     navigation.navigate('PaymentBottomSheetAdditionalFields');
   };
 
+  const navigateToAchBankAccountScreen = () => {
+    navigation.navigate('AchBankAccountScreen');
+  };
+
+  const navigateToAchBankAccountCustomFormScreen = () => {
+    navigation.navigate('AchBankAccountCustomFormScreen');
+  };
+
   const navigateToRecaching = () => {
     navigation.navigate('Recaching');
   };
@@ -108,6 +116,32 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 </Text>
                 <Text style={styles.cardDescription}>
                   Payment bottom sheet with additional fields
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.card}
+                onPress={navigateToAchBankAccountScreen}
+                testID="card-ach-bank-account-screen"
+              >
+                <Text style={styles.cardTitle}>ACH Bank Account</Text>
+                <Text style={styles.cardDescription}>
+                  Tokenize bank accounts via ACH with routing number, account
+                  number, and account type
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.card}
+                onPress={navigateToAchBankAccountCustomFormScreen}
+                testID="card-ach-bank-account-custom-form"
+              >
+                <Text style={styles.cardTitle}>
+                  ACH Bank Account – Custom Form
+                </Text>
+                <Text style={styles.cardDescription}>
+                  Headless ACH built field-by-field with SPLTextField and
+                  createBankAccount
                 </Text>
               </TouchableOpacity>
 

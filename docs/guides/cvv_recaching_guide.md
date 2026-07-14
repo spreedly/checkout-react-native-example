@@ -14,10 +14,10 @@ CVV recaching allows users to update the CVV for saved payment methods without r
 
 **SDK handles:**
 
-- ✅ Secure native CVV input UI
-- ✅ Automatic CVV validation
-- ✅ Secure communication with Spreedly
-- ✅ Error handling
+- Secure native CVV input UI
+- Automatic CVV validation
+- Secure communication with Spreedly
+- Error handling
 
 **You handle:**
 
@@ -35,17 +35,21 @@ import {
   SpreedlyEventEmitter,
   SpreedlyEventTypes,
   mapPaymentResult,
+  type RecacheResult,
 } from '@spreedly/react-native-checkout';
 
 // 1. Set up event listener
 useEffect(() => {
   const subscription = SpreedlyEventEmitter.addListener(
     SpreedlyEventTypes.RECACHE_RESULT,
-    (result) => {
+    (result: RecacheResult) => {
       const mapped = mapPaymentResult(result);
 
       if (mapped.kind === 'success') {
         updateBackend(mapped.token);
+        if (result.status === 'completed' && result.paymentMethodUpdatedAt) {
+          trackRecacheCycle(result.paymentMethodUpdatedAt);
+        }
       }
     }
   );
@@ -68,6 +72,14 @@ const updateCVV = () => {
   });
 };
 ```
+
+## iOS recache stream
+
+On iOS, the SDK listens on the dedicated recache result stream (`subscribeToRecacheResults`), not the general payment result publisher. Successful recache events may include `paymentMethodUpdatedAt` on the `onRecacheResult` payload when `status` is `completed`.
+
+## Android recache payloads
+
+On Android, `onRecacheResult` completions may include `paymentMethodUpdatedAt` and optional `shouldRetain` (from `transaction.retained`). User-cancel results emit `status: 'canceled'`.
 
 ## How It Works
 
@@ -193,22 +205,34 @@ const handleRecacheCVV = () => {
 
 ### config Object
 
-| Property           | Type                           | Required | Description                                   |
-| ------------------ | ------------------------------ | -------- | --------------------------------------------- |
-| `cardInfo`         | `CardInfo`                     | Yes      | Saved card information to display             |
-| `presentationMode` | `'BOTTOM_SHEET'` \| `'DIALOG'` | No       | UI presentation style (default: BOTTOM_SHEET) |
-| `labelText`        | `string`                       | No       | CVV field label (default: "CVV")              |
-| `placeholderText`  | `string`                       | No       | Input placeholder (default: "123")            |
-| `buttonText`       | `string`                       | No       | Confirm button (default: "Confirm")           |
-| `cancelButtonText` | `string`                       | No       | Cancel button (default: "Cancel")             |
+| Property           | Type                           | Required | Description                                                                                                                                    |
+| ------------------ | ------------------------------ | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cardInfo`         | `CardInfo`                     | Yes      | Saved card information to display                                                                                                              |
+| `presentationMode` | `'BOTTOM_SHEET'` \| `'DIALOG'` | No       | UI presentation style (default: BOTTOM_SHEET)                                                                                                  |
+| `labelText`        | `string`                       | No       | CVV field label (default: "CVV")                                                                                                               |
+| `placeholderText`  | `string`                       | No       | Input placeholder (default: "123")                                                                                                             |
+| `buttonText`       | `string`                       | No       | Confirm button (default: "Confirm")                                                                                                            |
+| `cancelButtonText` | `string`                       | No       | Cancel button (default: "Cancel")                                                                                                              |
+| `allowBlankName`   | `boolean`                      | No       | Permit empty cardholder-related inputs during recache if your program allows (**default:** `false`)                                            |
+| `allowExpiredDate` | `boolean`                      | No       | Permit expired expiry when recache UX collects it (**default:** `false`)                                                                       |
+| `allowBlankDate`   | `boolean`                      | No       | Permit leaving expiry unset when recache UI collects it; same meaning as **`allowBlankDate`** on Hosted / Express flows (**default:** `false`) |
+| `theme`            | `BaseThemeConfig`              | No       | Light palette hook for Compose / UIKit overlays                                                                                                |
+| `darkTheme`        | `BaseThemeConfig`              | No       | Dark palette counterpart when runtime is dark                                                                                                  |
+
+`allowBlankName`, **`allowExpiredDate`**, and **`allowBlankDate`** live next to **`cardInfo`** on the **`config`** object forwarded to **`SpreedlyCore.recachePaymentMethod`**. Prefer matching whatever validation posture you advertise on first-time Hosted or Express Checkout so customers see consistent logic.
+
+Independent **global relaxations** (**`ALLOW_BLANK_NAME`**, etc.) remain available through **`SpreedlyCore.setParam`** per the Hosted and Integration guides; treat recache **`config`** flags as UX-scoped knobs for this flow only.
+
+For a capability map—including recache reminders—see **[Hosted Fields and Express capabilities](./hosted_and_express_capabilities.md)**.
 
 ### cardInfo Object
 
-| Property         | Type     | Required | Description                                   |
-| ---------------- | -------- | -------- | --------------------------------------------- |
-| `lastFourDigits` | `string` | Yes      | Last 4 digits (e.g., "4242")                  |
-| `cardType`       | `string` | Yes      | Card type (e.g., "Visa", "Mastercard")        |
-| `cardBrand`      | `string` | No       | Brand identifier (e.g., "visa", "mastercard") |
+| Property         | Type     | Required | Description                                                                                                                                     |
+| ---------------- | -------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lastFourDigits` | `string` | Yes      | Last 4 digits (e.g., "4242")                                                                                                                    |
+| `cardType`       | `string` | Yes      | Card type (e.g., "Visa", "Mastercard")                                                                                                          |
+| `cardBrand`      | `string` | No       | Optional scheme slug for CVV length rules (e.g., `"visa"`, `"amex"`, `"passcard"`). When set, takes precedence over `cardType` where supported. |
+| `cardholderName` | `string` | No       | Optional cardholder name shown in the recache UI (Android).                                                                                     |
 
 ## Event Result Types
 
@@ -349,9 +373,9 @@ case 'success':
 ## Support
 
 - 📖 [Spreedly API Documentation](https://docs.spreedly.com/)
-- 💻 Example: `src/screens/recaching/Recaching.tsx`
+- 💻 Example: `example/src/screens/recaching/Recaching.tsx`
 - ⚙️ Requires React Native 0.79+
 
 ---
 
-**Last Updated:** May 2026
+**Last Updated:** March 20, 2026

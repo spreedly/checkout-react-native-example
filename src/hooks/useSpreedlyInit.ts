@@ -23,7 +23,7 @@ export const useSpreedlyInit = () => {
     try {
       // Always fetch fresh params from backend before init
       const params = await fetchAuthParams();
-      
+
       const spreedlyOptions: SpreedlySDKInitOptions = {
         token: params.certificateToken || '',
         nonce: params.nonce || '',

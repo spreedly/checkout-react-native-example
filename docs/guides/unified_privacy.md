@@ -106,11 +106,11 @@ Policy updates will be:
 
 ## Summary
 
-✅ Processes card data in memory only  
-✅ Transmits data securely via TLS  
-✅ No data collection or storage  
-✅ No user tracking  
-✅ Shares data only with Spreedly
+Processes card data in memory only  
+Transmits data securely via TLS  
+No data collection or storage  
+No user tracking  
+Shares data only with Spreedly
 
 ---
 

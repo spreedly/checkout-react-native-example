@@ -35,7 +35,7 @@ interface Product {
   description: string;
 }
 
-// PaymentCard interface matching the API response structure
+// Shape of payment card objects returned by the example backend.
 interface PaymentCard {
   id: string;
   paymentToken: string;
@@ -150,11 +150,8 @@ const ThreeDsGatewayScreen: React.FC<ThreeDsGatewayScreenProps> = () => {
 
     try {
       SpreedlyCore.initializeGatewaySpecific3DSObservers();
-    } catch (error) {
-      console.error(
-        'Failed to initialize Gateway-Specific 3DS observers:',
-        error
-      );
+    } catch {
+      console.error('Failed to initialize Gateway-Specific 3DS observers');
     }
 
     // When onTriggerCompletion is received, merchant MUST call /complete.json API
@@ -179,8 +176,8 @@ const ThreeDsGatewayScreen: React.FC<ThreeDsGatewayScreenProps> = () => {
             // Dismiss the challenge view since no challenge is needed
             try {
               SpreedlyCore.hideGatewaySpecific3DSChallenge();
-            } catch (e) {
-              console.error('Failed to hide challenge view:', e);
+            } catch {
+              console.error('Failed to hide challenge view');
             }
 
             setShowSuccessAlert(true);
@@ -198,8 +195,8 @@ const ThreeDsGatewayScreen: React.FC<ThreeDsGatewayScreenProps> = () => {
           // Dismiss the challenge view on error
           try {
             SpreedlyCore.hideGatewaySpecific3DSChallenge();
-          } catch (e) {
-            console.error('Failed to hide challenge view:', e);
+          } catch {
+            console.error('Failed to hide challenge view');
           }
 
           // Update UI state to reflect the error
@@ -215,7 +212,7 @@ const ThreeDsGatewayScreen: React.FC<ThreeDsGatewayScreenProps> = () => {
       }
     );
 
-    // When onChallenge is received, the challenge WebView is displayed by native SDK
+    // Challenge UI is presented by the native 3DS flow when onChallenge fires.
     const challengeReadySubscription = SpreedlyEventEmitter.addListener(
       SpreedlyEventTypes.GATEWAY_SPECIFIC_3DS_CHALLENGE_READY,
       () => {
@@ -323,16 +320,16 @@ const ThreeDsGatewayScreen: React.FC<ThreeDsGatewayScreenProps> = () => {
               // Dismiss the challenge view
               try {
                 SpreedlyCore.hideGatewaySpecific3DSChallenge();
-              } catch (e) {
-                console.error('Failed to hide challenge view:', e);
+              } catch {
+                console.error('Failed to hide challenge view:');
               }
 
               try {
                 SpreedlyCore.cleanupGatewaySpecific3DSLifecycle(
                   transaction.token || ''
                 );
-              } catch (e) {
-                console.error('Failed to cleanup 3DS lifecycle:', e);
+              } catch {
+                console.error('Failed to cleanup 3DS lifecycle');
               }
               setErrorMessage(
                 'Gateway-Specific 3DS timeout. Challenge not completed.'

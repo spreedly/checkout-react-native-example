@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   TextInput,
   useColorScheme,
 } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import CustomSwitch from '../../components/customSwitch/CustomSwitch';
 import CustomButton from '../../components/customButton/CustomButton';
 import {
@@ -22,6 +23,9 @@ import {
   type FieldDescriptor,
   ImeActions,
   type FormFieldType,
+  type CardNumberFormatName,
+  type HostedFieldStatePayload,
+  type HostedCardDisplayStatePayload,
 } from '@spreedly/react-native-checkout';
 import {
   DarkThemeConfig,
@@ -37,8 +41,19 @@ import CustomCheckbox from '../../components/customCheckbox/CustomCheckbox';
 import ErrorView from '../../components/errorView/ErrorView';
 import { retainCVV } from '../../network/retainCvv';
 import { navigateToNextField } from '../../utils/FocusUtils';
-
-interface BasicCheckoutScreenProps {}
+import BasicCheckoutFieldStateInspector from './BasicCheckoutFieldStateInspector';
+import {
+  INSPECTOR_FULL_NAME_FIELD,
+  DEFAULT_LAST_EVENT_SUMMARY,
+  DEFAULT_ON_CHANGE_READOUT,
+  appendEventLog,
+  buildAggregateValidationReadout,
+  buildEventLogLine,
+  countRegisteredFields,
+  formatOnChangeReadout,
+  globalDisplayMismatch,
+  inspectorFieldTypes,
+} from './fieldStateInspectorUtils';
 
 interface FormData {
   fullName: string;
@@ -48,45 +63,89 @@ interface FormErrors {
   fullName?: string;
 }
 
-const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
+function normalizeCardNumberFormat(raw: string): CardNumberFormatName {
+  const upper = raw.trim().toUpperCase();
+  if (upper === 'PLAIN') return 'PLAIN';
+  if (upper === 'MASKED') return 'MASKED';
+  return 'PRETTY';
+}
+
+const BasicCheckoutScreen: React.FC = () => {
   const { isLoading, initError, initSpreedly } = useSpreedlyInit();
   const [paymentToken, setPaymentToken] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Detect system color scheme
   const isDark = useColorScheme() === 'dark';
   const styles = createStyles(isDark);
 
-  // Configuration options
   const [allowBlankName, setAllowBlankName] = useState(false);
   const [allowExpiredDate, setAllowExpiredDate] = useState(false);
   const [allowBlankDate, setAllowBlankDate] = useState(false);
   const [combinedExpiryDate, setCombinedExpiryDate] = useState(true);
   const [yearFormat, setYearFormat] = useState<YearFormat>(YearFormat.TwoDigit);
+  const [eligibleForCardUpdater, setEligibleForCardUpdater] = useState(false);
   const [saveCardForFuture, setSaveCardForFuture] = useState(false);
   const [focusedField, setFocusedField] = useState<FormFieldType | null>(null);
+  const [cardNumberFormat, setCardNumberFormat] =
+    useState<CardNumberFormatName>('PRETTY');
+  const [panMasked, setPanMasked] = useState(false);
+  const [enableAutofill, setEnableAutofill] = useState(true);
+  const [hostedFieldsKey, setHostedFieldsKey] = useState(0);
 
-  // Ref for the custom fullname field
+  const [lastCardFieldState, setLastCardFieldState] =
+    useState<HostedFieldStatePayload | null>(null);
+  const [lastCvcFieldState, setLastCvcFieldState] =
+    useState<HostedFieldStatePayload | null>(null);
+  const [globalDisplayState, setGlobalDisplayState] =
+    useState<HostedCardDisplayStatePayload | null>(null);
+  const [eventLog, setEventLog] = useState<string[]>([]);
+  const [lastEventSummary, setLastEventSummary] = useState(
+    DEFAULT_LAST_EVENT_SUMMARY
+  );
+  const [aggregateValidationReadout, setAggregateValidationReadout] =
+    useState('');
+  const [onChangeReadout, setOnChangeReadout] = useState(
+    DEFAULT_ON_CHANGE_READOUT
+  );
+
   const fullNameRef = useRef<TextInput>(null);
 
-  // Focus management for custom fields
   useEffect(() => {
     if (focusedField === FormFieldTypes.NAME && fullNameRef.current) {
       fullNameRef.current.focus();
     }
   }, [focusedField]);
 
-  // Helper functions to update configuration and call setParam (like iOS pattern)
+  const refreshGlobalDisplayState = useCallback(async () => {
+    if (isLoading || initError) return;
+    try {
+      const state = await SpreedlyCore.getHostedCardDisplayState();
+      setGlobalDisplayState(state);
+      setPanMasked(state.panMasked);
+      setCardNumberFormat(normalizeCardNumberFormat(state.cardNumberFormat));
+    } catch {
+      console.error('Failed to refresh global display state');
+    }
+  }, [isLoading, initError]);
+
+  const applyCardNumberFormat = useCallback(
+    (fmt: CardNumberFormatName) => {
+      setCardNumberFormat(fmt);
+      if (isLoading || initError) return;
+      SpreedlyCore.setNumberFormat(fmt);
+      refreshGlobalDisplayState().catch(() => {});
+    },
+    [isLoading, initError, refreshGlobalDisplayState]
+  );
+
   const updateAllowBlankName = (value: boolean) => {
     setAllowBlankName(value);
     SpreedlyCore.setParam('ALLOW_BLANK_NAME', value);
-
-    // Clear any existing name validation errors when allowing blank names
     if (value) {
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
-        delete newErrors.fullName;
-        return newErrors;
+        const next = { ...prev };
+        delete next.fullName;
+        return next;
       });
     }
   };
@@ -99,17 +158,14 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
   const updateAllowBlankDate = (value: boolean) => {
     setAllowBlankDate(value);
     SpreedlyCore.setParam('ALLOW_BLANK_DATE', value);
-
-    // Clear validation state for date fields when allowing blank dates
     if (value) {
       setFieldValidation((prev) => {
-        const newValidation = { ...prev };
-        // Clear all date-related field validations
-        delete newValidation[FormFieldTypes.EXPIRY_DATE];
-        delete newValidation[FormFieldTypes.MONTH];
-        delete newValidation[FormFieldTypes.YEAR];
-        delete newValidation[FormFieldTypes.YEAR_SECONDARY];
-        return newValidation;
+        const next = { ...prev };
+        delete next[FormFieldTypes.EXPIRY_DATE];
+        delete next[FormFieldTypes.MONTH];
+        delete next[FormFieldTypes.YEAR];
+        delete next[FormFieldTypes.YEAR_SECONDARY];
+        return next;
       });
     }
   };
@@ -117,33 +173,23 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
   const updateCombinedExpiryDate = (value: boolean) => {
     setCombinedExpiryDate(value);
     setYearFormat(YearFormat.TwoDigit);
-
-    // Clear validation state when switching between combined/separate date fields
     setFieldValidation((prev) => {
-      const newValidation = { ...prev };
-      // Clear all date-related field validations to reset validation state
-      delete newValidation[FormFieldTypes.EXPIRY_DATE];
-      delete newValidation[FormFieldTypes.MONTH];
-      delete newValidation[FormFieldTypes.YEAR];
-      delete newValidation[FormFieldTypes.YEAR_SECONDARY];
-      return newValidation;
+      const next = { ...prev };
+      delete next[FormFieldTypes.EXPIRY_DATE];
+      delete next[FormFieldTypes.MONTH];
+      delete next[FormFieldTypes.YEAR];
+      delete next[FormFieldTypes.YEAR_SECONDARY];
+      return next;
     });
   };
 
-  // State to track field validation
   const [fieldValidation, setFieldValidation] = useState<
     Record<string, boolean>
   >({});
 
-  // Form data state
-  const [formData, setFormData] = useState<FormData>({
-    fullName: '',
-  });
-
-  // Form errors state
+  const [formData, setFormData] = useState<FormData>({ fullName: '' });
   const [formErrors, setFormErrors] = useState<FormErrors>({});
 
-  // Dynamic fields array based on form configuration
   const fields: FieldDescriptor[] = React.useMemo(() => {
     const baseFields: FieldDescriptor[] = [
       { type: FormFieldTypes.CARD, required: true },
@@ -151,13 +197,11 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
     ];
 
     if (combinedExpiryDate) {
-      // When using combined expiry date
       baseFields.push({
         type: FormFieldTypes.EXPIRY_DATE,
         required: !allowBlankDate,
       });
     } else {
-      // When using separate month and year fields
       baseFields.push({
         type: FormFieldTypes.MONTH,
         required: !allowBlankDate,
@@ -174,141 +218,238 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
     return baseFields;
   }, [combinedExpiryDate, yearFormat, allowBlankDate]);
 
-  // Simple validation change handler for individual fields
+  const isFullNameValid = (): boolean => {
+    if (allowBlankName) return true;
+    return !formErrors.fullName && formData.fullName.trim().length >= 2;
+  };
+
+  const isFormValidUtil = (): boolean => {
+    const customFieldsValid = isFullNameValid();
+    const spreedlyFieldsValid = ValidationManager.isFormValid(
+      fields,
+      fieldValidation
+    );
+    return customFieldsValid && spreedlyFieldsValid;
+  };
+
+  const refreshAggregateValidationReadout = useCallback(() => {
+    const inspectorFieldTypesList = inspectorFieldTypes(
+      fields,
+      combinedExpiryDate
+    );
+    const fullNameValid =
+      allowBlankName ||
+      (!formErrors.fullName && formData.fullName.trim().length >= 2);
+    const formValid =
+      fullNameValid && ValidationManager.isFormValid(fields, fieldValidation);
+    const readout = buildAggregateValidationReadout({
+      inspectorFieldTypes: inspectorFieldTypesList,
+      isFullNameValid: fullNameValid,
+      fieldValidation,
+      isFormValid: formValid,
+      registeredCount: countRegisteredFields(fields),
+    });
+    setAggregateValidationReadout((prev) =>
+      prev === readout ? prev : readout
+    );
+  }, [
+    fields,
+    combinedExpiryDate,
+    fieldValidation,
+    allowBlankName,
+    formErrors.fullName,
+    formData.fullName,
+  ]);
+
+  const resetCheckoutToInitialState = useCallback(() => {
+    if (isLoading || initError) return;
+
+    setAllowBlankName(false);
+    setAllowExpiredDate(false);
+    setAllowBlankDate(false);
+    setCombinedExpiryDate(true);
+    setYearFormat(YearFormat.TwoDigit);
+    setEligibleForCardUpdater(false);
+    setSaveCardForFuture(false);
+    setEnableAutofill(true);
+    setPaymentToken(null);
+    setErrorMessage(null);
+    setFocusedField(null);
+    setCardNumberFormat('PRETTY');
+    setLastCardFieldState(null);
+    setLastCvcFieldState(null);
+    setEventLog([]);
+    setLastEventSummary(DEFAULT_LAST_EVENT_SUMMARY);
+    setAggregateValidationReadout('');
+    setOnChangeReadout(DEFAULT_ON_CHANGE_READOUT);
+    setFieldValidation({});
+    setFormData({ fullName: '' });
+    setFormErrors({});
+
+    SpreedlyCore.resetPaymentState();
+    SpreedlyCore.setParam('ALLOW_BLANK_NAME', false);
+    SpreedlyCore.setParam('ALLOW_EXPIRED_DATE', false);
+    SpreedlyCore.setParam('ALLOW_BLANK_DATE', false);
+    SpreedlyCore.setNumberFormat('PRETTY');
+    setHostedFieldsKey((k) => k + 1);
+    refreshGlobalDisplayState().catch(() => {});
+  }, [isLoading, initError, refreshGlobalDisplayState]);
+
+  useFocusEffect(
+    useCallback(() => {
+      resetCheckoutToInitialState();
+    }, [resetCheckoutToInitialState])
+  );
+
+  useEffect(() => {
+    refreshAggregateValidationReadout();
+  }, [refreshAggregateValidationReadout]);
+
+  useEffect(() => {
+    if (isLoading || initError) return;
+    refreshGlobalDisplayState().catch(() => {});
+  }, [isLoading, initError, refreshGlobalDisplayState]);
+
+  const updatePanMask = async (nextMasked: boolean) => {
+    if (isLoading || initError || nextMasked === panMasked) return;
+    try {
+      SpreedlyCore.toggleMask();
+      await refreshGlobalDisplayState();
+    } catch {
+      setErrorMessage('Failed to toggle card mask');
+    }
+  };
+
   const handleValidationChange = (fieldType: string) =>
     ValidationManager.createValidationChangeHandler(
       fieldType,
       setFieldValidation
     );
 
-  // Handle field changes
+  const handleFieldStateChange = (state: HostedFieldStatePayload) => {
+    if (state.fieldType === FormFieldTypes.CARD) {
+      setLastCardFieldState(state);
+    } else if (state.fieldType === FormFieldTypes.CVV) {
+      setLastCvcFieldState(state);
+    }
+
+    const line = buildEventLogLine(state.eventType, state.fieldType);
+    setLastEventSummary(`Last event: ${line}`);
+    setEventLog((prev) => appendEventLog(prev, line));
+  };
+
+  const globalMismatchMessage = globalDisplayMismatch(
+    lastCardFieldState,
+    globalDisplayState
+  );
+
   const handleFieldChange = (fieldName: keyof FormData, value: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      [fieldName]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [fieldName]: value }));
 
-    // Real-time validation for fullName field
     if (fieldName === 'fullName') {
+      setOnChangeReadout(
+        formatOnChangeReadout(INSPECTOR_FULL_NAME_FIELD, value.trim())
+      );
       setFormErrors((prev) => {
-        const newErrors = { ...prev };
+        const next = { ...prev };
         const trimmedValue = value.trim();
-
         if (allowBlankName) {
-          // When blank names are allowed, no validation required - always clear errors
-          delete newErrors.fullName;
+          delete next.fullName;
         } else if (trimmedValue === '') {
-          // Show required error when field is empty and name is required
-          newErrors.fullName = 'Full name is required';
+          next.fullName = 'Full name is required';
         } else if (trimmedValue.length < 2) {
-          newErrors.fullName = 'Full name must be at least 2 characters';
+          next.fullName = 'Full name must be at least 2 characters';
         } else {
-          delete newErrors.fullName;
+          delete next.fullName;
         }
-
-        return newErrors;
+        return next;
       });
-    } else {
-      // Clear error for other fields when user starts typing
-      if (formErrors[fieldName]) {
-        setFormErrors((prev) => ({
-          ...prev,
-          [fieldName]: undefined,
-        }));
-      }
+      refreshAggregateValidationReadout();
     }
   };
 
-  // Check if form is valid
-  const isFormValidUtil = (): boolean => {
-    // Check if custom fields are valid
-    let customFieldsValid;
-    if (allowBlankName) {
-      // When blank names are allowed, name field is always valid (no validation required)
-      customFieldsValid = true;
-    } else {
-      // Normal validation: no errors and minimum 2 characters (any characters)
-      customFieldsValid =
-        !formErrors.fullName && formData.fullName.trim().length >= 2;
-    }
-
-    // Check if Spreedly fields are valid
-    const spreedlyFieldsValid = ValidationManager.isFormValid(
-      fields,
-      fieldValidation
-    );
-
-    return customFieldsValid && spreedlyFieldsValid;
+  const clearHostedFieldsAfterReset = async () => {
+    setLastCardFieldState(null);
+    setLastCvcFieldState(null);
+    setEventLog([]);
+    setLastEventSummary(DEFAULT_LAST_EVENT_SUMMARY);
+    setAggregateValidationReadout('');
+    setOnChangeReadout(DEFAULT_ON_CHANGE_READOUT);
+    setFieldValidation({});
+    setFocusedField(null);
+    setFormData({ fullName: '' });
+    setFormErrors({});
+    setSaveCardForFuture(false);
+    setHostedFieldsKey((k) => k + 1);
+    await refreshGlobalDisplayState();
+    refreshAggregateValidationReadout();
   };
 
-  // Reset the form and try another request
-  const tryAnotherRequest = async () => {
-    await initSpreedly();
+  /** Demo `SpreedlyCore.resetPaymentState()` only — no SDK re-init. */
+  const resetPaymentStateOnly = async () => {
+    SpreedlyCore.resetPaymentState();
+    await clearHostedFieldsAfterReset();
+  };
+
+  const performFullPaymentReset = async () => {
+    SpreedlyCore.resetPaymentState();
+    await clearHostedFieldsAfterReset();
     setPaymentToken(null);
     setErrorMessage(null);
-    // Reset field validation state for SPL text fields
-    setFieldValidation({});
-    // Reset focus to initial state
-    setFocusedField(null);
-    // Reset save card checkbox
-    setSaveCardForFuture(false);
+  };
+
+  const tryAnotherRequest = async () => {
+    await initSpreedly();
+    await performFullPaymentReset();
   };
 
   const handleSubmit = async () => {
-    // Reset error message and payment token
     setErrorMessage(null);
-    setPaymentToken(null);
-
     if (isLoading) return;
 
-    // Check if form is valid
     if (!isFormValidUtil()) {
+      setPaymentToken(null);
       setErrorMessage('Please fill in all required fields correctly');
       return;
     }
 
-    // Submit checkout
     const outcome = await submitCheckout(fields, {
       additionalFields: {
         FULL_NAME: formData.fullName.trim(),
       },
-      metadata: {
-        // This is just for an example to show how to send metadata.
-        orderId: '123',
-      },
+      metadata: { orderId: '123' },
+      ...(eligibleForCardUpdater ? { eligibleForCardUpdater: true } : {}),
     });
     const mapped = mapPaymentResult(outcome);
 
     switch (mapped.kind) {
-      case 'initial':
-        break;
-      case 'canceled':
-        setErrorMessage('Payment was canceled');
-        break;
       case 'failed':
+        setPaymentToken(null);
         setErrorMessage(mapped.message);
         break;
       case 'success':
+        setErrorMessage(null);
         setPaymentToken(mapped.token);
 
         if (saveCardForFuture) {
           try {
             await retainCVV(mapped.token);
-            setSaveCardForFuture(false);
-          } catch (error) {
+          } catch {
             console.error('Failed to retain CVV:');
           }
         }
 
-        setFormData({
-          fullName: '',
-        });
-        setFormErrors({});
-        // Reset field validation state for SPL text fields
-        setFieldValidation({});
+        await clearHostedFieldsAfterReset().catch(() => {});
+        break;
+      case 'canceled':
+        setPaymentToken(null);
+        setErrorMessage('Payment was canceled');
         break;
       case 'validation':
+        setPaymentToken(null);
         setErrorMessage(mapped.message);
+        break;
+      default:
         break;
     }
   };
@@ -317,10 +458,11 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
     return <ActivityIndicator style={styles.loadingContainer} />;
   }
 
-  // Show error screen when SDK initialization fails (e.g., no internet)
   if (initError) {
     return <ErrorView message={initError} onAction={initSpreedly} />;
   }
+
+  const hostedFieldKeyPrefix = `hf-${hostedFieldsKey}`;
 
   return (
     <KeyboardAvoidingView
@@ -329,6 +471,7 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <ScrollView
+        testID="basic-checkout-scroll"
         style={styles.container}
         contentContainerStyle={styles.scrollContentContainer}
         showsVerticalScrollIndicator={false}
@@ -342,12 +485,12 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
 
         <View style={styles.configContainer}>
           <Text style={styles.configTitle} testID="config-options-title">
-            Configuration Options:
+            Configuration options
           </Text>
 
           <View style={styles.toggleRow}>
             <Text style={styles.toggleLabel} testID="combined-expiry-label">
-              Combined Expiry Date
+              Combined expiry date
             </Text>
             <CustomSwitch
               value={combinedExpiryDate}
@@ -358,7 +501,7 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
 
           <View style={styles.toggleRow}>
             <Text style={styles.toggleLabel} testID="allow-blank-name-label">
-              Allow Blank Name
+              Allow blank name
             </Text>
             <CustomSwitch
               value={allowBlankName}
@@ -369,7 +512,7 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
 
           <View style={styles.toggleRow}>
             <Text style={styles.toggleLabel} testID="allow-expired-date-label">
-              Allow Expired Date
+              Allow expired date
             </Text>
             <CustomSwitch
               value={allowExpiredDate}
@@ -380,7 +523,7 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
 
           <View style={styles.toggleRow}>
             <Text style={styles.toggleLabel} testID="allow-blank-date-label">
-              Allow Blank Date
+              Allow blank date
             </Text>
             <CustomSwitch
               value={allowBlankDate}
@@ -389,10 +532,82 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
             />
           </View>
 
+          <View style={styles.toggleRow}>
+            <Text
+              style={styles.toggleLabel}
+              testID="eligible-card-updater-label"
+            >
+              Eligible for card updater
+            </Text>
+            <CustomSwitch
+              value={eligibleForCardUpdater}
+              onValueChange={setEligibleForCardUpdater}
+              testID="eligible-card-updater-switch"
+            />
+          </View>
+
+          <View style={styles.toggleRow}>
+            <Text style={styles.toggleLabel} testID="enable-autofill-label">
+              Enable autofill (PAN & CVC)
+            </Text>
+            <CustomSwitch
+              value={enableAutofill}
+              onValueChange={setEnableAutofill}
+              testID="enable-autofill-switch"
+            />
+          </View>
+
+          <View style={styles.toggleRow}>
+            <Text style={styles.toggleLabel} testID="toggle-mask-label">
+              Toggle mask
+            </Text>
+            <CustomSwitch
+              value={panMasked}
+              onValueChange={updatePanMask}
+              testID="toggle-mask-switch"
+            />
+          </View>
+
+          <View style={styles.yearFormatRow}>
+            <Text
+              style={styles.yearFormatLabel}
+              testID="card-number-format-label"
+            >
+              Card number format
+            </Text>
+            <View style={styles.segmentedControl}>
+              {(['PRETTY', 'PLAIN', 'MASKED'] as const).map((fmt) => (
+                <TouchableOpacity
+                  key={fmt}
+                  style={[
+                    styles.segmentButton,
+                    cardNumberFormat === fmt && styles.segmentButtonActive,
+                  ]}
+                  onPress={() => applyCardNumberFormat(fmt)}
+                  testID={`card-format-${fmt.toLowerCase()}`}
+                >
+                  <Text
+                    style={[
+                      styles.segmentButtonText,
+                      cardNumberFormat === fmt &&
+                        styles.segmentButtonTextActive,
+                    ]}
+                  >
+                    {fmt === 'PRETTY'
+                      ? 'Pretty'
+                      : fmt === 'PLAIN'
+                        ? 'Plain'
+                        : 'Masked'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
           {!combinedExpiryDate && (
             <View style={styles.yearFormatRow}>
               <Text style={styles.yearFormatLabel} testID="year-format-label">
-                Year Format
+                Year format
               </Text>
               <View style={styles.segmentedControl}>
                 <TouchableOpacity
@@ -401,9 +616,7 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
                     yearFormat === YearFormat.TwoDigit &&
                       styles.segmentButtonActive,
                   ]}
-                  onPress={() => {
-                    setYearFormat(YearFormat.TwoDigit);
-                  }}
+                  onPress={() => setYearFormat(YearFormat.TwoDigit)}
                   testID="year-format-yy-button"
                 >
                   <Text
@@ -423,9 +636,7 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
                     yearFormat === YearFormat.FourDigit &&
                       styles.segmentButtonActive,
                   ]}
-                  onPress={() => {
-                    setYearFormat(YearFormat.FourDigit);
-                  }}
+                  onPress={() => setYearFormat(YearFormat.FourDigit)}
                   testID="year-format-yyyy-button"
                 >
                   <Text
@@ -462,12 +673,18 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
         </View>
 
         <SPLTextField
+          key={`${hostedFieldKeyPrefix}-card`}
+          testID="spreedly-card-number-field"
           style={AppStyles.splTextField}
           formFieldType={FormFieldTypes.CARD}
           label="Card Number"
           title="Card Number"
           theme={DefaultThemeConfig}
           darkTheme={DarkThemeConfig}
+          cardPanTrailingIcons={[
+            { scheme: 'visa', resource: 'ic_card_brand_visa' },
+          ]}
+          enableAutofill={enableAutofill}
           onImeAction={() => {
             navigateToNextField(
               combinedExpiryDate
@@ -480,14 +697,16 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
           shouldFocus={focusedField === FormFieldTypes.CARD}
           isRequired={isRequiredFor(fields, FormFieldTypes.CARD)}
           onValidationChange={handleValidationChange(FormFieldTypes.CARD)}
+          onFieldStateChange={handleFieldStateChange}
         />
 
         {combinedExpiryDate ? (
           <SPLTextField
+            key={`${hostedFieldKeyPrefix}-expiry`}
             style={AppStyles.splTextField}
             formFieldType={FormFieldTypes.EXPIRY_DATE}
-            label={`MM/YY`}
-            title={`Expiry Date`}
+            label="MM/YY"
+            title="Expiry date"
             yearFormat={yearFormat}
             theme={DefaultThemeConfig}
             darkTheme={DarkThemeConfig}
@@ -505,9 +724,10 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
           <View style={styles.row} testID="month-year-container">
             <View style={styles.halfWidth}>
               <SPLTextField
+                key={`${hostedFieldKeyPrefix}-month`}
                 style={AppStyles.splTextField}
                 formFieldType={FormFieldTypes.MONTH}
-                label={`MM`}
+                label="MM"
                 title="Month"
                 theme={DefaultThemeConfig}
                 darkTheme={DarkThemeConfig}
@@ -529,13 +749,14 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
             </View>
             <View style={styles.halfWidth}>
               <SPLTextField
+                key={`${hostedFieldKeyPrefix}-year`}
                 style={AppStyles.splTextField}
                 formFieldType={
                   yearFormat === YearFormat.FourDigit
                     ? FormFieldTypes.YEAR
                     : FormFieldTypes.YEAR_SECONDARY
                 }
-                label={yearFormat === YearFormat.FourDigit ? `YYYY` : `YY`}
+                label={yearFormat === YearFormat.FourDigit ? 'YYYY' : 'YY'}
                 title="Year"
                 theme={DefaultThemeConfig}
                 darkTheme={DarkThemeConfig}
@@ -567,6 +788,7 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
         )}
 
         <SPLTextField
+          key={`${hostedFieldKeyPrefix}-cvv`}
           style={AppStyles.splTextField}
           formFieldType={FormFieldTypes.CVV}
           label="CVV"
@@ -575,8 +797,23 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
           shouldFocus={focusedField === FormFieldTypes.CVV}
           theme={DefaultThemeConfig}
           darkTheme={DarkThemeConfig}
+          enableAutofill={enableAutofill}
           isRequired={isRequiredFor(fields, FormFieldTypes.CVV)}
           onValidationChange={handleValidationChange(FormFieldTypes.CVV)}
+          onFieldStateChange={handleFieldStateChange}
+        />
+
+        <BasicCheckoutFieldStateInspector
+          lastCardFieldState={lastCardFieldState}
+          lastCvcFieldState={lastCvcFieldState}
+          globalDisplayState={globalDisplayState}
+          globalMismatchMessage={globalMismatchMessage}
+          lastEventSummary={lastEventSummary}
+          eventLog={eventLog}
+          aggregateValidationReadout={aggregateValidationReadout}
+          onChangeReadout={onChangeReadout}
+          testID="field-state-inspector"
+          styles={styles}
         />
 
         <View style={AppStyles.section}>
@@ -589,6 +826,15 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
         </View>
 
         <View style={styles.cardContainer}>
+          <CustomButton
+            title="Reset payment state"
+            onPress={() => {
+              resetPaymentStateOnly().catch(() => {});
+            }}
+            testID="reset-payment-state-button"
+            style={styles.resetPaymentStateButton}
+            textStyle={styles.resetPaymentStateButtonText}
+          />
           <CustomButton
             title="Submit"
             onPress={handleSubmit}
@@ -607,7 +853,13 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
           />
         )}
 
-        {paymentToken && (
+        {errorMessage ? (
+          <View style={styles.errorContainer} testID="error-container">
+            <Text style={styles.errorText} testID="error-message-text">
+              {errorMessage}
+            </Text>
+          </View>
+        ) : paymentToken ? (
           <View style={styles.resultContainer} testID="result-container">
             <Text style={styles.resultTitle} testID="result-title">
               Payment Token:
@@ -616,15 +868,7 @@ const BasicCheckoutScreen: React.FC<BasicCheckoutScreenProps> = () => {
               {paymentToken}
             </Text>
           </View>
-        )}
-
-        {errorMessage && (
-          <View style={styles.errorContainer} testID="error-container">
-            <Text style={styles.errorText} testID="error-message-text">
-              {errorMessage}
-            </Text>
-          </View>
-        )}
+        ) : null}
       </ScrollView>
     </KeyboardAvoidingView>
   );

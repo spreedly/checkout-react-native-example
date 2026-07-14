@@ -4,7 +4,7 @@ import {
   scaledFont,
   verticalScale,
 } from '../../styles/typography';
-import { Gray } from '../../styles/AppColors';
+import { Blue, Gray } from '../../styles/AppColors';
 
 export const createStyles = (isDark: boolean) =>
   StyleSheet.create({
@@ -193,6 +193,223 @@ export const createStyles = (isDark: boolean) =>
       color: isDark ? '#F9FAFB' : '#1F2937',
       fontWeight: '500',
       fontFamily: 'Poppins',
+    },
+    inspectorCard: {
+      alignSelf: 'center',
+      width: '90%',
+      backgroundColor: isDark ? '#111827' : '#F8FAFC',
+      borderRadius: 12,
+      padding: 12,
+      marginTop: 8,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: isDark ? '#374151' : Gray.gray200,
+    },
+    inspectorHeaderRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginBottom: 6,
+    },
+    inspectorTitle: {
+      fontSize: scaledFont(13),
+      fontWeight: '600',
+      color: isDark ? '#E5E7EB' : Gray.gray700,
+      fontFamily: 'Poppins',
+      flex: 1,
+    },
+    inspectorToggle: {
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+    },
+    inspectorToggleText: {
+      fontSize: scaledFont(13),
+      fontWeight: '600',
+      color: isDark ? '#60A5FA' : '#2563EB',
+      fontFamily: 'Poppins',
+    },
+    inspectorFocusLine: {
+      fontSize: scaledFont(12),
+      lineHeight: Math.round(scaledFont(12) * 1.35),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+      marginBottom: 4,
+    },
+    inspectorPlaceholder: {
+      fontSize: scaledFont(12),
+      lineHeight: Math.round(scaledFont(12) * 1.35),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+      marginTop: 8,
+    },
+    inspectorFieldLine: {
+      fontSize: scaledFont(12),
+      lineHeight: Math.round(scaledFont(12) * 1.4),
+      color: isDark ? '#D1D5DB' : Gray.gray600,
+      fontFamily: 'Poppins',
+    },
+    inspectorSectionCard: {
+      alignSelf: 'center',
+      width: '90%',
+      backgroundColor: isDark ? '#1F2937' : '#FFFFFF',
+      borderRadius: 12,
+      padding: 16,
+      marginTop: 8,
+      marginBottom: 12,
+      borderWidth: 1,
+      borderColor: isDark ? '#374151' : Gray.gray200,
+    },
+    inspectorHeadline: {
+      fontSize: scaledFont(16),
+      fontWeight: '700',
+      color: isDark ? '#F9FAFB' : Gray.gray700,
+      fontFamily: 'Poppins',
+      marginBottom: 4,
+    },
+    inspectorCaption: {
+      fontSize: scaledFont(11),
+      lineHeight: Math.round(scaledFont(11) * 1.4),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+    },
+    inspectorWiringCaption: {
+      fontSize: scaledFont(10),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+      marginTop: 8,
+    },
+    inspectorGlobalPanel: {
+      marginTop: 12,
+      padding: 10,
+      borderRadius: 8,
+      backgroundColor: isDark
+        ? 'rgba(251, 146, 60, 0.12)'
+        : 'rgba(251, 146, 60, 0.08)',
+    },
+    inspectorGlobalTitle: {
+      fontSize: scaledFont(13),
+      fontWeight: '600',
+      color: isDark ? '#F9FAFB' : Gray.gray700,
+      fontFamily: 'Poppins',
+      marginBottom: 8,
+    },
+    inspectorFieldPanel: {
+      marginTop: 10,
+      padding: 10,
+      borderRadius: 8,
+      backgroundColor: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)',
+    },
+    inspectorFieldPanelTitle: {
+      fontSize: scaledFont(13),
+      fontWeight: '600',
+      color: isDark ? '#F9FAFB' : Gray.gray700,
+      fontFamily: 'Poppins',
+      marginBottom: 8,
+    },
+    inspectorRowGroup: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 12,
+      marginTop: 4,
+    },
+    inspectorRow: {
+      minWidth: 72,
+      marginBottom: 6,
+    },
+    inspectorRowLabel: {
+      fontSize: scaledFont(10),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+    },
+    inspectorRowValue: {
+      fontSize: scaledFont(11),
+      color: isDark ? '#D1D5DB' : Gray.gray600,
+      fontFamily: 'Poppins',
+    },
+    inspectorRowValueHighlight: {
+      fontSize: scaledFont(11),
+      fontWeight: '600',
+      color: isDark ? '#F9FAFB' : Gray.gray700,
+      fontFamily: 'Poppins',
+    },
+    inspectorDivider: {
+      height: 1,
+      backgroundColor: isDark ? '#374151' : Gray.gray200,
+      marginVertical: 8,
+    },
+    inspectorPanSubtitle: {
+      fontSize: scaledFont(10),
+      fontWeight: '600',
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+      marginBottom: 6,
+    },
+    inspectorMismatch: {
+      fontSize: scaledFont(11),
+      color: isDark ? '#FB923C' : '#EA580C',
+      fontFamily: 'Poppins',
+      marginTop: 8,
+    },
+    inspectorLastEvent: {
+      fontSize: scaledFont(11),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+      marginTop: 10,
+    },
+    inspectorLastEventHighlight: {
+      fontSize: scaledFont(11),
+      color: isDark ? '#FB923C' : '#EA580C',
+      fontFamily: 'Poppins',
+      marginTop: 10,
+    },
+    inspectorEventLogHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      marginTop: 10,
+      paddingVertical: 4,
+    },
+    inspectorEventLogTitle: {
+      fontSize: scaledFont(12),
+      fontWeight: '600',
+      color: isDark ? '#60A5FA' : '#2563EB',
+      fontFamily: 'Poppins',
+    },
+    inspectorEventLogChevron: {
+      fontSize: scaledFont(12),
+      color: isDark ? '#60A5FA' : '#2563EB',
+      fontFamily: 'Poppins',
+    },
+    inspectorEventLogLine: {
+      fontSize: scaledFont(10),
+      fontFamily: 'monospace',
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      marginTop: 4,
+    },
+    inspectorFooter: {
+      marginTop: 10,
+    },
+    inspectorFooterLine: {
+      fontSize: scaledFont(11),
+      lineHeight: Math.round(scaledFont(11) * 1.4),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+      marginTop: 4,
+    },
+    inspectorEmptyHint: {
+      fontSize: scaledFont(11),
+      color: isDark ? '#9CA3AF' : Gray.gray600,
+      fontFamily: 'Poppins',
+      fontStyle: 'italic',
+    },
+    resetPaymentStateButton: {
+      backgroundColor: Blue.blue600,
+      shadowColor: Blue.blue600,
+      marginBottom: 12,
+    },
+    resetPaymentStateButtonText: {
+      color: '#FFFFFF',
+      fontWeight: '600',
     },
   });
 

@@ -11,15 +11,18 @@ export async function submitCheckout(
   options?: {
     metadata?: { [key: string]: string };
     additionalFields?: { [key: string]: string };
+    eligibleForCardUpdater?: boolean;
   }
 ): Promise<PaymentResultRN> {
   try {
     const result: CreateCreditCardResult = await SpreedlyCore.createCreditCard({
       fields: toFieldsParam(fields),
-      // Keep legacy compat for older native builds
       formFieldTypes: toFormFieldTypes(fields),
       metadata: options?.metadata,
       additionalFields: options?.additionalFields,
+      ...(options?.eligibleForCardUpdater === true
+        ? { eligibleForCardUpdater: true }
+        : {}),
     });
 
     // Handle the edge case where status might be 'processing' (for type safety)

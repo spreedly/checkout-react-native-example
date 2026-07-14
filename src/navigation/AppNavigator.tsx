@@ -19,6 +19,8 @@ import OffsitePaymentScreen from '../screens/offsitePaymentScreen/OffsitePayment
 import EbanxPaymentScreen from '../screens/ebanxPaymentScreen/EbanxPaymentScreen';
 import StripePaymentScreen from '../screens/stripePaymentScreen/StripePaymentScreen';
 import BraintreePaymentScreen from '../screens/braintreePaymentScreen/BraintreePaymentScreen';
+import AchBankAccountScreen from '../screens/achBankAccountScreen/AchBankAccountScreen';
+import AchBankAccountCustomFormScreen from '../screens/achBankAccountCustomFormScreen/AchBankAccountCustomFormScreen';
 
 // Define navigation param types
 export type RootStackParamList = {
@@ -27,6 +29,8 @@ export type RootStackParamList = {
   CustomThemeCheckout: undefined;
   PaymentBottomSheet: undefined;
   PaymentBottomSheetAdditionalFields: undefined;
+  AchBankAccountScreen: undefined;
+  AchBankAccountCustomFormScreen: undefined;
   AdditionalFieldsCheckout: undefined;
   Recaching: undefined;
   ShoppingCart: undefined;
@@ -107,6 +111,20 @@ const AppNavigator: React.FC = () => {
           component={PaymentBottomSheetAdditionalFields}
           options={{
             title: 'Additional Payment Bottom Sheet',
+          }}
+        />
+        <Stack.Screen
+          name="AchBankAccountScreen"
+          component={AchBankAccountScreen}
+          options={{
+            title: 'ACH Bank Account',
+          }}
+        />
+        <Stack.Screen
+          name="AchBankAccountCustomFormScreen"
+          component={AchBankAccountCustomFormScreen}
+          options={{
+            title: 'ACH Bank Account – Custom Form',
           }}
         />
         <Stack.Screen

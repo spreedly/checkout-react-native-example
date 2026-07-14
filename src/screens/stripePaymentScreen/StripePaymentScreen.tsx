@@ -19,6 +19,13 @@ import {
 } from '@spreedly/react-native-checkout-stripe-apm';
 import Config from 'react-native-config';
 import { purchaseStripeAPM } from '../../network/purchaseStripe';
+import StripeAppearanceSection from '../../components/stripeAppearance/StripeAppearanceSection';
+import {
+  buildStripeAPMAppearance,
+  getDefaultStripeAppearanceColors,
+  STRIPE_APPEARANCE_DEFAULT_CORNER_RADIUS,
+  type StripeAppearanceColors,
+} from '../../config/stripeAPMAppearancePresets';
 
 interface Product {
   id: string;
@@ -120,6 +127,14 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = () => {
   const [stage, setStage] = useState<StripePaymentStage>(
     StripePaymentStage.SELECTING
   );
+  const [useCustomAppearance, setUseCustomAppearance] = useState(false);
+  const [appearanceColors, setAppearanceColors] =
+    useState<StripeAppearanceColors>(() =>
+      getDefaultStripeAppearanceColors(isDark)
+    );
+  const [appearanceCornerRadius, setAppearanceCornerRadius] = useState(
+    STRIPE_APPEARANCE_DEFAULT_CORNER_RADIUS
+  );
 
   // Use refs to track current state to avoid re-subscription issues
   const stageRef = React.useRef(stage);
@@ -168,11 +183,8 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = () => {
 
     try {
       StripeAPM.initialize();
-    } catch (error) {
-      console.error(
-        '[StripePaymentScreen] Failed to initialize Stripe APM:',
-        error
-      );
+    } catch {
+      console.error('Failed to initialize Stripe APM');
     }
 
     const subscription = StripeAPM.addListener((result: StripeAPMResult) => {
@@ -185,8 +197,8 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = () => {
       }
       try {
         StripeAPM.cleanup();
-      } catch (error) {
-        console.error('Failed to cleanup Stripe APM:', error);
+      } catch {
+        console.error('Failed to cleanup Stripe APM');
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -202,6 +214,17 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = () => {
     setShowSuccessAlert(false);
     setErrorMessage(null);
   }, []);
+
+  const handleAppearanceToggle = useCallback(
+    (enabled: boolean) => {
+      setUseCustomAppearance(enabled);
+      if (enabled) {
+        setAppearanceColors(getDefaultStripeAppearanceColors(isDark));
+        setAppearanceCornerRadius(STRIPE_APPEARANCE_DEFAULT_CORNER_RADIUS);
+      }
+    },
+    [isDark]
+  );
 
   const togglePaymentMethod = useCallback((methodId: string) => {
     setSelectedPaymentMethods((prev) => {
@@ -252,7 +275,7 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = () => {
         amount: selectedProduct.price,
         currency_code: 'EUR',
         apm_types: selectedApmTypes,
-        redirect_url: 'checkoutreactnativeexample://com.checkoutreactnativeexample.package/stripe/return',
+        redirect_url: 'spreedlyapp://com.spreedly.rn.app/stripe/return',
         callback_url: 'https://developer.spreedly.com/docs/overview',
       });
 
@@ -260,18 +283,25 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = () => {
         throw new Error('Invalid response from server');
       }
 
-      // Present Stripe APM checkout
+      const appearance = buildStripeAPMAppearance({
+        useCustomAppearance,
+        colors: appearanceColors,
+        cornerRadius: appearanceCornerRadius,
+        isDark,
+      });
+
       await StripeAPM.presentCheckout({
         publishableKey: Config.STRIPE_PUBLISHABLE_KEY,
         clientSecret: response.client_secret,
         transactionToken: response.transaction_token,
         merchantDisplayName: 'Spreedly Test Store',
-        returnUrl: 'checkoutreactnativeexample://stripe-redirect',
+        returnUrl: 'spreedlyapp://stripe-redirect',
+        ...(appearance ? { appearance } : {}),
       });
 
       console.log('Stripe APM checkout presented successfully');
     } catch (error) {
-      console.error('Failed to process Stripe APM payment:', error);
+      console.error('Failed to process Stripe APM payment');
       setStage(StripePaymentStage.SELECTING);
       setIsProcessing(false);
       setErrorMessage((error as Error).message || 'Failed to process payment');
@@ -362,6 +392,15 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = () => {
         <Text style={styles.description}>
           Pay with alternative payment methods
         </Text>
+
+        <StripeAppearanceSection
+          useCustomAppearance={useCustomAppearance}
+          onUseCustomAppearanceChange={handleAppearanceToggle}
+          colors={appearanceColors}
+          onColorsChange={setAppearanceColors}
+          cornerRadius={appearanceCornerRadius}
+          onCornerRadiusChange={setAppearanceCornerRadius}
+        />
 
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Select Product</Text>

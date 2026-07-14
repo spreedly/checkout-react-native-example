@@ -1,11 +1,5 @@
 # Security Policy
 
-For the repository vulnerability disclosure policy GitHub expects at the repo root (including Trust Center email), see [SECURITY.md](../../SECURITY.md).
-
-The guidance below relates to integrating the Checkout SDK securely in your applications.
-
----
-
 ## Reporting Security Vulnerabilities
 
 Spreedly takes security seriously and appreciates your help in keeping our products and services secure. If you discover a security vulnerability in the Spreedly React Native Checkout SDK, please report it to us using one of the following methods:
@@ -42,6 +36,22 @@ We ask that you:
 - Act in good faith to avoid privacy violations, destruction of data, and interruption or degradation of our services
 - Not access or modify data that does not belong to you
 - Not exploit the vulnerability beyond what is necessary to demonstrate the issue
+
+---
+
+## PCI and secure integration (summary)
+
+This document covers **vulnerability reporting**. For PCI-aligned integration practices, use these guides:
+
+| Topic                                                         | Guide                                                                                                                          |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| Screen capture / recording / multitasking snapshot protection | Use `ScreenSecurity.activateProtection()` from `@spreedly/react-native-checkout` on payment screens                            |
+| Hosted field callbacks (merchant-safe payloads, IIN prefix)   | [Hosted Fields — PAN display and field state](../guides/hosted_fields_guide.md#pan-display-masking-and-hosted-field-snapshots) |
+| No programmatic PAN/CVV injection                             | [From legacy — Planned differences](./migration/from-legacy.md#planned-differences)                                            |
+| Logging and observability (no sensitive values in logs)       | [Central Logging Guide](../development/CENTRAL_LOGGING_GUIDE.md)                                                               |
+| ACH bank account tokenization (secure fields, token handling) | [ACH Bank Account Guide](./ach_bank_account_guide.md#security-and-pci)                                                         |
+
+Never log, persist, or display full PAN, CVV, bank account numbers, routing numbers, or signing secrets in production apps.
 
 ---
 

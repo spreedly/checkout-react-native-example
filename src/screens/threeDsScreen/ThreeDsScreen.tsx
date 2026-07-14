@@ -41,7 +41,7 @@ interface CartItem extends Product {
   quantity: number;
 }
 
-// PaymentCard interface matching the API response structure
+// Shape of payment card objects returned by the example backend.
 interface PaymentCard {
   id: string;
   paymentToken: string;
@@ -248,7 +248,7 @@ const ThreeDsScreen: React.FC<ThreeDsScreenProps> = () => {
         setErrorMessage('Missing required tokens for 3DS challenge');
       }
     } catch (error) {
-      console.error('Error processing purchase:', error);
+      console.error('Error processing purchase');
       setShowSuccessAlert(false);
       setErrorMessage((error as Error).message || 'Failed to process purchase');
     } finally {

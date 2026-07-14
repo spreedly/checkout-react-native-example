@@ -65,7 +65,7 @@ useEffect(() => {
           return;
         }
 
-        // Pass transaction data to native SDK (may trigger a challenge)
+        // Pass transaction data to the bridge (may trigger a challenge)
         await SpreedlyCore.finalizeGatewaySpecific3DSTransaction(
           event.token,
           data.transaction || {}
@@ -140,7 +140,6 @@ if (requires3DS) {
     return;
   }
 
-  // Timeout guard (15 minutes)
   setTimeout(() => {
     if (activeTokenRef.current === txnToken) {
       try {
@@ -150,7 +149,7 @@ if (requires3DS) {
       activeTokenRef.current = null;
       // Show timeout message
     }
-  }, 900_000);
+  }, 600_000);
 } else if (transaction?.succeeded) {
   // Payment completed without 3DS
 } else {
@@ -186,7 +185,7 @@ import {
   type GatewaySpecific3DSResult,
 } from '@spreedly/react-native-checkout';
 
-const THREEDS_TIMEOUT_MS = 900_000; // 15 minutes
+const THREEDS_TIMEOUT_MS = 600_000; // 10 minutes
 
 function PaymentScreen() {
   const [isReady, setIsReady] = useState(false);
@@ -353,9 +352,28 @@ Starts the Gateway-Specific 3DS authentication flow and presents the challenge U
 
 ---
 
+### iOS gateway-specific 3DS behavior
+
+When using current iOS native dependencies:
+
+- **Braintree:** Device fingerprint WebView is skipped; the SDK routes directly to challenge when profiling is server-side.
+- **Completion safety net:** After `GATEWAY_SPECIFIC_3DS_TRIGGER_COMPLETION`, the native layer polls transaction status (2s interval, 2-minute timeout) if you never call `finalizeGatewaySpecific3DSTransaction`. Explicit finalize still takes precedence — always call finalize with the `/complete.json` payload when your backend completes the transaction.
+- **Challenge polling timeout:** 600 seconds (10 minutes).
+
+---
+
+### Android gateway-specific 3DS timings
+
+When using current Android native dependencies:
+
+- **Device fingerprint phase:** Poll-based profiling is capped around **10 seconds**.
+- **Challenge phase:** Transaction polling timeout is **10 minutes** — align host-app UX guards accordingly.
+
+---
+
 ### `SpreedlyCore.finalizeGatewaySpecific3DSTransaction(transactionToken, transactionData)`
 
-Finalizes the transaction after calling `/complete.json`. Pass the transaction object from the complete response so the native SDK can determine next steps (e.g., show challenge).
+Finalizes the transaction after calling `/complete.json`. Pass the transaction object from the complete response so the bridge can determine next steps (e.g., show challenge).
 
 **Parameters:**
 

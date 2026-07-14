@@ -315,7 +315,7 @@ Your app needs an Activity with an intent-filter matching your `redirect_url` sc
 
 ## Complete Example
 
-See `src/screens/ebanxPaymentScreen/EbanxPaymentScreen.tsx` in this repository for a full working implementation.
+See `example/src/screens/ebanxPaymentScreen/EbanxPaymentScreen.tsx` in the SDK repository for a full working implementation.
 
 ---
 
@@ -324,8 +324,8 @@ See `src/screens/ebanxPaymentScreen/EbanxPaymentScreen.tsx` in this repository f
 - [Spreedly API Documentation](https://docs.spreedly.com/)
 - [EBANX Documentation](https://developers.ebanx.com/)
 - [Offsite Payments Guide](./offsite_payments_guide.md) (Android/iOS platform setup)
-- Example: `src/screens/ebanxPaymentScreen/EbanxPaymentScreen.tsx`
+- Example: `example/src/screens/ebanxPaymentScreen/EbanxPaymentScreen.tsx`
 
 ---
 
-**Last Updated**: May 2026
+**Last Updated**: March 2026

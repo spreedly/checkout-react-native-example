@@ -10,30 +10,30 @@ This document provides format-specific guidance for completing the **Google Play
 
 ## Quick Reference Summary
 
-| Category            | Answer                                                   |
-| ------------------- | -------------------------------------------------------- |
-| **Data Collection** | ✅ Yes (Payment information collected)                   |
-| **Data Sharing**    | ✅ Yes (Shared with Spreedly for tokenization)           |
-| **Data Encryption** | ✅ Yes (TLS encryption in transit)                       |
-| **Data Deletion**   | ✅ Automatic (Data cleared from memory after processing) |
-| **User Choice**     | ✅ Required (Payment processing requires card data)      |
+| Category            | Answer                                                |
+| ------------------- | ----------------------------------------------------- |
+| **Data Collection** | Yes (Payment information collected)                   |
+| **Data Sharing**    | Yes (Shared with Spreedly for tokenization)           |
+| **Data Encryption** | Yes (TLS encryption in transit)                       |
+| **Data Deletion**   | Automatic (Data cleared from memory after processing) |
+| **User Choice**     | Required (Payment processing requires card data)      |
 
 ## Quick Checklist (Pre-Fill Guide)
 
 Use this quick checklist before filling out the Google Play Console form:
 
 - [ ] **Data Type**: Financial Information → Payment info
-- [ ] **Collection**: ✅ Yes
-- [ ] **Required**: ✅ Yes (Required for functionality)
-- [ ] **Temporary**: ✅ Yes (Memory only, not stored)
+- [ ] **Collection**: Yes
+- [ ] **Required**: Yes (Required for functionality)
+- [ ] **Temporary**: Yes (Memory only, not stored)
 - [ ] **Purpose**: Payment processing, App functionality
-- [ ] **Optional**: ❌ No
-- [ ] **Shared**: ✅ Yes (with Spreedly)
+- [ ] **Optional**: No
+- [ ] **Shared**: Yes (with Spreedly)
 - [ ] **Third-party**: Spreedly (Service provider)
 - [ ] **Privacy Policy**: https://www.spreedly.com/privacy
-- [ ] **Encryption**: ✅ Yes (TLS 1.2+)
-- [ ] **Storage**: ❌ No (Memory only)
-- [ ] **Deletion**: ✅ Yes (Automatic)
+- [ ] **Encryption**: Yes (TLS 1.2+)
+- [ ] **Storage**: No (Memory only)
+- [ ] **Deletion**: Yes (Automatic)
 
 ---
 
@@ -41,7 +41,7 @@ Use this quick checklist before filling out the Google Play Console form:
 
 ### Question: "Does your app collect or share any of the required user data types?"
 
-**Answer:** ✅ **YES**
+**Answer:** **YES**
 
 ### Required Data Types Collected
 
@@ -49,16 +49,16 @@ Use this quick checklist before filling out the Google Play Console form:
 
 **Category:** Financial Information  
 **Type:** Payment Card Information  
-**Collection:** ✅ **YES**
+**Collection:** **YES**
 
 **Details:**
 
 - **What:** Card number, CVV, expiration date
 - **How:** Collected through native payment form fields
 - **Purpose:** Payment processing and tokenization
-- **Required:** ✅ Yes (Required for SDK functionality)
-- **Temporary:** ✅ Yes (Data exists only in memory during tokenization)
-- **User Choice:** ❌ No (Payment processing requires card data)
+- **Required:** Yes (Required for SDK functionality)
+- **Temporary:** Yes (Data exists only in memory during tokenization)
+- **User Choice:** No (Payment processing requires card data)
 
 **Format-specific Notes for Google Play:**
 
@@ -73,7 +73,7 @@ Use this quick checklist before filling out the Google Play Console form:
 
 ### Question: "Is this data shared with third parties?"
 
-**Answer:** ✅ **YES**
+**Answer:** **YES**
 
 ### Third-Party Sharing Details
 
@@ -108,7 +108,7 @@ Use this quick checklist before filling out the Google Play Console form:
 
 #### Encryption in Transit
 
-**Answer:** ✅ **YES**
+**Answer:** **YES**
 
 **Details:**
 
@@ -123,7 +123,7 @@ Use this quick checklist before filling out the Google Play Console form:
 
 #### Data Storage
 
-**Answer:** ❌ **NO** (Data is not stored)
+**Answer:** **NO** (Data is not stored)
 
 **Details:**
 
@@ -143,7 +143,7 @@ Use this quick checklist before filling out the Google Play Console form:
 
 ### Question: "Can users request that you delete their data?"
 
-**Answer:** ✅ **YES** (Automatic)
+**Answer:** **YES** (Automatic)
 
 **Details:**
 
@@ -172,8 +172,8 @@ Use this quick checklist before filling out the Google Play Console form:
 
 **Google Play Categories:**
 
-- ✅ **App functionality** (Required)
-- ✅ **Payment processing** (Required)
+- **App functionality** (Required)
+- **Payment processing** (Required)
 
 **Format-specific Notes for Google Play:**
 
@@ -183,7 +183,7 @@ Use this quick checklist before filling out the Google Play Console form:
 
 ### Data Collection Requirements
 
-**Is data collection optional?** ❌ **NO**
+**Is data collection optional?** **NO**
 
 **Reason:** Payment processing requires card information to function.
 
@@ -198,7 +198,7 @@ Use this quick checklist before filling out the Google Play Console form:
 
 ### Question: "Does your app use sensitive permissions?"
 
-**Answer:** ❌ **NO**
+**Answer:** **NO**
 
 **Details:**
 
@@ -222,16 +222,16 @@ Use this checklist when filling out the Google Play Console Data Safety form. Ch
 
 #### Data Types Collected
 
-- [ ] ✅ **Financial Information**
+- [ ] **Financial Information**
   - [ ] Subcategory: Payment info
-  - [ ] Required for functionality: ✅ Yes
-  - [ ] Temporary: ✅ Yes
+  - [ ] Required for functionality: Yes
+  - [ ] Temporary: Yes
   - [ ] Purpose: Payment processing
-  - [ ] Collection optional: ❌ No (Required for payment processing)
+  - [ ] Collection optional: No (Required for payment processing)
 
 #### Data Sharing
 
-- [ ] ✅ **Data is shared with third parties**
+- [ ] **Data is shared with third parties**
   - [ ] Third-party name: Spreedly
   - [ ] Third-party type: Service provider
   - [ ] Purpose: Payment processing
@@ -241,19 +241,19 @@ Use this checklist when filling out the Google Play Console Data Safety form. Ch
 
 #### Security Practices
 
-- [ ] ✅ **Data is encrypted in transit**
+- [ ] **Data is encrypted in transit**
   - [ ] Encryption method: TLS 1.2+
-  - [ ] Certificate pinning: ✅ Yes
-- [ ] ❌ Data is NOT stored on device
+  - [ ] Certificate pinning: Yes
+- [ ] Data is NOT stored on device
   - [ ] Note: Data processed in memory only, not persisted
-- [ ] ✅ Data is automatically deleted after processing
+- [ ] Data is automatically deleted after processing
   - [ ] Deletion timeframe: Immediate (after tokenization)
 
 #### User Control
 
-- [ ] ✅ Users can request deletion (automatic deletion)
+- [ ] Users can request deletion (automatic deletion)
   - [ ] Deletion method: Automatic (data cleared from memory)
-- [ ] ❌ Data collection is NOT optional (required for payment processing)
+- [ ] Data collection is NOT optional (required for payment processing)
   - [ ] Reason: Payment processing cannot proceed without card data
 
 ---
@@ -269,10 +269,10 @@ When completing the Data Safety section, use this exact format:
 ```
 Data Type: Financial Information
 ├── Subcategory: Payment info
-├── Collection: ✅ Yes
+├── Collection: Yes
 ├── Purpose: Payment processing, App functionality
-├── Required: ✅ Yes (Required for functionality)
-└── Temporary: ✅ Yes (Data cleared from memory)
+├── Required: Yes (Required for functionality)
+└── Temporary: Yes (Data cleared from memory)
 ```
 
 #### Step 2: Data Sharing
@@ -288,16 +288,16 @@ Third Party: Spreedly
 #### Step 3: Security Practices
 
 ```
-Encryption in Transit: ✅ Yes (TLS)
-Data Storage: ❌ No (Memory only, not stored)
-Data Deletion: ✅ Automatic (After processing)
+Encryption in Transit: Yes (TLS)
+Data Storage: No (Memory only, not stored)
+Data Deletion: Automatic (After processing)
 ```
 
 #### Step 4: User Choice
 
 ```
-Optional Collection: ❌ No (Required for payment processing)
-User Deletion: ✅ Yes (Automatic deletion)
+Optional Collection: No (Required for payment processing)
+User Deletion: Yes (Automatic deletion)
 ```
 
 ---
@@ -306,7 +306,7 @@ User Deletion: ✅ Yes (Automatic deletion)
 
 ### Scenario 1: "Does your app collect payment information?"
 
-**Answer:** ✅ **YES**
+**Answer:** **YES**
 
 **Explanation:**
 
@@ -316,7 +316,7 @@ User Deletion: ✅ Yes (Automatic deletion)
 
 ### Scenario 2: "Is payment data stored on the device?"
 
-**Answer:** ❌ **NO**
+**Answer:** **NO**
 
 **Explanation:**
 
@@ -327,7 +327,7 @@ User Deletion: ✅ Yes (Automatic deletion)
 
 ### Scenario 3: "Is payment data shared with third parties?"
 
-**Answer:** ✅ **YES**
+**Answer:** **YES**
 
 **Explanation:**
 
@@ -338,7 +338,7 @@ User Deletion: ✅ Yes (Automatic deletion)
 
 ### Scenario 4: "Is payment data encrypted?"
 
-**Answer:** ✅ **YES**
+**Answer:** **YES**
 
 **Explanation:**
 
@@ -348,7 +348,7 @@ User Deletion: ✅ Yes (Automatic deletion)
 
 ### Scenario 5: "Can users delete their payment data?"
 
-**Answer:** ✅ **YES**
+**Answer:** **YES**
 
 **Explanation:**
 
@@ -374,18 +374,18 @@ When completing the Google Play Console questionnaire:
 
 If your application stores payment tokens returned by the SDK:
 
-- ✅ Report token storage in your Data Safety section
-- ✅ Implement user deletion mechanisms for stored tokens
-- ✅ Document token storage practices in your privacy policy
-- ✅ Use secure storage mechanisms (Android Keystore, encrypted SharedPreferences)
+- Report token storage in your Data Safety section
+- Implement user deletion mechanisms for stored tokens
+- Document token storage practices in your privacy policy
+- Use secure storage mechanisms (Android Keystore, encrypted SharedPreferences)
 
 ### Network Permissions
 
 If your application requires INTERNET permission:
 
-- ✅ Declare INTERNET permission in your AndroidManifest.xml
-- ✅ Document network usage in Data Safety section if required
-- ✅ Note: SDK uses network for payment tokenization only
+- Declare INTERNET permission in your AndroidManifest.xml
+- Document network usage in Data Safety section if required
+- Note: SDK uses network for payment tokenization only
 
 ---
 
@@ -395,55 +395,55 @@ Before submitting your Data Safety section to Google Play Console, verify all it
 
 ### Data Collection Verification
 
-- [ ] ✅ Financial information collection is marked as "Yes"
-- [ ] ✅ Payment info subcategory is selected
-- [ ] ✅ Required for functionality is marked as "Yes"
-- [ ] ✅ Temporary data is marked as "Yes"
-- [ ] ✅ Purpose is listed as "Payment processing" and "App functionality"
-- [ ] ✅ Collection optional is marked as "No"
+- [ ] Financial information collection is marked as "Yes"
+- [ ] Payment info subcategory is selected
+- [ ] Required for functionality is marked as "Yes"
+- [ ] Temporary data is marked as "Yes"
+- [ ] Purpose is listed as "Payment processing" and "App functionality"
+- [ ] Collection optional is marked as "No"
 
 ### Data Sharing Verification
 
-- [ ] ✅ Data sharing with third parties is marked as "Yes"
-- [ ] ✅ Spreedly is listed as the third-party service provider
-- [ ] ✅ Spreedly's privacy policy link is included: https://www.spreedly.com/privacy
-- [ ] ✅ Data type shared is correctly listed: Financial information (Payment info)
-- [ ] ✅ Purpose of sharing is listed as "Payment processing"
+- [ ] Data sharing with third parties is marked as "Yes"
+- [ ] Spreedly is listed as the third-party service provider
+- [ ] Spreedly's privacy policy link is included: https://www.spreedly.com/privacy
+- [ ] Data type shared is correctly listed: Financial information (Payment info)
+- [ ] Purpose of sharing is listed as "Payment processing"
 
 ### Security Practices Verification
 
-- [ ] ✅ Encryption in transit is marked as "Yes"
-- [ ] ✅ Encryption method is specified: TLS 1.2+
-- [ ] ✅ Data storage on device is marked as "No" (memory only)
-- [ ] ✅ Data deletion is marked as "Yes" (automatic)
-- [ ] ✅ Deletion method is noted: Automatic (cleared from memory after processing)
+- [ ] Encryption in transit is marked as "Yes"
+- [ ] Encryption method is specified: TLS 1.2+
+- [ ] Data storage on device is marked as "No" (memory only)
+- [ ] Data deletion is marked as "Yes" (automatic)
+- [ ] Deletion method is noted: Automatic (cleared from memory after processing)
 
 ### User Control Verification
 
-- [ ] ✅ Users can request deletion is marked as "Yes"
-- [ ] ✅ Data collection optional is marked as "No" (required for payment processing)
-- [ ] ✅ Reason for required collection is documented: Payment processing requires card data
+- [ ] Users can request deletion is marked as "Yes"
+- [ ] Data collection optional is marked as "No" (required for payment processing)
+- [ ] Reason for required collection is documented: Payment processing requires card data
 
 ### Permissions Verification
 
-- [ ] ✅ No unnecessary permissions are declared for SDK
-- [ ] ✅ Only INTERNET permission is declared (if required by host app)
-- [ ] ✅ No sensitive permissions (location, camera, contacts) are attributed to SDK
+- [ ] No unnecessary permissions are declared for SDK
+- [ ] Only INTERNET permission is declared (if required by host app)
+- [ ] No sensitive permissions (location, camera, contacts) are attributed to SDK
 
 ### Host Application Verification
 
-- [ ] ✅ Host app data practices are reported separately from SDK practices
-- [ ] ✅ Combined reporting includes both SDK and host app practices
-- [ ] ✅ Token storage (if applicable) is documented in host app section
-- [ ] ✅ Host app privacy policy is updated to reflect SDK data practices
+- [ ] Host app data practices are reported separately from SDK practices
+- [ ] Combined reporting includes both SDK and host app practices
+- [ ] Token storage (if applicable) is documented in host app section
+- [ ] Host app privacy policy is updated to reflect SDK data practices
 
 ### Final Submission Checklist
 
-- [ ] ✅ All fields are completed accurately
-- [ ] ✅ All answers match the information in this guide
-- [ ] ✅ Privacy policy link is accessible and up-to-date
-- [ ] ✅ Form is saved and reviewed before submission
-- [ ] ✅ Host app practices are documented separately
+- [ ] All fields are completed accurately
+- [ ] All answers match the information in this guide
+- [ ] Privacy policy link is accessible and up-to-date
+- [ ] Form is saved and reviewed before submission
+- [ ] Host app practices are documented separately
 
 ---
 
@@ -453,12 +453,12 @@ Before submitting your Data Safety section to Google Play Console, verify all it
 
 ```
 Data Type: Financial Information
-├── Does your app collect this data? → ✅ Yes
+├── Does your app collect this data? → Yes
 ├── Subcategory → Payment info
-├── Is this data required for your app's functionality? → ✅ Yes
-├── Is this data collected temporarily? → ✅ Yes
+├── Is this data required for your app's functionality? → Yes
+├── Is this data collected temporarily? → Yes
 ├── Purpose → App functionality, Payment processing
-└── Is collection optional? → ❌ No
+└── Is collection optional? → No
 ```
 
 ### Example 2: Data Sharing Entry
@@ -476,9 +476,9 @@ Third Party: Spreedly
 
 ```
 Security Practices:
-├── Encryption in transit → ✅ Yes (TLS)
-├── Data stored on device → ❌ No (Memory only)
-└── Data deletion → ✅ Yes (Automatic after processing)
+├── Encryption in transit → Yes (TLS)
+├── Data stored on device → No (Memory only)
+└── Data deletion → Yes (Automatic after processing)
 ```
 
 ---
@@ -509,12 +509,12 @@ For questions about SDK data practices:
 
 This guide provides format-specific requirements for completing Google Play Console's Data Safety questionnaire. Key points:
 
-✅ **Data Collection:** Financial information (payment info) - Required, Temporary  
-✅ **Data Sharing:** Shared with Spreedly for payment processing  
-✅ **Security:** TLS encryption in transit, No persistent storage  
-✅ **Deletion:** Automatic deletion from memory after processing  
-✅ **Permissions:** No special permissions required  
-✅ **Purpose:** Payment processing, App functionality
+**Data Collection:** Financial information (payment info) - Required, Temporary  
+**Data Sharing:** Shared with Spreedly for payment processing  
+**Security:** TLS encryption in transit, No persistent storage  
+**Deletion:** Automatic deletion from memory after processing  
+**Permissions:** No special permissions required  
+**Purpose:** Payment processing, App functionality
 
 **Remember:** This document covers SDK-specific practices. Your host application's data practices should be reported separately in your Google Play Console Data Safety section.
 

@@ -67,26 +67,22 @@ You do **not** need `@spreedly/react-native-checkout-braintree-apm` for Stripe A
 
 ### iOS (CocoaPods)
 
-The `@spreedly/react-native-checkout` iOS podspec declares these dependencies automatically:
+The SDK's podspec (`packages/core/SpreedlyCheckout.podspec`) declares these dependencies automatically:
 
-| Pod                  | Version     | Purpose                      |
-| -------------------- | ----------- | ---------------------------- |
-| `SpreedlyCore`       | Private SDK | Core Spreedly payment engine |
-| `SpreedlySecurity`   | Private SDK | Security and encryption      |
-| `SpreedlyUI`         | Private SDK | Shared UI components         |
-| `SpreedlyStripeAPM`  | Private SDK | Stripe APM wrapper           |
-| `StripePaymentSheet` | `~> 25.0`   | Stripe's PaymentSheet UI     |
-| `Forter3DS`          | latest      | 3D Secure support            |
+| Pod                  | Version       | Purpose                      |
+| -------------------- | ------------- | ---------------------------- |
+| `SpreedlyCore`       | Native module | Core Spreedly payment engine |
+| `SpreedlySecurity`   | Native module | Security and encryption      |
+| `SpreedlyUI`         | Native module | Shared UI components         |
+| `SpreedlyStripeAPM`  | Native module | Stripe APM wrapper           |
+| `StripePaymentSheet` | `~> 25.0`     | Stripe's PaymentSheet UI     |
+| `Forter3DS`          | latest        | 3D Secure support            |
 
 **Podfile setup:**
 
 ```ruby
-# Load Spreedly pod setup script (from @spreedly/react-native-checkout)
-require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "@spreedly/react-native-checkout/scripts/spreedly_pods_setup.rb",
-    {paths: [process.argv[1]]},
-  )', __dir__]).strip
+# Load Spreedly pod setup script
+load '../../packages/core/scripts/spreedly_pods_setup.rb'
 
 target 'YourApp' do
   # ... React Native config ...
@@ -111,7 +107,7 @@ end
 
 #### 1. Stripe Bundle Support Script (Critical)
 
-When using CocoaPods with static linking (the default in React Native), Stripe's resource bundles may be named differently at runtime than what the Stripe SDK expects. The Spreedly setup script (`spreedly_stripe_bundle_support.rb` in `@spreedly/react-native-checkout`) resolves this by creating symlinks with the expected names during the build process.
+When using CocoaPods with static linking (the default in React Native), Stripe's resource bundles may be named differently at runtime than what the Stripe SDK expects. The `packages/core/scripts/spreedly_stripe_bundle_support.rb` script resolves this by creating symlinks with the expected names during the build process.
 
 **What it does:**
 
@@ -128,7 +124,7 @@ The script adds a **Run Script Build Phase** named `[Spreedly] Stripe bundle nam
 
 **How to use it:**
 
-The script exposes `apply_spreedly_stripe_support` (loaded via `init_spreedly_checkout_pods` / your Podfile `post_install`). Call it in your Podfile's `post_install` block:
+The script is located at `packages/core/scripts/spreedly_stripe_bundle_support.rb` and exposes the `apply_spreedly_stripe_support` function. Call it in your Podfile's `post_install` block:
 
 ```ruby
 post_install do |installer|
@@ -243,8 +239,152 @@ interface StripeAPMConfig {
 
   /** Return URL for redirect-based APMs (optional in TypeScript, required on iOS) */
   returnUrl?: string;
+
+  appearance?: StripeAPMAppearanceConfig;
 }
 ```
+
+### Appearance {#appearance}
+
+Optional PaymentSheet styling on `StripeAPMConfig.appearance`. The React Native bridge maps your object to native `StripeAPMAppearanceConfig` on each platform, then into Stripe `PaymentSheet.Appearance`. Omit `appearance` entirely for Stripe defaults, or set only the keys you need.
+
+**Native SDK references (full native APIs):**
+
+- Android: [Stripe APM guide](https://github.com/spreedly/checkout-android-sdk/blob/main/docs/guides/stripe-apm.md) and [STRIPE_22_8_APPEARANCE_FIELD_MATRIX](https://github.com/spreedly/checkout-android-sdk/blob/main/docs/development/STRIPE_22_8_APPEARANCE_FIELD_MATRIX.md)
+- iOS: [Stripe APM theming](https://github.com/spreedly/checkout-ios-sdk/blob/main/SpreedlyDocs/guides/stripe-apm.md#theming-the-paymentsheet)
+
+#### UX cheat sheet
+
+| What you set                                       | What merchants usually see                                                                         |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `colors.primary`                                   | Accents: selected payment method, links, some icons. **Does not** style the Pay / Continue button. |
+| `colors.componentBackground`, `componentBorder`, … | Input fields, tabs, dividers inside the sheet.                                                     |
+| `primaryButton.backgroundColor`, `textColor`, …    | The main CTA button on steps that show Pay / Continue (not on every intermediate screen).          |
+
+`colors.primary` and Stripe’s default brand purple are easy to confuse — use a high-contrast hex (e.g. `#FF0000`) when smoke-testing.
+
+#### Color string format
+
+| Format             | Android | iOS | Example                          |
+| ------------------ | ------- | --- | -------------------------------- |
+| Hex RGB            | Yes     | Yes | `#5856D6`                        |
+| Hex ARGB           | Yes     | Yes | `#80FF0000`                      |
+| Named system color | Yes     | Yes | `systemIndigo`, `white`, `black` |
+
+**Named colors (both platforms):** `systemBlue`, `systemIndigo`, `systemPurple`, `systemGreen`, `systemRed`, `systemOrange`, `systemYellow`, `systemGray`, `systemGray2`–`systemGray6`, `label`, `secondaryLabel`, `white`, `black`. On Android, named tokens use fixed ARGB approximations of UIKit system colors.
+
+#### Root keys
+
+| Key                   | Type     | Android | iOS | Stripe UI / notes                                                                                                                 |
+| --------------------- | -------- | ------- | --- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `cornerRadius`        | `number` | Yes     | Yes | Corner radius for buttons, inputs, and tabs (dp / points).                                                                        |
+| `borderWidth`         | `number` | Yes     | Yes | Border width for inputs and tabs.                                                                                                 |
+| `selectedBorderWidth` | `number` | Stored  | Yes | iOS: selected tab/button border. Android: accepted by the bridge but **no** Stripe 22.8 equivalent — typically no visible effect. |
+
+#### `colors` object
+
+| Key                        | Type     | Android | iOS | Stripe UI / native mapping                                                   |
+| -------------------------- | -------- | ------- | --- | ---------------------------------------------------------------------------- |
+| `primary`                  | `string` | Yes     | Yes | Brand accent color.                                                          |
+| `background`               | `string` | Yes     | Yes | Sheet background (Android native: `surface`).                                |
+| `componentBackground`      | `string` | Yes     | Yes | Background of inputs, tabs, components (Android: `component`).               |
+| `componentBorder`          | `string` | Yes     | Yes | Border on inputs and tabs.                                                   |
+| `selectedComponentBorder`  | `string` | No      | Yes | Border on selected components. Not mapped on Android (no Stripe 22.8 field). |
+| `componentDivider`         | `string` | Yes     | Yes | Dividers inside inputs/tabs.                                                 |
+| `text`                     | `string` | Yes     | Yes | Default text on sheet background (Android: `onSurface`).                     |
+| `textSecondary`            | `string` | Yes     | Yes | Secondary labels (Android: `subtitle`).                                      |
+| `componentText`            | `string` | Yes     | Yes | Text on component backgrounds (Android: `onComponent`).                      |
+| `componentPlaceholderText` | `string` | Yes     | Yes | Placeholder text in inputs (Android: `placeholderText`).                     |
+| `icon`                     | `string` | Yes     | Yes | App bar / sheet icons (Android: `appBarIcon`).                               |
+| `danger`                   | `string` | Yes     | Yes | Errors and destructive actions (Android: `error`).                           |
+
+**Android-only aliases** (same bridge behavior; prefer canonical keys above):
+
+| Alias             | Canonical key              |
+| ----------------- | -------------------------- |
+| `surface`         | `background`               |
+| `component`       | `componentBackground`      |
+| `onSurface`       | `text`                     |
+| `subtitle`        | `textSecondary`            |
+| `onComponent`     | `componentText`            |
+| `placeholderText` | `componentPlaceholderText` |
+| `appBarIcon`      | `icon`                     |
+| `error`           | `danger`                   |
+
+#### `primaryButton` object
+
+| Key                       | Type     | Android | iOS | Stripe UI / native mapping                                                               |
+| ------------------------- | -------- | ------- | --- | ---------------------------------------------------------------------------------------- |
+| `backgroundColor`         | `string` | Yes     | Yes | Button fill (Android: `background`). `nil` on iOS native falls back to `colors.primary`. |
+| `textColor`               | `string` | Yes     | Yes | Button label (Android: `onBackground`).                                                  |
+| `disabledBackgroundColor` | `string` | No      | Yes | Disabled button background. Not in Stripe Android 22.8 API.                              |
+| `disabledTextColor`       | `string` | No      | Yes | Disabled button label. Not in Stripe Android 22.8 API.                                   |
+| `successBackgroundColor`  | `string` | Yes     | Yes | Background after successful payment.                                                     |
+| `successTextColor`        | `string` | Yes     | Yes | Label after successful payment (Android: `onSuccessBackground`).                         |
+| `cornerRadius`            | `number` | Yes     | Yes | Button corner radius (dp / points).                                                      |
+| `borderColor`             | `string` | Yes     | Yes | Button border color (Android: `border`).                                                 |
+| `borderWidth`             | `number` | Yes     | Yes | Button border width.                                                                     |
+| `height`                  | `number` | Yes     | Yes | Button height (dp / points).                                                             |
+
+**Android-only aliases:**
+
+| Alias                 | Canonical key            |
+| --------------------- | ------------------------ |
+| `background`          | `backgroundColor`        |
+| `onBackground`        | `textColor`              |
+| `border`              | `borderColor`            |
+| `successBackground`   | `successBackgroundColor` |
+| `onSuccessBackground` | `successTextColor`       |
+
+#### `shadow` object (iOS only)
+
+Ignored on Android. Maps to native `StripeAPMAppearanceShadow`.
+
+| Key       | Type                                  | iOS | Notes                        |
+| --------- | ------------------------------------- | --- | ---------------------------- |
+| `color`   | `string`                              | Yes | Shadow color (hex or named). |
+| `opacity` | `number`                              | Yes | Shadow opacity.              |
+| `offset`  | `{ width?: number; height?: number }` | Yes | Shadow offset.               |
+| `radius`  | `number`                              | Yes | Blur radius.                 |
+
+#### `font` object
+
+| Key               | Type     | Android | iOS | Notes                                                                        |
+| ----------------- | -------- | ------- | --- | ---------------------------------------------------------------------------- |
+| `sizeScaleFactor` | `number` | Yes     | Yes | Scales all PaymentSheet font sizes.                                          |
+| `fontFamilyResId` | `number` | Yes     | No  | Android `@FontRes` integer (e.g. `R.font.my_font`). `0` is treated as unset. |
+
+**Not exposed in React Native:** iOS native `font.base` (custom `UIFont` family). Use native iOS SDK directly if you need it.
+
+#### Cross-platform example
+
+```typescript
+await StripeAPM.presentCheckout({
+  publishableKey: 'pk_...',
+  clientSecret: response.client_secret,
+  transactionToken: response.transaction_token,
+  merchantDisplayName: 'Your Store',
+  returnUrl: 'yourapp://stripe/return',
+  appearance: {
+    cornerRadius: 10,
+    colors: {
+      primary: '#5856D6',
+      componentBackground: '#FFFFFF',
+      componentBorder: '#AF52DE',
+    },
+    primaryButton: {
+      backgroundColor: '#5856D6',
+      textColor: '#FFFFFF',
+      cornerRadius: 10,
+      height: 52,
+    },
+  },
+});
+```
+
+TypeScript types and IDE hints: `@spreedly/react-native-checkout-stripe-apm` exports `StripeAPMAppearanceConfig` and nested interfaces from the package entry.
+
+> **iOS:** Dismissing PaymentSheet without paying emits `status: 'canceled'`, not `failed` with "canceled" in `failureDetails`. Handle `result.status === 'canceled'` explicitly.
 
 > **Important:** While `returnUrl` is marked as optional in the TypeScript interface, it is **required on iOS**. The iOS native layer checks for its presence and will fail to present the PaymentSheet without it. Always provide a `returnUrl` for cross-platform compatibility.
 
@@ -632,6 +772,17 @@ await StripeAPM.presentCheckout({
 
 **Solution:** Ensure `initSdk` with your Spreedly environment key is called before initializing the Stripe APM observer.
 
+### Appearance colors or button styling ignored
+
+**Cause:** Invalid color strings (typos), or an empty `appearance: {}` object on iOS (now treated as no overrides).
+
+**Solution:**
+
+- Use `#RRGGBB` / `#AARRGGBB` for exact colors on both platforms.
+- Named tokens (`systemIndigo`, `white`, `systemBlue`, `label`, …) are supported on iOS and Android via the RN bridge.
+- Set `colors` and `primaryButton` explicitly; changing unrelated config fields does not alter appearance.
+- On Android, `shadow` and `primaryButton.disabled*` are not forwarded to Stripe 22.8.
+
 ### Payment methods not appearing in PaymentSheet
 
 **Cause:** The `apm_types` in the purchase request don't match enabled methods on your Stripe account, or the currency doesn't support the requested methods.
@@ -653,6 +804,6 @@ await StripeAPM.presentCheckout({
 
 ### iOS: Build errors with Stripe / Spreedly pods
 
-**Cause:** Missing access to the Spreedly private pod repository.
+**Cause:** Missing GitHub credentials for CocoaPods or incorrect `init_spreedly_checkout_pods()` setup.
 
 **Solution:** Ensure SSH key access to `github.com:spreedly/checkout-ios-package.git` is configured. Run `pod install --repo-update` after configuration changes.

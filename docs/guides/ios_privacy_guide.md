@@ -18,7 +18,7 @@ Two required components:
 
 ### Implementation Status
 
-✅ **Implemented:** The Spreedly Checkout iOS SDK includes `PrivacyInfo.xcprivacy` and bundles it automatically
+**Implemented:** `packages/core/ios/PrivacyInfo.xcprivacy` is included and bundled automatically
 
 ### What It Declares
 
@@ -40,12 +40,12 @@ Two required components:
 
 **For SDK Developers:**
 
-- ✅ Already implemented in the Spreedly Checkout iOS SDK privacy manifest
-- ✅ Automatically bundled via CocoaPods
+- Already implemented in `packages/core/ios/PrivacyInfo.xcprivacy`
+- Automatically bundled via CocoaPods
 
 **For App Developers:**
 
-- ✅ Privacy manifest auto-included with SDK
+- Privacy manifest auto-included with SDK
 - Your app may need its own manifest for app-specific APIs
 
 ---
@@ -56,25 +56,25 @@ Two required components:
 
 | Category            | Answer                                |
 | ------------------- | ------------------------------------- |
-| **Data Collection** | ✅ Yes (Payment information)          |
-| **Data Sharing**    | ✅ Yes (Shared with Spreedly)         |
-| **Tracking**        | ❌ No                                 |
+| **Data Collection** | Yes (Payment information)             |
+| **Data Sharing**    | Yes (Shared with Spreedly)            |
+| **Tracking**        | No                                    |
 | **Purpose**         | Payment processing, App functionality |
 
 ### Section 1: Data Collection
 
-**Answer:** ✅ **YES**
+**Answer:** **YES**
 
 **Financial Information → Payment Info:**
 
 - Card number, CVV, expiration date
-- Linked to User: ✅ Yes
-- Used for Tracking: ❌ No
+- Linked to User: Yes
+- Used for Tracking: No
 - Purpose: App Functionality, Payment Processing
 
 ### Section 2: Data Sharing
 
-**Answer:** ✅ **YES**
+**Answer:** **YES**
 
 **Shared With: Spreedly**
 
@@ -85,7 +85,7 @@ Two required components:
 
 ### Section 3: Tracking
 
-**Answer:** ❌ **NO**
+**Answer:** **NO**
 
 - No cross-app/website tracking
 - No advertising identifiers
@@ -95,11 +95,11 @@ Two required components:
 
 **Purpose:**
 
-- ✅ App Functionality (Required)
-- ✅ Payment Processing (Required)
-- ❌ Not for Analytics, Advertising, or Personalization
+- App Functionality (Required)
+- Payment Processing (Required)
+- Not for Analytics, Advertising, or Personalization
 
-**Is Collection Optional?** ❌ **NO**
+**Is Collection Optional?** **NO**
 
 - Required for payment processing functionality
 
@@ -121,9 +121,9 @@ Two required components:
 
 If storing payment tokens:
 
-- ✅ Report in privacy labels
-- ✅ Implement user deletion
-- ✅ Use iOS Keychain for storage
+- Report in privacy labels
+- Implement user deletion
+- Use iOS Keychain for storage
 
 ---
 
@@ -135,6 +135,6 @@ If storing payment tokens:
 
 ---
 
-✅ Privacy manifest implemented and bundled  
-✅ App Store labels guidelines provided  
-✅ Both requirements documented
+Privacy manifest implemented and bundled  
+App Store labels guidelines provided  
+Both requirements documented
