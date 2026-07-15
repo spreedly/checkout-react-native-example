@@ -1,17 +1,30 @@
 # CHANGELOG
 
+## [Unreleased]
+
+### Added
+
+- **ACH bank account** _(preview — not yet released)_: `SpreedlyCore.achBankAccountBottomSheet()`, `SpreedlyCore.createBankAccount()`, ACH `FormFieldTypes`, and `BankAccountType` / `BankAccountHolderType` enums. APIs may exist in the package before GA — **do not use in production**. See [ACH Bank Account Guide](guides/ach_bank_account_guide.md).
+
+### Native SDK Versions
+
+| Platform | SDK                  | Version |
+| -------- | -------------------- | ------- |
+| Android  | checkout-android     | 1.1.0   |
+| iOS      | checkout-ios-package | 1.4.1   |
+
+---
+
 ## [1.0.10] - 2026-07-13
 
 ### Fixed
 
 - **Android `SPLTextField`**: do not measure the embedded `ComposeView` before window attach (fixes Fabric + react-native-screens crash: `Cannot locate windowRecomposer`).
 - **iOS `ScreenSecurity`**: App Switcher / multitasking card no longer exposes payment UI when protection is active.
-- **ACH payments**: Bug fix for ACH payment flows.
 - Dependabot vulnerability fixes.
 
 ### Added
 
-- **ACH bank account**: `SpreedlyCore.achBankAccountBottomSheet()`, `SpreedlyCore.createBankAccount()`, ACH `FormFieldTypes`, and `BankAccountType` / `BankAccountHolderType` enums. See [ACH Bank Account Guide](guides/ach_bank_account_guide.md).
 - **`HostedFieldStatePayload.iin`**: merchant-safe IIN prefix on CARD field snapshots (iframe parity).
 - **Braintree APM**: Optional `clientToken`, Success/cancel payloads may include `paymentMethodType`, `venmoUsername` (Android), and cancel `message`.
 - **`SavedCardInfo.cardholderName`**: Optional display name on recache UI (Android).

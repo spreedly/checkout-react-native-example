@@ -49,7 +49,6 @@ This document covers **vulnerability reporting**. For PCI-aligned integration pr
 | Hosted field callbacks (merchant-safe payloads, IIN prefix)   | [Hosted Fields — PAN display and field state](../guides/hosted_fields_guide.md#pan-display-masking-and-hosted-field-snapshots) |
 | No programmatic PAN/CVV injection                             | [From legacy — Planned differences](./migration/from-legacy.md#planned-differences)                                            |
 | Logging and observability (no sensitive values in logs)       | [Central Logging Guide](../development/CENTRAL_LOGGING_GUIDE.md)                                                               |
-| ACH bank account tokenization (secure fields, token handling) | [ACH Bank Account Guide](./ach_bank_account_guide.md#security-and-pci)                                                         |
 
 Never log, persist, or display full PAN, CVV, bank account numbers, routing numbers, or signing secrets in production apps.
 

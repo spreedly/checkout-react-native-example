@@ -131,15 +131,6 @@ import { SPLTextField, FormFieldTypes } from '@spreedly/react-native-checkout';
 <SPLTextField formFieldType={FormFieldTypes.CVV} label="CVV" />
 ```
 
-### ACH Bank Account
-
-1. Initialize the SDK with fresh backend-signed parameters
-2. **Drop-in sheet:** subscribe to `SpreedlyEventTypes.ACH_BANK_ACCOUNT_BOTTOM_SHEET_RESULT`, call `SpreedlyCore.achBankAccountBottomSheet()`, complete the form, verify `mapPaymentResult(result).kind === 'success'`
-3. **Custom form:** render `SPLTextField` fields for `ROUTING_NUMBER`, `ACCOUNT_NUMBER`, and name; call `SpreedlyCore.createBankAccount()`; verify `result.status === 'completed'`
-4. Confirm the payment method token is sent to your backend and not stored in local persistence
-
-See [ACH Bank Account Guide](ach_bank_account_guide.md) for configuration and PCI notes.
-
 ### CVV Recaching
 
 1. Initialize the SDK
@@ -293,7 +284,7 @@ The SDK includes an example app (`example/`) with screens for every payment flow
 4. Run on Android: `yarn example android`
 5. Run on iOS: `yarn example ios`
 
-The example app includes screens for: Express Checkout (Payment Bottom Sheet), Hosted Fields, ACH Bank Account (sheet and custom form), CVV Recaching, 3DS Challenge, 3DS Gateway-Specific, Offsite Payments, EBANX, Stripe APM, and Braintree APM.
+The example app includes screens for: Express Checkout (Payment Bottom Sheet), Hosted Fields, CVV Recaching, 3DS Challenge, 3DS Gateway-Specific, Offsite Payments, EBANX, Stripe APM, and Braintree APM.
 
 ## See Also
 
