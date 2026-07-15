@@ -1,6 +1,6 @@
 # Migrating to the Spreedly React Native Checkout SDK
 
-Move from the Spreedly [web iFrame / hosted-fields SDK](https://github.com/spreedly/iframe) or a WebView-wrapped web checkout to **`@spreedly/react-native-checkout`**.
+Move from the Spreedly web iFrame / hosted-fields SDK or a WebView-wrapped web checkout to **`@spreedly/react-native-checkout`**.
 
 This guide covers two migration paths:
 
@@ -9,7 +9,7 @@ This guide covers two migration paths:
 
 Both paths converge on the same React Native SDK. If you are already on `@spreedly/react-native-checkout` and upgrading between major versions, see [v0-to-v1 migration](./v0-to-v1.md) instead.
 
-> **Scope:** The 1:1 iframe mapping tables below are **card-focused**. ACH bank-account tokenization was **not** part of the web iFrame SDK — see the Step 4 ACH subsection and the [ACH Bank Account Guide](../ach_bank_account_guide.md). Full 3DS, offsite, and APM details likewise live in their dedicated guides (linked from [Getting help](#getting-help)).
+> **Scope:** The 1:1 iframe mapping tables below are **card-focused**. ACH, full 3DS, offsite, and APM are brief pointers only — see dedicated guides linked from [Getting help](#getting-help). Official legacy references: [iFrame UI](https://developer.spreedly.com/docs/iframe-ui), [iFrame events](https://developer.spreedly.com/docs/iframe-events).
 
 ---
 
@@ -20,7 +20,6 @@ The React Native Checkout SDK replaces WebView-based payment flows with:
 - Native secure fields (`SPLTextField`) and optional Express Checkout bottom sheet
 - Server-side signed authentication (no API secret on device)
 - PCI scope reduction (sensitive data never in merchant JS state)
-- ACH bank account tokenization
 - 3D Secure (Forter global and gateway-specific)
 - Alternative payment methods (Stripe APM, Braintree APM)
 - Offsite payments (PayPal, Pix, Boleto, EBANX, and more)
@@ -41,11 +40,11 @@ The React Native Checkout SDK replaces WebView-based payment flows with:
 
 **Packages:**
 
-| Package                                         | Purpose                                                                            |
-| ----------------------------------------------- | ---------------------------------------------------------------------------------- |
-| `@spreedly/react-native-checkout`               | Core: `SpreedlyCore`, `SPLTextField`, Express checkout, ACH, 3DS, offsite, recache |
-| `@spreedly/react-native-checkout-stripe-apm`    | Stripe PaymentSheet (iDEAL, Bancontact, EPS, P24, SEPA, etc.)                      |
-| `@spreedly/react-native-checkout-braintree-apm` | Braintree PayPal / Venmo                                                           |
+| Package                                         | Purpose                                                                       |
+| ----------------------------------------------- | ----------------------------------------------------------------------------- |
+| `@spreedly/react-native-checkout`               | Core: `SpreedlyCore`, `SPLTextField`, Express checkout, 3DS, offsite, recache |
+| `@spreedly/react-native-checkout-stripe-apm`    | Stripe PaymentSheet (iDEAL, Bancontact, EPS, P24, SEPA, etc.)                 |
+| `@spreedly/react-native-checkout-braintree-apm` | Braintree PayPal / Venmo                                                      |
 
 Install and native setup: [Integration Guide](../integration_guide.md). Android toolchain pins: [RN 0.79+ requirements](../rn_079_requirement.md).
 
@@ -55,13 +54,13 @@ Install and native setup: [Integration Guide](../integration_guide.md). Android 
 
 | Area               | Web iFrame SDK                                          | React Native Checkout SDK                                                                          |
 | ------------------ | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| **UI**             | DOM iframes + CSS (`setStyle`)                          | Native `SPLTextField` + optional `PaymentBottomSheet` / ACH bank sheet                             |
+| **UI**             | DOM iframes + CSS (`setStyle`)                          | Native `SPLTextField` + optional `PaymentBottomSheet`                                              |
 | **Initialization** | `Spreedly.init(environmentKey, { …, numberEl, cvvEl })` | `SpreedlyCore.initSdk(options)` — no DOM container ids                                             |
 | **Authentication** | Often mixed with page config                            | Server-generated signed params per session (`nonce`, `signature`, `certificateToken`, `timestamp`) |
 | **Multiple forms** | `new SpreedlyPaymentFrame()` per form                   | One `initSdk` per session; multiple `SPLTextField` = one form                                      |
-| **Results**        | Global events (`paymentMethod`, `errors`, `recache`)    | Promises + `mapPaymentResult`; `SpreedlyEventEmitter` for sheet, ACH, 3DS, recache, offsite        |
+| **Results**        | Global events (`paymentMethod`, `errors`, `recache`)    | Promises + `mapPaymentResult`; `SpreedlyEventEmitter` for sheet, 3DS, recache, offsite             |
 | **Styling**        | Arbitrary CSS per field                                 | `CustomThemeConfig` tokens — no CSS                                                                |
-| **PCI**            | Merchant page wraps iframes                             | Card/CVV/expiry and bank routing/account only through `SPLTextField`; no `setValue`                |
+| **PCI**            | Merchant page wraps iframes                             | Card/CVV/expiry only through `SPLTextField`; no `setValue`                                         |
 
 ---
 
@@ -133,33 +132,13 @@ Replaces iFrame number/CVV/expiry containers:
 
 See [Hosted Fields Guide](../hosted_fields_guide.md).
 
-### ACH bank account
+### ACH bank account _(preview — not yet released)_
 
-The web iFrame SDK has **no** bank-account hosted fields or tokenize API. ACH on React Native is a **new capability** when leaving WebView — same idea as Android’s separate bank sheet vs card sheet.
+The web iFrame SDK has **no** bank-account hosted fields or tokenize API. ACH may exist in the React Native package before GA — it is **in the code but not ready for release**. **Do not integrate ACH in production** until Spreedly announces GA. Preview-only details: [ACH Bank Account Guide](../ach_bank_account_guide.md).
 
-Card Express and ACH use **separate** UIs:
+### Key PCI change: no raw card data in merchant code
 
-| Flow         | React Native API                                                  |
-| ------------ | ----------------------------------------------------------------- |
-| Card Express | `SpreedlyCore.paymentBottomSheet` / embedded `PaymentBottomSheet` |
-| ACH drop-in  | `SpreedlyCore.achBankAccountBottomSheet`                          |
-
-**Drop-in sheet**
-
-- Subscribe to **`SpreedlyEventTypes.ACH_BANK_ACCOUNT_BOTTOM_SHEET_RESULT`**
-- Call **`SpreedlyCore.achBankAccountBottomSheet(options)`**
-- Normalize with **`mapPaymentResult`**
-
-**Custom form**
-
-- Mount **`SPLTextField`** for **`FormFieldTypes.ROUTING_NUMBER`**, **`ACCOUNT_NUMBER`**, and name (`FULL_NAME` or `FIRST_NAME` + `LAST_NAME`; optional **`BANK_NAME`**)
-- Tokenize with **`SpreedlyCore.createBankAccount(options)`** (`BankAccountType`, `BankAccountHolderType`, and related options)
-
-Do not collect routing or account numbers with React Native `TextInput`. Call **`ScreenSecurity.activateProtection()`** on ACH screens. Full options, presets, results, and PCI rules: [ACH Bank Account Guide](../ach_bank_account_guide.md).
-
-### Key PCI change: no raw card or bank data in merchant code
-
-Card number, CVV, expiry, routing number, and account number must use **`SPLTextField`**. There is no `setValue` equivalent on mobile (PCI). Field callbacks expose a merchant-safe **IIN prefix** (6–8 digits) on CARD fields only — not full PAN or CVV. OS autofill is controlled with **`enableAutofill`**. See [Security](../security.md).
+Card number, CVV, and expiry must use **`SPLTextField`**. There is no `setValue` equivalent on mobile (PCI). Field callbacks expose a merchant-safe **IIN prefix** (6–8 digits) on CARD fields only — not full PAN or CVV. OS autofill is controlled with **`enableAutofill`**. See [Security](../security.md).
 
 ---
 
@@ -286,7 +265,7 @@ The web SDK supports **`new SpreedlyPaymentFrame()`** per form with isolated num
 
 ### No `setValue` (programmatic PAN/CVV)
 
-Web **`setValue(field, value)`** can inject card number or CVV into hosted inputs. React Native has no equivalent (PCI). Card and bank account data must be entered in **`SPLTextField`**. OS autofill is controlled with **`enableAutofill`**.
+Web **`setValue(field, value)`** can inject card number or CVV into hosted inputs. React Native has no equivalent (PCI). Card number, CVV, and expiry must be entered in **`SPLTextField`**. OS autofill is controlled with **`enableAutofill`**.
 
 ### Live IIN in field callbacks
 
@@ -328,7 +307,6 @@ These iFrame capabilities have no mobile equivalent and are not in the API table
 - [ ] No API secret in app source: signing happens only on your server
 - [ ] `SpreedlyCore.initSdk` runs before any `SPLTextField` or Express Checkout UI mounts
 - [ ] Card, CVV, and expiry use `SPLTextField` only (no custom `TextInput` for PAN/CVV)
-- [ ] If using ACH: routing and account numbers use `SPLTextField` only; drop-in sheet or `createBankAccount` E2E; `ScreenSecurity.activateProtection()` on ACH screens; no bank numbers in logs or JS state
 - [ ] End-to-end test with card `4111111111111111`; token sent to backend over HTTPS
 - [ ] Event listeners removed on screen unmount (`SpreedlyEventEmitter` subscriptions)
 
@@ -340,7 +318,7 @@ These iFrame capabilities have no mobile equivalent and are not in the API table
 | ------------------------------------ | --------------------------------------------------------------------------------- |
 | Install, auth, API reference         | [Integration Guide](../integration_guide.md)                                      |
 | `SPLTextField`, PAN mask, validation | [Hosted Fields Guide](../hosted_fields_guide.md)                                  |
-| ACH bank account                     | [ACH Bank Account Guide](../ach_bank_account_guide.md)                            |
+| ACH bank account _(preview)_         | [ACH Bank Account Guide](../ach_bank_account_guide.md) — not for production       |
 | Capability index                     | [Hosted and Express capabilities](../hosted_and_express_capabilities.md)          |
 | Themes                               | [Theme Guide](../theme_guide.md)                                                  |
 | Express checkout                     | [Express Checkout Guide](../express_checkout_guide.md)                            |

@@ -2,6 +2,8 @@
 
 Guide for tokenizing US ACH bank accounts in a React Native app using `@spreedly/react-native-checkout`.
 
+> **Release status:** The APIs and UI in this guide may exist in the SDK before they are announced for production. ACH is **in the code but not ready for release** — it is **not** part of the stable **1.0.10** production feature set (see the ACH callout in [CHANGELOG](../CHANGELOG.md)). **Do not integrate in production** until Spreedly announces GA. Use this guide for preview / evaluation only.
+
 ## Overview
 
 The SDK supports two integration styles:
@@ -272,8 +274,6 @@ See [Security](security.md) for vulnerability reporting and the full integration
 2. **Sheet:** open `achBankAccountBottomSheet`, complete test routing/account values from your Spreedly environment docs, submit, verify `mapped.kind === 'success'`.
 3. **Custom form:** render ACH `SPLTextField` components, fill test data, call `createBankAccount`, verify `status === 'completed'`.
 4. Confirm tokens are forwarded to your backend and not stored locally.
-
-See [Testing Guide](testing_guide.md#ach-bank-account) for flow-specific steps.
 
 ## Example app
 
