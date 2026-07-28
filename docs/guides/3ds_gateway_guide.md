@@ -4,9 +4,12 @@ Gateway-Specific 3DS handles authentication for payment gateways that implement 
 
 For SDK installation and initialization, see the [Integration Guide](./integration_guide.md).
 
+**Android:** Gateway-Specific 3DS lives in `com.spreedly:checkout-threeds`. Install `@spreedly/react-native-checkout-threeds` in addition to core. iOS does not need that package.
+
 ## Prerequisites
 
 - Spreedly Checkout React Native SDK installed and initialized via `SpreedlyCore.initSdk()`
+- On Android: `@spreedly/react-native-checkout-threeds` installed and linked
 - A payment gateway that supports Gateway-Specific 3DS
 - A backend endpoint that proxies Spreedly's `/complete.json` API
 

@@ -17,9 +17,13 @@ import {
   StripeAPM,
   type StripeAPMResult,
 } from '@spreedly/react-native-checkout-stripe-apm';
+import { StripeRadar } from '@spreedly/react-native-checkout-stripe-radar';
 import Config from 'react-native-config';
 import { purchaseStripeAPM } from '../../network/purchaseStripe';
 import StripeAppearanceSection from '../../components/stripeAppearance/StripeAppearanceSection';
+import StripeRadarSection, {
+  type RadarState,
+} from '../../components/stripeRadar/StripeRadarSection';
 import {
   buildStripeAPMAppearance,
   getDefaultStripeAppearanceColors,
@@ -135,6 +139,14 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = () => {
   const [appearanceCornerRadius, setAppearanceCornerRadius] = useState(
     STRIPE_APPEARANCE_DEFAULT_CORNER_RADIUS
   );
+  const [radarEnabled, setRadarEnabled] = useState(false);
+  const [radarSessionId, setRadarSessionId] = useState<string | null>(null);
+  const [radarState, setRadarState] = useState<RadarState>('idle');
+
+  const isRadarCollecting = radarEnabled && radarState === 'collecting';
+
+  const radarSessionIdForPurchase =
+    radarEnabled && radarSessionId?.trim() ? radarSessionId.trim() : undefined;
 
   // Use refs to track current state to avoid re-subscription issues
   const stageRef = React.useRef(stage);
@@ -226,6 +238,38 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = () => {
     [isDark]
   );
 
+  const collectRadarSession = useCallback(async () => {
+    if (!Config.STRIPE_PUBLISHABLE_KEY?.trim()) {
+      setRadarState('failed');
+      return;
+    }
+
+    setRadarState('collecting');
+    try {
+      const sessionId = await StripeRadar.createRadarSession({
+        publishableKey: Config.STRIPE_PUBLISHABLE_KEY,
+      });
+      setRadarSessionId(sessionId);
+      setRadarState(sessionId ? 'success' : 'failed');
+    } catch {
+      setRadarSessionId(null);
+      setRadarState('failed');
+    }
+  }, []);
+
+  const handleRadarToggle = useCallback(
+    (enabled: boolean) => {
+      setRadarEnabled(enabled);
+      if (enabled) {
+        collectRadarSession();
+      } else {
+        setRadarSessionId(null);
+        setRadarState('idle');
+      }
+    },
+    [collectRadarSession]
+  );
+
   const togglePaymentMethod = useCallback((methodId: string) => {
     setSelectedPaymentMethods((prev) => {
       const newSet = new Set(prev);
@@ -277,6 +321,7 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = () => {
         apm_types: selectedApmTypes,
         redirect_url: 'spreedlyapp://com.spreedly.rn.app/stripe/return',
         callback_url: 'https://developer.spreedly.com/docs/overview',
+        radarSessionId: radarSessionIdForPurchase,
       });
 
       if (!response.transaction_token || !response.client_secret) {
@@ -418,12 +463,19 @@ const StripePaymentScreen: React.FC<StripePaymentScreenProps> = () => {
           </View>
         </View>
 
+        <StripeRadarSection
+          enabled={radarEnabled}
+          radarState={radarState}
+          radarSessionId={radarSessionId}
+          onToggle={handleRadarToggle}
+        />
+
         {selectedPaymentMethods.size > 0 && selectedProduct && (
           <View style={styles.payButtonContainer}>
             <CustomButton
               title={`Pay $${formatPrice(selectedProduct.price)} with ${selectedPaymentMethods.size} method${selectedPaymentMethods.size > 1 ? 's' : ''}`}
               onPress={handlePayment}
-              disabled={isLoading || isProcessing}
+              disabled={isLoading || isProcessing || isRadarCollecting}
               loading={isProcessing}
               loadingText="Processing..."
               testID="pay-button"

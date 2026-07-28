@@ -4,9 +4,9 @@
 
 **Demonstration only — not for production.** This sample app shows integration patterns for the [Spreedly Checkout React Native SDK](https://github.com/spreedly/checkout-react-native-packages). Do not ship it as-is to end users.
 
-Synced from SDK release **1.0.10** (tag `v1.0.10`).
+Synced from SDK release **1.1.0** (tag `v1.1.0`).
 
-This example demonstrates payment flows using the Spreedly Checkout SDK, including card payments, 3D Secure, offsite payments, Stripe APM, Braintree, ACH, and EBANX.
+This example demonstrates payment flows using the Spreedly Checkout SDK, including card payments, 3D Secure, offsite payments, Stripe APM, Stripe Radar, Braintree, EBANX, and ACH.
 
 ## Getting Started
 
@@ -55,10 +55,11 @@ Merchant docs are under [`/docs/`](/docs/README.md). Guides below match files sy
 | [3DS Guide](/docs/guides/3ds_guide.md)                                                    | Forter-based 3D Secure authentication                              |
 | [3DS Gateway Guide](/docs/guides/3ds_gateway_guide.md)                                    | Gateway-managed 3DS via browser-based authentication               |
 | [Theme Guide](/docs/guides/theme_guide.md)                                                | Colors, typography, and styling customization                      |
-| [ACH Bank Account](/docs/guides/ach_bank_account_guide.md)                                | Drop-in ACH sheet and custom bank account forms                    |
+| [ACH Bank Account](/docs/guides/ach_bank_account_guide.md)                                | Drop-in ACH sheet and custom forms                                 |
 | [CVV Recaching](/docs/guides/cvv_recaching_guide.md)                                      | CVV recaching for saved payment methods                            |
 | [Offsite Payments](/docs/guides/offsite_payments_guide.md)                                | PayPal, Pix, Boleto via offsite flows                              |
 | [Stripe APM](/docs/guides/stripe_apm_guide.md)                                            | iDEAL, Bancontact, EPS, P24, SEPA via Stripe                       |
+| [Stripe Radar](/docs/guides/stripe-radar.md)                                              | Headless Radar session collection                                  |
 | [Braintree Payments](/docs/guides/braintree_payment_guide.md)                             | PayPal and Venmo via Braintree                                     |
 | [EBANX Payments](/docs/guides/ebanx_payment_guide.md)                                     | EBANX alternative payment methods                                  |
 | [RN 0.79+ Requirements](/docs/guides/rn_079_requirement.md)                               | React Native 0.79+ version-specific requirements                   |

@@ -196,6 +196,27 @@ See [Stripe APM Guide](stripe_apm_guide.md) for the full integration.
 
 See [Braintree Payment Guide](braintree_payment_guide.md) for the full integration.
 
+### ACH Bank Account
+
+1. Initialize the SDK with fresh backend-signed parameters via `SpreedlyCore.initSdk()`
+2. Enable screenshot protection: `ScreenSecurity.activateProtection()`
+3. **Drop-in sheet:** call `SpreedlyCore.achBankAccountBottomSheet(options)` and listen on `SpreedlyEventTypes.ACH_BANK_ACCOUNT_BOTTOM_SHEET_RESULT`
+4. **Custom form:** render `SPLTextField` for `ROUTING_NUMBER`, `ACCOUNT_NUMBER`, and name; call `SpreedlyCore.createBankAccount(options)`
+5. Use sandbox routing/account values from your Spreedly environment docs
+6. Verify `mapped.kind === 'success'` (sheet) or `status === 'completed'` (custom form), then call `SpreedlyCore.resetPaymentState()`
+
+See [ACH Bank Account Guide](ach_bank_account_guide.md) for the full integration.
+
+### Stripe Radar
+
+1. Install `@spreedly/react-native-checkout-stripe-radar` and complete platform setup (iOS Stripe bundle rename script)
+2. Initialize core with `SpreedlyCore.initSdk()`
+3. Call `StripeRadar.createRadarSession({ publishableKey })` with a Stripe test publishable key
+4. Verify a non-null `radar_session_id` (`rse_…`) is returned
+5. Attach the session ID on your backend to Spreedly purchase/authorization requests
+
+See [Stripe Radar Guide](stripe-radar.md) for the full integration.
+
 ## Testing Error Scenarios
 
 ### Trigger Common Errors
@@ -284,7 +305,7 @@ The SDK includes an example app (`example/`) with screens for every payment flow
 4. Run on Android: `yarn example android`
 5. Run on iOS: `yarn example ios`
 
-The example app includes screens for: Express Checkout (Payment Bottom Sheet), Hosted Fields, CVV Recaching, 3DS Challenge, 3DS Gateway-Specific, Offsite Payments, EBANX, Stripe APM, and Braintree APM.
+The example app includes screens for: Express Checkout (Payment Bottom Sheet), Hosted Fields, ACH Bank Account (drop-in sheet and custom form), CVV Recaching, 3DS Challenge, 3DS Gateway-Specific, Offsite Payments, EBANX, Stripe APM, Stripe Radar, and Braintree APM.
 
 ## See Also
 
