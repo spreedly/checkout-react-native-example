@@ -6,10 +6,13 @@ For SDK installation and initialization, see the [Integration Guide](./integrati
 
 **Android:** Gateway-Specific 3DS lives in `com.spreedly:checkout-threeds`. Install `@spreedly/react-native-checkout-threeds` in addition to core. iOS does not need that package.
 
+> **Android build requirement:** `checkout-threeds` pulls in Forter's `forter3ds` native SDK from Forter's private Maven repo. Set `FORTER_USERNAME` and `FORTER_PASSWORD` in your project-root `.env` before running Gradle — otherwise the Android build fails resolving that dependency. See [Android 3DS Maven credentials](./integration_guide.md#android-3ds-maven-credentials).
+
 ## Prerequisites
 
 - Spreedly Checkout React Native SDK installed and initialized via `SpreedlyCore.initSdk()`
 - On Android: `@spreedly/react-native-checkout-threeds` installed and linked
+- On Android: `FORTER_USERNAME` and `FORTER_PASSWORD` set in `.env` (required for Gradle to resolve `forter3ds`)
 - A payment gateway that supports Gateway-Specific 3DS
 - A backend endpoint that proxies Spreedly's `/complete.json` API
 

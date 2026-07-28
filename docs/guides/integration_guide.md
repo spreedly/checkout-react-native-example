@@ -83,6 +83,8 @@ SPREEDLY_ENVIRONMENT_KEY=your_environment_key
 FORTER_SITE_ID=   # optional; leave empty if not using Forter
 ```
 
+> **Installing `@spreedly/react-native-checkout-threeds`?** Android also needs `FORTER_USERNAME` and `FORTER_PASSWORD` in this `.env` — see [Android 3DS Maven credentials](#android-3ds-maven-credentials) below. Without them, the Android Gradle build fails resolving the `forter3ds` dependency.
+
 ---
 
 ## 3. Install the package
@@ -102,6 +104,8 @@ yarn add @spreedly/react-native-checkout-stripe-apm
 # Android 3DS only (Global Forter + Gateway-Specific). Not required on iOS.
 yarn add @spreedly/react-native-checkout-threeds
 ```
+
+> **Android:** `checkout-threeds` pulls in Forter's `forter3ds` native SDK. You must set `FORTER_USERNAME` and `FORTER_PASSWORD` before running Gradle sync/build — see [Android 3DS Maven credentials](#android-3ds-maven-credentials).
 
 **Core imports:**
 
@@ -216,6 +220,22 @@ subprojects { subproject ->
 Set **Gradle 8.11.1+** in `android/gradle/wrapper/gradle-wrapper.properties`. Version rationale and compatibility matrix: [RN 0.79+ requirements](rn_079_requirement.md).
 
 **3DS on Android:** Core no longer depends on `checkout-threeds`. Card-only apps need only `GITHUB_USERNAME` / `GITHUB_TOKEN`. To use Global or Gateway-Specific 3DS on Android, install `@spreedly/react-native-checkout-threeds`. iOS 3DS stays in core — do not add the threeds npm package for iOS.
+
+### Android 3DS Maven credentials
+
+`@spreedly/react-native-checkout-threeds` depends on `com.spreedly:checkout-threeds`, which pulls in Forter's native `forter3ds` artifact from Forter's private Maven repository (`https://mobile-sdks.forter.com/android`). Gradle needs credentials to resolve it — **without them the Android build fails at dependency resolution.**
+
+Add to your project-root `.env` (same file as `GITHUB_USERNAME`/`GITHUB_TOKEN`):
+
+```bash
+FORTER_USERNAME=your_forter_maven_username
+FORTER_PASSWORD=your_forter_maven_password
+```
+
+- Get these from your Spreedly representative — they're separate from `FORTER_SITE_ID` (the runtime fraud-signal ID passed to `initSdk`).
+- Required only when `@spreedly/react-native-checkout-threeds` is installed. Card-only Android apps that skip the threeds package don't need them.
+- `packages/core/scripts/spreedly_github_setup.gradle` reads `FORTER_USERNAME`/`FORTER_PASSWORD` from `.env` (or the environment) and registers the Forter Maven repository only when both are present and the threeds package is installed — no manual `build.gradle` edits needed.
+- Treat these as secrets: never commit them, never log them, and keep `.env` in `.gitignore`.
 
 **Verify:**
 
