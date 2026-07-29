@@ -1,17 +1,35 @@
 # CHANGELOG
 
-## [Unreleased]
+## [1.1.0] - 2026-07-28
+
+### Fixed
+
+- ACH Payments seperate name submission fixed
 
 ### Added
 
-- **ACH bank account** _(preview — not yet released)_: `SpreedlyCore.achBankAccountBottomSheet()`, `SpreedlyCore.createBankAccount()`, ACH `FormFieldTypes`, and `BankAccountType` / `BankAccountHolderType` enums. APIs may exist in the package before GA — **do not use in production**. See [ACH Bank Account Guide](guides/ach_bank_account_guide.md).
+- **Threeds package** (`@spreedly/react-native-checkout-threeds`): Android-only optional satellite that pulls `com.spreedly:checkout-threeds` (Global Forter + Gateway-Specific 3DS). Card-only Android apps no longer need Forter Maven credentials. iOS 3DS remains in core. See [Integration Guide](guides/integration_guide.md) and [3DS Guide](guides/3ds_guide.md).
+- **Stripe Radar package** (`@spreedly/react-native-checkout-stripe-radar`): headless `StripeRadar.createRadarSession()` wrapping native `checkout-stripe-radar` / `SpreedlyStripeRadar`. See [Stripe Radar Guide](guides/stripe-radar.md).
+- **ACH bank account**: `SpreedlyCore.achBankAccountBottomSheet()`, `SpreedlyCore.createBankAccount()`, ACH `FormFieldTypes`, and `BankAccountType` / `BankAccountHolderType` enums. See [ACH Bank Account Guide](guides/ach_bank_account_guide.md).
+
+### Breaking
+
+- **Android 3DS**: `checkout-threeds` is no longer a transitive dependency of core. Apps that use Global or Gateway-Specific 3DS on Android must install `@spreedly/react-native-checkout-threeds`. iOS is unchanged.
+
+### 🔄 Changed
+
+- Documentations refactoring
+- Extract Android checkout threeds into optional package
+- Stripe radar integration for android & iOS added
+- Harden CI: move GPG passphrase off the command line in release signing
+- Example app sync workflow
 
 ### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
-| Android  | checkout-android     | 1.1.0   |
-| iOS      | checkout-ios-package | 1.4.1   |
+| Android  | checkout-android     | 1.2.0   |
+| iOS      | checkout-ios-package | 1.5.0   |
 
 ---
 

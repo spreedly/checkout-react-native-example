@@ -39,5 +39,16 @@ target 'CheckoutReactNativeExample' do
       # :ccache_enabled => true
     )
     apply_spreedly_stripe_support(installer, 'CheckoutReactNativeExample')
+
+    # Xcode 26.4+: Apple Clang rejects fmt 11.x consteval format strings.
+    # Compile only the fmt pod as C++17 so consteval is disabled; keep
+    # the rest of RN on C++20. Remove when RN ships fmt >= 12.1.0.
+    installer.pods_project.targets.each do |target|
+      if target.name == 'fmt'
+        target.build_configurations.each do |config|
+          config.build_settings['CLANG_CXX_LANGUAGE_STANDARD'] = 'c++17'
+        end
+      end
+    end
   end
 end

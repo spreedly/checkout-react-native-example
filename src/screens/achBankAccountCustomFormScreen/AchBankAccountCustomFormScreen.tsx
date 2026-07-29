@@ -116,14 +116,6 @@ const AchBankAccountCustomFormScreen: React.FC = () => {
     ];
   }, [nameDisplayMode, showBankName]);
 
-  const formFieldTypesForSubmit = useMemo(
-    (): string[] => [
-      FormFieldTypes.ROUTING_NUMBER,
-      FormFieldTypes.ACCOUNT_NUMBER,
-    ],
-    []
-  );
-
   const isFormValid = useMemo(() => {
     const nameValid =
       nameDisplayMode === NameDisplayMode.SeparateFields
@@ -236,7 +228,7 @@ const AchBankAccountCustomFormScreen: React.FC = () => {
     }
 
     const result = await submitBankAccountCheckout({
-      formFieldTypes: formFieldTypesForSubmit,
+      formFieldTypes: fieldOrder,
       bankAccountType: showAccountType ? bankAccountType : undefined,
       bankAccountHolderType: showAccountHolderType
         ? bankAccountHolderType

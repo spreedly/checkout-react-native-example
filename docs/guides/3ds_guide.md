@@ -4,6 +4,17 @@ This guide covers a production-ready 3DS challenge flow using `@spreedly/react-n
 
 For SDK installation and initialization, see the [Integration Guide](./integration_guide.md).
 
+## Platform prerequisites
+
+| Platform    | What to install                                                                                                                                                                         |
+| ----------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **iOS**     | Core only (`@spreedly/react-native-checkout`). Forter3DS comes from `init_spreedly_checkout_pods()`.                                                                                    |
+| **Android** | Core **plus** `@spreedly/react-native-checkout-threeds` for Global or Gateway-Specific 3DS. Card-only Android apps can omit the threeds package (no Forter Maven credentials required). |
+
+Public JS APIs (`SpreedlyCore.showThreeDSChallenge`, `GatewaySpecific3DS`, events) stay on core. On Android, the threeds satellite registers the native modules those APIs need.
+
+> **Android build requirement:** `@spreedly/react-native-checkout-threeds` pulls in Forter's `forter3ds` native SDK from Forter's private Maven repo. Set `FORTER_USERNAME` and `FORTER_PASSWORD` in your project-root `.env` before running Gradle — otherwise the Android build fails resolving that dependency. See [Android 3DS Maven credentials](./integration_guide.md#android-3ds-maven-credentials) for details.
+
 ## Overview
 
 Use 3DS when your transaction flow requires cardholder authentication before completion.

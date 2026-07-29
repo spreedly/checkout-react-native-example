@@ -39,6 +39,11 @@ export interface StripeAPMPurchaseParams {
    * Channel for the purchase (defaults to 'app')
    */
   channel?: string;
+
+  /**
+   * Optional Stripe Radar session ID for gateway_specific_fields
+   */
+  radarSessionId?: string;
 }
 
 /**
@@ -113,6 +118,7 @@ export async function purchaseStripeAPM(
     redirect_url,
     callback_url,
     channel = 'app',
+    radarSessionId,
   } = params;
 
   // Validate required parameters
@@ -142,19 +148,29 @@ export async function purchaseStripeAPM(
 
   const purchaseUrl = Config.API_BASE_URL + '/api/v1/create-purchase';
 
+  const transaction: Record<string, unknown> = {
+    payment_method: {
+      payment_method_type: 'stripe_apm',
+      apm_types,
+    },
+    amount,
+    currency_code,
+    channel,
+    redirect_url,
+    callback_url,
+  };
+
+  if (radarSessionId?.trim()) {
+    transaction.gateway_specific_fields = {
+      stripe_payment_intents: {
+        radar_session_id: radarSessionId.trim(),
+      },
+    };
+  }
+
   const requestBody = {
     gateway,
-    transaction: {
-      payment_method: {
-        payment_method_type: 'stripe_apm',
-        apm_types,
-      },
-      amount,
-      currency_code,
-      channel,
-      redirect_url,
-      callback_url,
-    },
+    transaction,
   };
 
   logInfo('PurchaseStripeAPM', 'Initiating Stripe APM purchase request', {

@@ -132,9 +132,9 @@ Replaces iFrame number/CVV/expiry containers:
 
 See [Hosted Fields Guide](../hosted_fields_guide.md).
 
-### ACH bank account _(preview — not yet released)_
+### ACH bank account
 
-The web iFrame SDK has **no** bank-account hosted fields or tokenize API. ACH may exist in the React Native package before GA — it is **in the code but not ready for release**. **Do not integrate ACH in production** until Spreedly announces GA. Preview-only details: [ACH Bank Account Guide](../ach_bank_account_guide.md).
+The web iFrame SDK has **no** bank-account hosted fields or tokenize API. On React Native, use **`achBankAccountBottomSheet`** (drop-in) or **`SPLTextField`** + **`createBankAccount`** (custom form). See [ACH Bank Account Guide](../ach_bank_account_guide.md).
 
 ### Key PCI change: no raw card data in merchant code
 
@@ -318,7 +318,7 @@ These iFrame capabilities have no mobile equivalent and are not in the API table
 | ------------------------------------ | --------------------------------------------------------------------------------- |
 | Install, auth, API reference         | [Integration Guide](../integration_guide.md)                                      |
 | `SPLTextField`, PAN mask, validation | [Hosted Fields Guide](../hosted_fields_guide.md)                                  |
-| ACH bank account _(preview)_         | [ACH Bank Account Guide](../ach_bank_account_guide.md) — not for production       |
+| ACH bank account                     | [ACH Bank Account Guide](../ach_bank_account_guide.md)                            |
 | Capability index                     | [Hosted and Express capabilities](../hosted_and_express_capabilities.md)          |
 | Themes                               | [Theme Guide](../theme_guide.md)                                                  |
 | Express checkout                     | [Express Checkout Guide](../express_checkout_guide.md)                            |

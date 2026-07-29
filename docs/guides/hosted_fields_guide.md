@@ -53,12 +53,12 @@ The following fields contain sensitive payment data and **MUST ONLY** be impleme
 - **Card Number** (`FormFieldTypes.CARD`)
 - **CVV/Security Code** (`FormFieldTypes.CVV`)
 - **Expiry Date** (`FormFieldTypes.EXPIRY_DATE`)
-- **Routing Number** (`FormFieldTypes.ROUTING_NUMBER`) — ACH only _(preview — not yet released)_
-- **Account Number** (`FormFieldTypes.ACCOUNT_NUMBER`) — ACH only _(preview — not yet released)_
+- **Routing Number** (`FormFieldTypes.ROUTING_NUMBER`) — ACH only
+- **Account Number** (`FormFieldTypes.ACCOUNT_NUMBER`) — ACH only
 
 **PCI Compliance Requirement**: These fields cannot be implemented as custom TextInput components or sent as additional fields during payment submission.
 
-> **ACH bank-account fields:** Use `ROUTING_NUMBER` / `ACCOUNT_NUMBER` only with the [ACH Bank Account Guide](./ach_bank_account_guide.md). Stable **1.0.10** does not include ACH in the production feature set — see [CHANGELOG](../CHANGELOG.md). **Do not use in production.**
+> **ACH bank-account fields:** Use `ROUTING_NUMBER` / `ACCOUNT_NUMBER` only with the [ACH Bank Account Guide](./ach_bank_account_guide.md).
 
 ```typescript
 // CORRECT - Use SPLTextField for ALL sensitive payment data
