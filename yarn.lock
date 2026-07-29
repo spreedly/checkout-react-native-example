@@ -2089,6 +2089,16 @@
   resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-apm/1.1.0/af9347b94c79bc8813e0af65163a1cc294a446c6#af9347b94c79bc8813e0af65163a1cc294a446c6"
   integrity sha512-rRvBFnkUNzeJ/zDmpC2+1FmkNCeaoFuxJmWfuNKrwD7iM9h8Eoesr6al2HIeSBKTv9b+wfIguoOYDlcVam+piA==
 
+"@spreedly/react-native-checkout-stripe-radar@1.1.0":
+  version "1.1.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-radar/1.1.0/2efa3b70c0ab8afdb88b7f70374bf2a31f4af01d#2efa3b70c0ab8afdb88b7f70374bf2a31f4af01d"
+  integrity sha512-VY+21/jAuebjMjGgzLTrhVtLaMTzzzhAhT7j07riQaSmdmP8hjgjgVm1rTLcAn3D2qSCYVkzJolw5OZBmYBV3Q==
+
+"@spreedly/react-native-checkout-threeds@1.1.0":
+  version "1.1.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-threeds/1.1.0/34e7f60402ecdb6c946d4875bb28f96be6e7e096#34e7f60402ecdb6c946d4875bb28f96be6e7e096"
+  integrity sha512-JrDDOwTwSUNSltNRkBtpfHB2DWmOiOr+2O9ZUY2255Os9xU9bs8X1Nw+dk9vEnZUe+KtXcb5EvLUORRDUKSDSA==
+
 "@spreedly/react-native-checkout@1.1.0":
   version "1.1.0"
   resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout/1.1.0/965aab0ab499d66e26398890ce8ca179fe9880db#965aab0ab499d66e26398890ce8ca179fe9880db"
