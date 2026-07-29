@@ -9,6 +9,8 @@ gem 'activesupport', '>= 6.1.7.5', '!= 7.1.0'
 gem 'xcodeproj', '< 1.26.0'
 # Require a patched concurrent-ruby (previous <1.3.4 pin blocked security updates).
 gem 'concurrent-ruby', '>= 1.3.7'
+# Patched JSON generator (heap buffer overflow when streaming to an IO).
+gem 'json', '>= 2.19.9'
 
 # Ruby 3.4.0 has removed some libraries from the standard library.
 gem 'bigdecimal'
