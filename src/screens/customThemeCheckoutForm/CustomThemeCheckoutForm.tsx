@@ -49,6 +49,7 @@ const CustomThemeCheckoutForm: React.FC<CustomThemeCheckoutFormProps> = () => {
   const [paymentToken, setPaymentToken] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [saveCardForFuture, setSaveCardForFuture] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // State to track field validation
   const [fieldValidation, setFieldValidation] = useState<
@@ -94,55 +95,56 @@ const CustomThemeCheckoutForm: React.FC<CustomThemeCheckoutFormProps> = () => {
   };
 
   const handleSubmit = async () => {
-    // Reset error message and payment token
     setErrorMessage(null);
     setPaymentToken(null);
 
-    if (isLoading) {
+    if (isLoading || isSubmitting) {
       return;
     }
 
-    // Check if form is valid
     if (!isFormValidUtil()) {
       setErrorMessage('Please fill in all required fields correctly');
       return;
     }
 
-    // Submit checkout
-    const outcome = await submitCheckout(fields, {
-      metadata: { orderId: '123' },
-    });
+    setIsSubmitting(true);
+    try {
+      const outcome = await submitCheckout(fields, {
+        metadata: { orderId: '123' },
+      });
 
-    const mapped = mapPaymentResult(outcome);
+      const mapped = mapPaymentResult(outcome);
 
-    switch (mapped.kind) {
-      case 'initial':
-        break;
-      case 'canceled':
-        setErrorMessage('Payment was canceled');
-        break;
-      case 'failed':
-        setErrorMessage(mapped.message);
-        break;
-      case 'success':
-        setPaymentToken(mapped.token);
+      switch (mapped.kind) {
+        case 'initial':
+          break;
+        case 'canceled':
+          setErrorMessage('Payment was canceled');
+          break;
+        case 'failed':
+          setErrorMessage(mapped.message);
+          break;
+        case 'success':
+          setPaymentToken(mapped.token);
 
-        if (saveCardForFuture) {
-          try {
-            await retainCVV(mapped.token);
-            setSaveCardForFuture(false);
-          } catch (error) {
-            console.error('Failed to retain CVV:');
+          if (saveCardForFuture) {
+            try {
+              await retainCVV(mapped.token);
+              setSaveCardForFuture(false);
+            } catch (error) {
+              console.error('Failed to retain CVV:');
+            }
           }
-        }
 
-        setFieldValidation({});
-        // Focus back to the first field for next payment
-        setFocusedField(FormFieldTypes.CARD);
-        break;
-      case 'validation':
-        setErrorMessage(mapped.message);
-        break;
+          setFieldValidation({});
+          setFocusedField(FormFieldTypes.CARD);
+          break;
+        case 'validation':
+          setErrorMessage(mapped.message);
+          break;
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -382,8 +384,8 @@ const CustomThemeCheckoutForm: React.FC<CustomThemeCheckoutFormProps> = () => {
             <CustomButton
               title="Submit"
               onPress={handleSubmit}
-              disabled={isLoading || !isFormValidUtil()}
-              loading={isLoading}
+              disabled={isSubmitting || !isFormValidUtil()}
+              loading={isSubmitting}
               loadingText="Processing..."
               testID="premium-submit-button"
             />

@@ -9,7 +9,7 @@ This guide covers two migration paths:
 
 Both paths converge on the same React Native SDK. If you are already on `@spreedly/react-native-checkout` and upgrading between major versions, see [v0-to-v1 migration](./v0-to-v1.md) instead.
 
-> **Scope:** The 1:1 iframe mapping tables below are **card-focused**. ACH, full 3DS, offsite, and APM are brief pointers only — see dedicated guides linked from [Getting help](#getting-help). Official legacy references: [iFrame UI](https://developer.spreedly.com/docs/iframe-ui), [iFrame events](https://developer.spreedly.com/docs/iframe-events).
+> **Scope:** The 1:1 iframe mapping tables below are **card-focused**. ACH, full 3DS, offsite, APM, and **Click to Pay** are covered in dedicated sections or guides linked from [Getting help](#getting-help). Official legacy references: [iFrame UI](https://developer.spreedly.com/docs/iframe-ui), [iFrame events](https://developer.spreedly.com/docs/iframe-events).
 
 ---
 
@@ -23,6 +23,7 @@ The React Native Checkout SDK replaces WebView-based payment flows with:
 - 3D Secure (Forter global and gateway-specific)
 - Alternative payment methods (Stripe APM, Braintree APM)
 - Offsite payments (PayPal, Pix, Boleto, EBANX, and more)
+- Mastercard Click to Pay (`@spreedly/react-native-checkout-click-to-pay`)
 - CVV recaching for saved cards
 - Screen capture protection (`ScreenSecurity`)
 - Built-in telemetry (Datadog; sensitive values sanitized)
@@ -45,6 +46,7 @@ The React Native Checkout SDK replaces WebView-based payment flows with:
 | `@spreedly/react-native-checkout`               | Core: `SpreedlyCore`, `SPLTextField`, Express checkout, 3DS, offsite, recache |
 | `@spreedly/react-native-checkout-stripe-apm`    | Stripe PaymentSheet (iDEAL, Bancontact, EPS, P24, SEPA, etc.)                 |
 | `@spreedly/react-native-checkout-braintree-apm` | Braintree PayPal / Venmo                                                      |
+| `@spreedly/react-native-checkout-click-to-pay`  | Mastercard Click to Pay (native sheet, button, optional saved-cards detector) |
 
 Install and native setup: [Integration Guide](../integration_guide.md). Android toolchain pins: [RN 0.79+ requirements](../rn_079_requirement.md).
 
@@ -255,6 +257,26 @@ Per-field lifecycle: **`forceMaskOnLifecycleStop`** on **`SPLTextField`** — se
 | Offsite methods (PIX, Boleto, …) | `OffsitePayment` + `SpreedlyCore.submitOffsitePayment` / `presentOffsiteCheckout` / `handleOffsiteReturn` | **RN only**         | Initialize observer, submit config, handle return URL. Event: **`SpreedlyEventTypes.OFFSITE_PAYMENT_RESULT`**. | [Offsite payments guide](../offsite_payments_guide.md) |
 | Screen capture prevention        | `ScreenSecurity` utilities                                                                                | **Different model** | Stronger on iOS; on Android combine with host app flags.                                                       | [Security Guide](../security.md)                       |
 
+### Click to Pay (Mastercard SRC)
+
+Install **`@spreedly/react-native-checkout-click-to-pay`**. Same optional-module pattern as Android (`:clicktopay`) and iOS (`SpreedlyClickToPay`). Full integration in [Click to Pay Guide](../click_to_pay_guide.md).
+
+| iFrame API / pattern                                    | React Native equivalent                                                                  | Status                      | What to do                                                                                                                                                                                                                                     | See also                                                                             |
+| ------------------------------------------------------- | ---------------------------------------------------------------------------------------- | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| `Spreedly.c2pInit(envKey, options)`                     | `ClickToPay.present(config)` or **`ClickToPayButton`**                                   | **Direct**                  | Pass **`srcDpaId`**, customer, **`tokenizeBilling`**. Refresh **`initSdk`** auth in **`onPrepareForPresentation`** (or before **`present`**).                                                                                                  | [Click to Pay Guide](../click_to_pay_guide.md)                                       |
+| `Spreedly.c2pLookup(lookupInfo?)`                       | `ClickToPay.lookup(customer)`                                                            | **Direct**                  | Requires an active checkout session.                                                                                                                                                                                                           | [Click to Pay Guide](../click_to_pay_guide.md)                                       |
+| `Spreedly.c2pSignOut()`                                 | `ClickToPay.signOut()`                                                                   | **Direct**                  | Returns **`deviceRecognized`**. Detector-only sign-out: **`signOutSavedCardsDetector()`**.                                                                                                                                                     | [Click to Pay Guide](../click_to_pay_guide.md)                                       |
+| `c2pCheckout` / `checkoutWithCard` / popup `c2pFrameEl` | Native sheet, or **`checkoutSelectedCard`** / **`checkoutWithNewCard`**                  | **Different model**         | No browser popup. Default sheet auto-tokenizes after **`checkout_complete`**. Merchant-hosted list: **`merchantHostedCardList: true`** + **`display_cards_ready`**.                                                                            | [Click to Pay — merchant-hosted](../click_to_pay_guide.md#merchant-hosted-card-list) |
+| DOM `src-otp-input` / `src-card-list` / `data-*-id`     | Native OTP + card UI (or merchant-hosted list)                                           | **Web only**                | Same as Android/iOS Checkout SDKs — no merchant DOM containers.                                                                                                                                                                                | [Click to Pay Guide](../click_to_pay_guide.md)                                       |
+| `otp.type` (`overlay` \| `none`)                        | `otp.presentation`                                                                       | **Direct**                  | Renamed only.                                                                                                                                                                                                                                  | [Click to Pay — Configuration](../click_to_pay_guide.md#configuration)               |
+| `otp.rememberMe`                                        | `rememberMe` on **`checkoutSelectedCard`** / **`checkoutWithNewCard`**                   | **Different model**         | Android/iOS native SDKs also expose **`ClickToPayOtpConfig.rememberMe`** for the default sheet toggle. RN wires Remember-me via the checkout method args (and shopper MC UI). Prefer those paths — do not rely on a config-only flag in RN JS. | [Click to Pay Guide](../click_to_pay_guide.md)                                       |
+| `displayCards.*`                                        | `displayCards.*` on **`ClickToPayConfig`**                                               | **Direct**                  | Same flags (`displaySignOut`, `displayPreferredCard`, `displayAddCard`, `cardSelectionType`).                                                                                                                                                  | [Click to Pay — Configuration](../click_to_pay_guide.md#configuration)               |
+| `options.isGuest` / guest-only payment form             | —                                                                                        | **Not available on mobile** | Intentionally not ported on Android or iOS either (native host UI does not carry `isGuest`). Offer a separate card Express / hosted-fields path next to Click to Pay.                                                                          | [Express Checkout](../express_checkout_guide.md)                                     |
+| `Click2Pay().encryptCard` (iframe-side)                 | —                                                                                        | **Not available on mobile** | PCI — PAN stays in native / MC WebView. No merchant JS encrypt step (same posture as Android/iOS).                                                                                                                                             | [Security](../security.md)                                                           |
+| `c2p-*` / `otp-*` / `checkout-*` events                 | `ClickToPay.addListener` (`type`, `checkoutId`, `payload`)                               | **Different model**         | Snake_case event types (`initialized`, `otp_initiated`, `display_cards_ready`, `payment_method_tokenized`, …). CVV never in payloads.                                                                                                          | [Click to Pay — Events](../click_to_pay_guide.md#events)                             |
+| COMPLETE → iframe tokenize / `paymentMethod`            | `checkout_complete` + `payment_method_tokenized` (or **`ClickToPay.tokenize`**)          | **Different model**         | Default sheet auto-tokenizes. Merchant-hosted path may call **`tokenize`** after complete.                                                                                                                                                     | [Click to Pay Guide](../click_to_pay_guide.md)                                       |
+| (no iframe equivalent)                                  | **`ClickToPayButton`**, **`ClickToPaySavedCardsDetector`**, **`cancel`**, **`getState`** | **RN only**                 | Net-new on mobile (also on Android/iOS Checkout SDKs). Unmount detector before **`present`**.                                                                                                                                                  | [Saved cards detector](../click_to_pay_guide.md#saved-cards-detector-optional)       |
+
 ---
 
 ## Planned differences
@@ -291,13 +313,15 @@ Mobile hosted fields are native secure inputs, not HTML. Map design tokens inste
 
 ## Web-only / out of scope on mobile
 
-These iFrame capabilities have no mobile equivalent and are not in the API tables above:
+These iFrame capabilities have no mobile equivalent (or are covered only under a different package/guide):
 
-| iFrame capability                  | Notes                           |
-| ---------------------------------- | ------------------------------- |
-| `fraud:token` (Forter JS callback) | Web-only fraud integration path |
-| Click to Pay                       | Not in RN core package          |
-| `stripeRadar()`                    | Web-only                        |
+| iFrame capability                         | Notes                                                                                                                                                     |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fraud:token` (Forter JS callback)        | Web-only fraud integration path                                                                                                                           |
+| `stripeRadar()`                           | Web-only on iframe; RN Stripe Radar is a separate surface if enabled in your environment                                                                  |
+| Click to Pay DOM containers / popup frame | Use **`@spreedly/react-native-checkout-click-to-pay`** — see [Click to Pay mapping](#click-to-pay-mastercard-src). Same native-sheet model as Android/iOS |
+| `options.isGuest` (C2P guest form)        | Not ported on Android, iOS, or RN — keep a separate card checkout path                                                                                    |
+| `Click2Pay().encryptCard`                 | No merchant JS encrypt on mobile (PCI)                                                                                                                    |
 
 ---
 
@@ -326,6 +350,7 @@ These iFrame capabilities have no mobile equivalent and are not in the API table
 | 3DS                                  | [3DS Guide](../3ds_guide.md) · [3DS Gateway](../3ds_gateway_guide.md)             |
 | Stripe / Braintree APM               | [Stripe APM](../stripe_apm_guide.md) · [Braintree](../braintree_payment_guide.md) |
 | Offsite                              | [Offsite payments](../offsite_payments_guide.md)                                  |
+| Click to Pay                         | [Click to Pay Guide](../click_to_pay_guide.md)                                    |
 | Security / PCI                       | [Security](../security.md)                                                        |
 | Testing                              | [Testing Guide](../testing_guide.md)                                              |
 | Troubleshooting                      | [Integration Guide — Troubleshooting](../integration_guide.md#troubleshooting)    |

@@ -12,11 +12,11 @@
   "dependencies": {
     "@react-navigation/native": "^7.1.17",
     "@react-navigation/stack": "^7.4.8",
-    "@spreedly/react-native-checkout": "1.1.0",
-    "@spreedly/react-native-checkout-braintree-apm": "1.1.0",
-    "@spreedly/react-native-checkout-stripe-apm": "1.1.0",
-    "@spreedly/react-native-checkout-stripe-radar": "1.1.0",
-    "@spreedly/react-native-checkout-threeds": "1.1.0",
+    "@spreedly/react-native-checkout": "1.2.0",
+    "@spreedly/react-native-checkout-braintree-apm": "1.2.0",
+    "@spreedly/react-native-checkout-stripe-apm": "1.2.0",
+    "@spreedly/react-native-checkout-stripe-radar": "1.2.0",
+    "@spreedly/react-native-checkout-threeds": "1.2.0",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-config": "^1.5.9",
@@ -47,9 +47,5 @@
   },
   "engines": {
     "node": ">=18"
-  },
-  "resolutions": {
-    "@eslint/eslintrc/js-yaml": "4.3.0",
-    "shell-quote": "1.9.0"
   }
 }

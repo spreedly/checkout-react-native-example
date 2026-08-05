@@ -79,6 +79,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     navigation.navigate('BraintreePayment');
   };
 
+  const navigateToClickToPay = () => {
+    navigation.navigate('ClickToPayPayment');
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
@@ -255,6 +259,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 <Text style={styles.cardTitle}>Braintree Payment</Text>
                 <Text style={styles.cardDescription}>
                   Braintree APM (PayPal, Venmo)
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.card}
+                onPress={navigateToClickToPay}
+                testID="card-click-to-pay"
+              >
+                <Text style={styles.cardTitle}>Click to Pay</Text>
+                <Text style={styles.cardDescription}>
+                  Mastercard Click to Pay checkout (Physical device recommended
+                  for otp)
                 </Text>
               </TouchableOpacity>
             </View>

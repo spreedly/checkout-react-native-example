@@ -4,9 +4,9 @@
 
 **Demonstration only — not for production.** This sample app shows integration patterns for the [Spreedly Checkout React Native SDK](https://github.com/spreedly/checkout-react-native-packages). Do not ship it as-is to end users.
 
-Synced from SDK release **1.1.0** (tag `v1.1.0`).
+Synced from SDK release **1.2.0** (tag `v1.2.0`).
 
-This example demonstrates payment flows using the Spreedly Checkout SDK, including card payments, 3D Secure, offsite payments, Stripe APM, Stripe Radar, Braintree, EBANX, and ACH.
+This example demonstrates payment flows using the Spreedly Checkout SDK, including card payments, 3D Secure, offsite payments, Stripe APM, Stripe Radar, Click to Pay, Braintree, EBANX, and ACH.
 
 ## Getting Started
 
@@ -60,6 +60,7 @@ Merchant docs are under [`/docs/`](/docs/README.md). Guides below match files sy
 | [Offsite Payments](/docs/guides/offsite_payments_guide.md)                                | PayPal, Pix, Boleto via offsite flows                              |
 | [Stripe APM](/docs/guides/stripe_apm_guide.md)                                            | iDEAL, Bancontact, EPS, P24, SEPA via Stripe                       |
 | [Stripe Radar](/docs/guides/stripe-radar.md)                                              | Headless Radar session collection                                  |
+| [Click to Pay](/docs/guides/click_to_pay_guide.md)                                        | Mastercard Click to Pay                                            |
 | [Braintree Payments](/docs/guides/braintree_payment_guide.md)                             | PayPal and Venmo via Braintree                                     |
 | [EBANX Payments](/docs/guides/ebanx_payment_guide.md)                                     | EBANX alternative payment methods                                  |
 | [RN 0.79+ Requirements](/docs/guides/rn_079_requirement.md)                               | React Native 0.79+ version-specific requirements                   |
