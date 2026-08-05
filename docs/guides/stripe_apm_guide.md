@@ -141,18 +141,9 @@ When Stripe pods are installed via CocoaPods with static linking (common in Reac
 
 #### 2. Stripe Compiler Optimization Workaround
 
-Swift 6.2.1 (Xcode 26 beta) has a compiler bug in the `CopyPropagation` SIL optimization pass that crashes when compiling StripeCore's `StripeJSONDecoder`. Both `-Osize` and `-O` trigger the crash. To work around this, disable Swift optimization and use single-file compilation for all Stripe pods in your Podfile's `post_install`:
+Swift 6.2.1+ (Xcode 26) has a compiler bug in the `CopyPropagation` SIL optimization pass that crashes when compiling StripeCore's `StripeJSONDecoder`. Both `-Osize` and `-O` trigger the crash.
 
-```ruby
-installer.pods_project.targets.each do |target|
-  target.build_configurations.each do |config|
-    if target.name.include?('Stripe')
-      config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
-      config.build_settings['SWIFT_COMPILATION_MODE'] = 'singlefile'
-    end
-  end
-end
-```
+This is handled automatically: calling `spreedly_post_install(installer)` in your Podfile's `post_install` (see [Integration Guide](./integration_guide.md)) pins `SWIFT_OPTIMIZATION_LEVEL = -Onone` and `SWIFT_COMPILATION_MODE = wholemodule` for every target whose name includes `Stripe`. `wholemodule` is preferred over `singlefile` — `singlefile` spawns one `swiftc` per source file and can OOM (`xcodebuild` exit code `null`) while compiling `StripePaymentSheet`. No manual Podfile changes are required.
 
 The performance impact is negligible since Stripe is a payment SDK where the bottleneck is network I/O, not CPU-bound Swift code. This workaround can be removed once Apple ships a stable Xcode release that fixes the compiler bug.
 
@@ -738,14 +729,7 @@ if (result.status === 'failed') {
 
 **Cause:** Swift 6.2.1 (Xcode 26 beta) has a `CopyPropagation` SIL pass bug triggered by any optimization level (`-O` or `-Osize`) when compiling StripeCore's `StripeJSONDecoder`.
 
-**Solution:** Disable Swift optimization for Stripe pods in your Podfile's `post_install`:
-
-```ruby
-if target.name.include?('Stripe')
-  config.build_settings['SWIFT_OPTIMIZATION_LEVEL'] = '-Onone'
-  config.build_settings['SWIFT_COMPILATION_MODE'] = 'singlefile'
-end
-```
+**Solution:** Ensure `spreedly_post_install(installer)` is called in your Podfile's `post_install` (see [Integration Guide](./integration_guide.md)) — it disables Swift optimization for all Stripe pods automatically. Run `pod install` after adding it if it's missing.
 
 Also clean DerivedData after applying the change to clear stale cached artifacts:
 

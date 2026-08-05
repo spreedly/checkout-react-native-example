@@ -21,6 +21,7 @@ import StripePaymentScreen from '../screens/stripePaymentScreen/StripePaymentScr
 import BraintreePaymentScreen from '../screens/braintreePaymentScreen/BraintreePaymentScreen';
 import AchBankAccountScreen from '../screens/achBankAccountScreen/AchBankAccountScreen';
 import AchBankAccountCustomFormScreen from '../screens/achBankAccountCustomFormScreen/AchBankAccountCustomFormScreen';
+import ClickToPayScreen from '../screens/clickToPayScreen/ClickToPayScreen';
 
 // Define navigation param types
 export type RootStackParamList = {
@@ -39,6 +40,7 @@ export type RootStackParamList = {
   EbanxPayment: undefined;
   StripePayment: undefined;
   BraintreePayment: undefined;
+  ClickToPayPayment: undefined;
 };
 
 const Stack = createStackNavigator<RootStackParamList>();
@@ -181,6 +183,13 @@ const AppNavigator: React.FC = () => {
           component={BraintreePaymentScreen}
           options={{
             title: 'Braintree Payment',
+          }}
+        />
+        <Stack.Screen
+          name="ClickToPayPayment"
+          component={ClickToPayScreen}
+          options={{
+            title: 'Click to Pay',
           }}
         />
       </Stack.Navigator>

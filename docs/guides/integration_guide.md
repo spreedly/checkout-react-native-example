@@ -165,7 +165,14 @@ Then:
 cd ios && bundle install && bundle exec pod install && cd ..
 ```
 
-**Optional:** If Xcode reports non-modular include errors, call `spreedly_post_install(installer)` inside `post_install` after `react_native_post_install`.
+**Recommended:** Call `spreedly_post_install(installer)` inside `post_install` after `react_native_post_install`. It applies every known Xcode/Swift toolchain workaround required by Spreedly's prebuilt XCFrameworks in one call — none of these can be expressed in a podspec alone since they must apply project-wide (including third-party pods Spreedly doesn't own, like React-Core and Stripe's trunk pods):
+
+- `CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES` (fixes non-modular include errors)
+- Disables Xcode 17+ explicit modules (`SWIFT_ENABLE_EXPLICIT_MODULES` / `CLANG_ENABLE_EXPLICIT_MODULES`), which otherwise causes "file not found" errors on clean builds against Spreedly's XCFrameworks
+- Pins `-Onone` / `wholemodule` for all Stripe pods, working around a Swift 6.2.1+ compiler crash in StripeCore (only relevant if Stripe APM is installed)
+- Strips prebuilt Spreedly `.swiftmodule` / `.swiftdoc` / `.abi.json` artifacts (keeps `.swiftinterface`) so a newer local Xcode (for example Swift **6.3.3**) can consume XCFrameworks built with an older patch (for example **6.3.2**) via library evolution
+
+After upgrading Xcode, run `pod install`, then clean DerivedData if you still see `this SDK is not supported by the compiler`.
 
 **Secure pod install (optional):** To avoid credentials in `Podfile.lock`, run from project root:
 
@@ -228,8 +235,8 @@ Set **Gradle 8.11.1+** in `android/gradle/wrapper/gradle-wrapper.properties`. Ve
 Add to your project-root `.env` (same file as `GITHUB_USERNAME`/`GITHUB_TOKEN`):
 
 ```bash
-FORTER_USERNAME=your_forter_maven_username
-FORTER_PASSWORD=your_forter_maven_password
+FORTER_USERNAME=<forter-maven-username>
+FORTER_PASSWORD=<forter-maven-password>
 ```
 
 - Get these from your Spreedly representative — they're separate from `FORTER_SITE_ID` (the runtime fraud-signal ID passed to `initSdk`).
@@ -1069,7 +1076,30 @@ bundle exec pod install --repo-update
 rm -rf ios/build
 ```
 
-If Xcode reports non-modular include errors, add `spreedly_post_install(installer)` inside `post_install` after `react_native_post_install` in your Podfile.
+If Xcode reports non-modular include errors, "file not found" errors on a clean build, or a Swift compiler crash while building Stripe pods, add `spreedly_post_install(installer)` inside `post_install` after `react_native_post_install` in your Podfile — it covers all three.
+
+### `this SDK is not supported by the compiler` (Swift 6.3.x mismatch)
+
+Prebuilt Spreedly XCFrameworks (tag from `spreedly_native_sdk_versions.json`, currently **1.6.0**) were built with a specific Swift patch (for example **6.3.2**). A newer Xcode (**6.3.3**) rejects the binary `.swiftmodule` and can cascade into errors like `no type named 'ClickToPayBillingFields' in module 'SpreedlyCore'`.
+
+1. Ensure `spreedly_post_install(installer)` runs in your Podfile (it strips binary module artifacts and keeps `.swiftinterface`).
+2. Re-pack / reinstall core so you pick up the updated `spreedly_pods_setup.rb`, then:
+
+```bash
+cd ios
+bundle exec pod install
+rm -rf ~/Library/Developer/Xcode/DerivedData/*
+cd ..
+yarn ios
+```
+
+3. Optional immediate strip without waiting for a new tarball (run from the app `ios/` folder):
+
+```bash
+find Pods -path '*/Spreedly*.xcframework/*' -path '*.swiftmodule/*' -type f ! -name '*.swiftinterface' -delete
+```
+
+Permanent fix on the native side is a new `checkout-ios-package` tag rebuilt with the current Xcode.
 
 ### Android build errors
 

@@ -2079,30 +2079,30 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@spreedly/react-native-checkout-braintree-apm@1.1.0":
-  version "1.1.0"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-braintree-apm/1.1.0/196947f440c4bf66d51eeea1b83f5a10eea28cf7#196947f440c4bf66d51eeea1b83f5a10eea28cf7"
-  integrity sha512-6CAZYgomEd9M3I6dFT/lHoKezLU+1vqNu96sHZK4WDm/xhMd0+wHT8/CINs41dAV0KEvMNedYTAITnZ8DSv2nA==
+"@spreedly/react-native-checkout-braintree-apm@1.2.0":
+  version "1.2.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-braintree-apm/1.2.0/e826765c03b10bf4c941c6203b3852b947169bee#e826765c03b10bf4c941c6203b3852b947169bee"
+  integrity sha512-ht7QhIogg7YtbmLPIX8m29rgtin0OUfjJsZfqZBfkRyJA5/BY6W+DU4h2+yHrbfbVAvgcT+uYZSLNRn/iAJBdw==
 
-"@spreedly/react-native-checkout-stripe-apm@1.1.0":
-  version "1.1.0"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-apm/1.1.0/af9347b94c79bc8813e0af65163a1cc294a446c6#af9347b94c79bc8813e0af65163a1cc294a446c6"
-  integrity sha512-rRvBFnkUNzeJ/zDmpC2+1FmkNCeaoFuxJmWfuNKrwD7iM9h8Eoesr6al2HIeSBKTv9b+wfIguoOYDlcVam+piA==
+"@spreedly/react-native-checkout-stripe-apm@1.2.0":
+  version "1.2.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-apm/1.2.0/bc47deb18409ba7576b81390860bd365cec0cac6#bc47deb18409ba7576b81390860bd365cec0cac6"
+  integrity sha512-5EfOLPAeX5G88I3EXElFQOzpfvLQ+1rdudj5NNg3z0l/s3tvKLzotHiRSYLzmLpVx1pkwIN6LuywhiFY+GHe/w==
 
-"@spreedly/react-native-checkout-stripe-radar@1.1.0":
-  version "1.1.0"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-radar/1.1.0/2efa3b70c0ab8afdb88b7f70374bf2a31f4af01d#2efa3b70c0ab8afdb88b7f70374bf2a31f4af01d"
-  integrity sha512-VY+21/jAuebjMjGgzLTrhVtLaMTzzzhAhT7j07riQaSmdmP8hjgjgVm1rTLcAn3D2qSCYVkzJolw5OZBmYBV3Q==
+"@spreedly/react-native-checkout-stripe-radar@1.2.0":
+  version "1.2.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-radar/1.2.0/192eef26d9c3ee9a06ffd370305e7c72d1f6b292#192eef26d9c3ee9a06ffd370305e7c72d1f6b292"
+  integrity sha512-tzt+CXNp9gv2D7HlkhvnbglaTsn7WGViLzhYbkjpP7mrKwkCy0Xi18O8N+oYgcqCWgI5xoigHdga+sJsi7WqFg==
 
-"@spreedly/react-native-checkout-threeds@1.1.0":
-  version "1.1.0"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-threeds/1.1.0/34e7f60402ecdb6c946d4875bb28f96be6e7e096#34e7f60402ecdb6c946d4875bb28f96be6e7e096"
-  integrity sha512-JrDDOwTwSUNSltNRkBtpfHB2DWmOiOr+2O9ZUY2255Os9xU9bs8X1Nw+dk9vEnZUe+KtXcb5EvLUORRDUKSDSA==
+"@spreedly/react-native-checkout-threeds@1.2.0":
+  version "1.2.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-threeds/1.2.0/8d3c4a2e40daa291219e8ab5510911e20ca01a97#8d3c4a2e40daa291219e8ab5510911e20ca01a97"
+  integrity sha512-p7hA3EgGI0qaDuYlRD+Lp7RNwIqSYEp4LMICTIBPcNuQwrpt0//fok7pHqSCXqCwMrmknOuKjkC6EYcL2nEojA==
 
-"@spreedly/react-native-checkout@1.1.0":
-  version "1.1.0"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout/1.1.0/965aab0ab499d66e26398890ce8ca179fe9880db#965aab0ab499d66e26398890ce8ca179fe9880db"
-  integrity sha512-iPSwl/N3ZYpkYQsCdyBjgk9IM/X4qg3z7+9lRqPAjfk6tsvORj3B6nC9fOMD8RvTjiU2nsLnMIkMOYnOeHa05w==
+"@spreedly/react-native-checkout@1.2.0":
+  version "1.2.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout/1.2.0/900d085d8e730357c1b2a4fb7400128daf013ea0#900d085d8e730357c1b2a4fb7400128daf013ea0"
+  integrity sha512-bzHa88wb8WqZ+9HUKNSQDiok4ZjkVREkv0+4Fe8Wdc0CeCV7OEIsq5Mxtt76rIhcLxmWLqNL5QyVaos2SboRDA==
 
 "@types/babel__core@^7.1.14":
   version "7.20.5"
@@ -4868,13 +4868,6 @@ joi@^17.2.1:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
-js-yaml@4.3.0, js-yaml@^4.1.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-4.3.0.tgz#d1900572a7f7cf0b5f540c83673e60bad3436592"
-  integrity sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==
-  dependencies:
-    argparse "^2.0.1"
-
 js-yaml@^3.13.1:
   version "3.15.0"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.15.0.tgz#586e5214eafe3e893756a41e979b50d89d3e4a67"
@@ -4882,6 +4875,13 @@ js-yaml@^3.13.1:
   dependencies:
     argparse "^1.0.7"
     esprima "^4.0.0"
+
+js-yaml@^4.1.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-4.3.0.tgz#d1900572a7f7cf0b5f540c83673e60bad3436592"
+  integrity sha512-1td788aAnnZ5qs7V2QIRl1owjtYpbKt749Y3xauqQgwIIGF/xXWz1wMTEBx5O3LK3lXLVuqXPdPxj2BoFHaW9Q==
+  dependencies:
+    argparse "^2.0.1"
 
 jsc-safe-url@^0.2.2:
   version "0.2.4"
@@ -6222,7 +6222,7 @@ shebang-regex@^3.0.0:
   resolved "https://registry.yarnpkg.com/shebang-regex/-/shebang-regex-3.0.0.tgz#ae16f1644d873ecad843b0307b143362d4c42172"
   integrity sha512-7++dFhtcx3353uBaq8DDR4NuxBetBzC7ZQOhmTQInHEd6bSrXdiEyzCvG07Z44UYdLShWUyXt5M/yhz8ekcb1A==
 
-shell-quote@1.9.0, shell-quote@^1.6.1, shell-quote@^1.8.4:
+shell-quote@^1.6.1, shell-quote@^1.8.4:
   version "1.9.0"
   resolved "https://registry.yarnpkg.com/shell-quote/-/shell-quote-1.9.0.tgz#e108b1a136586d5964edb3300016d4bedba0fe57"
   integrity sha512-Iov+JwFv/2HcTpcwNMKd8+IWNb8tboQJNQTkAY/LLVK7gGH9jy+LGkVqPxfekHl+yMmiqXszdGWXgkfml7hjqA==

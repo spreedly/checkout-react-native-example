@@ -280,6 +280,7 @@ const AchBankAccountCustomFormScreen: React.FC = () => {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
         testID="ach-custom-form-scroll"
       >
         <Text style={styles.headerTitle} testID="ach-custom-form-title">
