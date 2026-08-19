@@ -1,4 +1,10 @@
-import React, { useCallback, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   View,
   Text,
@@ -43,6 +49,7 @@ import { createStyles } from './Styles';
 const AchBankAccountCustomFormScreen: React.FC = () => {
   const isDark = useColorScheme() === 'dark';
   const styles = useMemo(() => createStyles(isDark), [isDark]);
+  const scrollRef = useRef<ScrollView>(null);
 
   const { isLoading: initLoading, initError, initSpreedly } = useSpreedlyInit();
 
@@ -170,6 +177,16 @@ const AchBankAccountCustomFormScreen: React.FC = () => {
     }, [resetFormOnFocus])
   );
 
+  useEffect(() => {
+    if (!paymentToken) {
+      return;
+    }
+    const id = requestAnimationFrame(() => {
+      scrollRef.current?.scrollToEnd({ animated: true });
+    });
+    return () => cancelAnimationFrame(id);
+  }, [paymentToken]);
+
   const handleResetTheme = useCallback(() => {
     setFormCornerRadius(8);
     if (useCustomTheme) {
@@ -278,6 +295,7 @@ const AchBankAccountCustomFormScreen: React.FC = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
     >
       <ScrollView
+        ref={scrollRef}
         contentContainerStyle={styles.scrollContent}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"

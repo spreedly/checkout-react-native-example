@@ -214,6 +214,7 @@ function AchCustomForm() {
 | `bankAccountHolderType` | `BankAccountHolderType`  | No       | `personal` or `business` when your UI exposes holder type              |
 | `bankName`              | `string`                 | No       | Bank name when not collected via `BANK_NAME` field                     |
 | `metadata`              | `Record<string, string>` | No       | Merchant metadata (non-sensitive keys/values only)                     |
+| `mandate`               | `Mandate`                | No       | Opaque mandate object; see [Mandates](integration_guide.md#mandates)   |
 | `additionalFields`      | `Record<string, string>` | No       | Additional non-SPL fields per [Hosted Fields](hosted_fields_guide.md)  |
 | `allowBlankName`        | `boolean`                | No       | Relax name validation when your form allows empty name                 |
 

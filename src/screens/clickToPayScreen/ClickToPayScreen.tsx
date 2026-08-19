@@ -231,7 +231,7 @@ const ClickToPayScreen: React.FC = () => {
     remountAbortRef.current = abort;
     const generationAtStart = checkoutSessionGenerationRef.current;
 
-    void (async () => {
+    (async () => {
       const inactive = await awaitCheckoutInactiveUntilRemount({
         isCheckoutActive: () => ClickToPay.isActive(),
         signal: abort.signal,
@@ -260,7 +260,7 @@ const ClickToPayScreen: React.FC = () => {
         savedCardsDetectorKeyRef.current = next;
         return next;
       });
-    })();
+    })().catch(() => {});
   }, [cancelPendingRemount]);
 
   useEffect(() => {

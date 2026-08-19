@@ -573,6 +573,7 @@ Full theming: [Theme Guide](theme_guide.md). Capability map: [Hosted Fields and 
 | ------------------------ | -------- | ---------------------------------------------------------------------- |
 | `formFieldTypes`         | Yes      | Array of field type strings matching mounted `SPLTextField` instances  |
 | `metadata`               | No       | `{ [key: string]: string }` — additional key-value pairs               |
+| `mandate`                | No       | Opaque mandate object — see [Mandates](#mandates)                      |
 | `additionalFields`       | No       | `{ [key: string]: string }` — e.g. `first_name`, `last_name`           |
 | `fields`                 | No       | `Array<{ type: string; required?: boolean }>` — field config overrides |
 | `allowBlankName`         | No       | Allow blank cardholder name                                            |
@@ -581,6 +582,63 @@ Full theming: [Theme Guide](theme_guide.md). Capability map: [Hosted Fields and 
 | `eligibleForCardUpdater` | No       | Opt in for Account Updater at tokenization                             |
 
 See [Hosted Fields Guide](hosted_fields_guide.md) for full usage.
+
+### Mandates
+
+Agentic flows can attach a **mandate** at tokenization — the record of what a
+consumer authorized an agent to spend on their behalf. Pass it as `mandate` on
+either `createCreditCard` or `createBankAccount`; it is forwarded verbatim to
+Spreedly at `payment_method.mandate`.
+
+The mandate is **opaque to this SDK**. Spreedly owns the schema and validates it
+server-side, versioned by `source_version`, so mandate changes never require an
+SDK upgrade. The reference wire semantics are ECMA-262 `JSON.stringify`: the
+mandate is forwarded exactly as `JSON.stringify` would encode it, and the SDK
+omits the field entirely when it is absent or an empty object.
+
+```ts
+import { SpreedlyCore, type Mandate } from '@spreedly/react-native-checkout';
+
+const mandate: Mandate = {
+  source: 'acp',
+  source_version: '1.0',
+  raw_mandate: {
+    reason: 'one_time',
+    max_amount: 5000,
+    currency: 'usd',
+    checkout_session_id: 'cs_123',
+    merchant_id: 'mer_123',
+    expires_at: '2026-08-21T00:00:00Z',
+  },
+  valid_from: '2026-07-21T00:00:00Z',
+  valid_until: '2026-08-21T00:00:00Z',
+  metadata: { order_id: 'ord_123' },
+};
+
+const result = await SpreedlyCore.createCreditCard({
+  formFieldTypes: ['CARD', 'CVV', 'EXPIRY_DATE'],
+  mandate,
+});
+```
+
+Things worth knowing:
+
+- **Never put cardholder data in a mandate.** Card numbers, CVVs and bank
+  account numbers belong only in the secure fields.
+- **`source_version` is the literal `'1.0'`.** A date value is rejected.
+- **Do not send a `rules` array.** Spreedly generates rules server-side from
+  `raw_mandate`; a supplied one is ignored at best.
+- **Numbers stay numbers.** `max_amount: 5000` reaches the wire as `5000`, not
+  `"5000"` — the SDK preserves types across the native bridge.
+- **The full `raw_mandate` field set above is valid only for `source: 'acp'`.**
+- **`NaN` and `Infinity` encode as `null`**, matching `JSON.stringify`. Nothing
+  else about a mandate value is silently changed.
+- **A mandate that cannot be represented fails the call.** If any value in the
+  mandate has no JSON representation at all, tokenization fails with an error
+  naming the offending key — the SDK never silently drops or alters a mandate.
+  Absent or empty mandates are the only case that's simply omitted.
+- **There is no client-side size or content limit.** A client-side cap would be
+  bypassable, so enforcement is server-side.
 
 ### `SpreedlyCore.paymentBottomSheet(options?): void`
 
@@ -763,7 +821,14 @@ type ThreeDSChallengeResult =
 type PaymentResultRN =
   | { status: 'initial' }
   | { status: 'canceled' }
-  | { status: 'completed'; token?: string; shouldRetain?: boolean }
+  | {
+      status: 'completed';
+      token?: string;
+      shouldRetain?: boolean;
+      state?: string;
+      paymentMethodUpdatedAt?: string;
+      paymentMethodResponse?: PaymentMethodResponse;
+    }
   | { status: 'failed'; failureDetails?: FailureDetails }
   | { status: 'validation_failed'; invalidFields?: string[] };
 
@@ -777,6 +842,7 @@ type FailureDetails = {
     errorKey?: string;
     errorMessage?: string;
   }>;
+  state?: string;
 };
 
 type MappedOutcome =
@@ -786,6 +852,8 @@ type MappedOutcome =
   | { kind: 'canceled' }
   | { kind: 'initial' };
 ```
+
+`mapPaymentResult()` normalizes status into `MappedOutcome` for UI handling. The raw `PaymentResultRN` (including `paymentMethodResponse` on success) remains available on the promise/event payload before mapping.
 
 ### Theme types
 
