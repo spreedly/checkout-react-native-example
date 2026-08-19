@@ -2079,30 +2079,35 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@spreedly/react-native-checkout-braintree-apm@1.2.0":
-  version "1.2.0"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-braintree-apm/1.2.0/e826765c03b10bf4c941c6203b3852b947169bee#e826765c03b10bf4c941c6203b3852b947169bee"
-  integrity sha512-ht7QhIogg7YtbmLPIX8m29rgtin0OUfjJsZfqZBfkRyJA5/BY6W+DU4h2+yHrbfbVAvgcT+uYZSLNRn/iAJBdw==
+"@spreedly/react-native-checkout-braintree-apm@1.2.1":
+  version "1.2.1"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-braintree-apm/1.2.1/445da546cbccc105af63ecb278e5d05207e04a3b#445da546cbccc105af63ecb278e5d05207e04a3b"
+  integrity sha512-VDxzWy5/sfqZkEyq+btjgH6VTSwl18ISa9rEXS8Cxw8dTB+JX7sRNNXYvDcRVrUxGMFQyrdWLuTcYSzHCMAe5w==
 
-"@spreedly/react-native-checkout-stripe-apm@1.2.0":
-  version "1.2.0"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-apm/1.2.0/bc47deb18409ba7576b81390860bd365cec0cac6#bc47deb18409ba7576b81390860bd365cec0cac6"
-  integrity sha512-5EfOLPAeX5G88I3EXElFQOzpfvLQ+1rdudj5NNg3z0l/s3tvKLzotHiRSYLzmLpVx1pkwIN6LuywhiFY+GHe/w==
+"@spreedly/react-native-checkout-click-to-pay@1.2.1":
+  version "1.2.1"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-click-to-pay/1.2.1/c53caee8ac0159fbc9afa967d897806b5a27c695#c53caee8ac0159fbc9afa967d897806b5a27c695"
+  integrity sha512-C5EDyuXiUN+EyaLTYt1ImZlNcbOeqrDC5qXgj1MjeDbnx+35bGYK6FcuffqWgJueflQE+G4/yaLNdrGAE1PE0w==
 
-"@spreedly/react-native-checkout-stripe-radar@1.2.0":
-  version "1.2.0"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-radar/1.2.0/192eef26d9c3ee9a06ffd370305e7c72d1f6b292#192eef26d9c3ee9a06ffd370305e7c72d1f6b292"
-  integrity sha512-tzt+CXNp9gv2D7HlkhvnbglaTsn7WGViLzhYbkjpP7mrKwkCy0Xi18O8N+oYgcqCWgI5xoigHdga+sJsi7WqFg==
+"@spreedly/react-native-checkout-stripe-apm@1.2.1":
+  version "1.2.1"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-apm/1.2.1/5bad659342d3d32c63e60265eb5ec462cff84852#5bad659342d3d32c63e60265eb5ec462cff84852"
+  integrity sha512-W0KvpEpHqEBLn+Mb3440T3e2hRp7HZ0eShRrxbs3Xu7wlEOqLeCdqOjYeCQWoSTE7Zi2OvPn9rVtxwv6gwBx0A==
 
-"@spreedly/react-native-checkout-threeds@1.2.0":
-  version "1.2.0"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-threeds/1.2.0/8d3c4a2e40daa291219e8ab5510911e20ca01a97#8d3c4a2e40daa291219e8ab5510911e20ca01a97"
-  integrity sha512-p7hA3EgGI0qaDuYlRD+Lp7RNwIqSYEp4LMICTIBPcNuQwrpt0//fok7pHqSCXqCwMrmknOuKjkC6EYcL2nEojA==
+"@spreedly/react-native-checkout-stripe-radar@1.2.1":
+  version "1.2.1"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-radar/1.2.1/762b7b00c95374a37f198784fc261292ea0c67f3#762b7b00c95374a37f198784fc261292ea0c67f3"
+  integrity sha512-qOI7cUOmlpUJgUeWMAadSWBW6J0pWZ5p1JDIH4D3xQNhaq1f6VpqfXcsrwzUGS5IM0x3C9ba2wUsz+HyBzwFvQ==
 
-"@spreedly/react-native-checkout@1.2.0":
-  version "1.2.0"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout/1.2.0/900d085d8e730357c1b2a4fb7400128daf013ea0#900d085d8e730357c1b2a4fb7400128daf013ea0"
-  integrity sha512-bzHa88wb8WqZ+9HUKNSQDiok4ZjkVREkv0+4Fe8Wdc0CeCV7OEIsq5Mxtt76rIhcLxmWLqNL5QyVaos2SboRDA==
+"@spreedly/react-native-checkout-threeds@1.2.1":
+  version "1.2.1"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-threeds/1.2.1/6041824071e61a59d4736f0e9a3a2e024574f117#6041824071e61a59d4736f0e9a3a2e024574f117"
+  integrity sha512-KNp+ux6SV0rwYiZLppy/4BdstLv1KHvb8p89f7wMGVyW/27vW/J4/AOapLgXfe3W0YyRwpA8mflRWKdyNqU8gA==
+
+"@spreedly/react-native-checkout@1.2.1":
+  version "1.2.1"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout/1.2.1/738d4c3be3b4c8d6025a9f3df39856996cb036ce#738d4c3be3b4c8d6025a9f3df39856996cb036ce"
+  integrity sha512-7wmhki0uzz8+aRdviBaq5ws1oqVdQiknV7Qx0W9Y669NbH4b255jpSJE3ngd8+YhRCtbOajvTk9NcJoMAQG82A==
 
 "@types/babel__core@^7.1.14":
   version "7.20.5"

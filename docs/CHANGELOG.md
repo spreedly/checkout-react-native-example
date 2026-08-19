@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## [1.2.1] - 2026-08-17
+
+### Added
+
+- **Mandate at tokenization**: optional `mandate` on `SpreedlyCore.createCreditCard()` and `SpreedlyCore.createBankAccount()`, forwarded verbatim to Spreedly at `payment_method.mandate`. Opaque to the SDK — Spreedly owns the schema and validates server-side, versioned by `source_version`, so mandate changes never require an SDK upgrade. Reference wire semantics are ECMA-262 `JSON.stringify`: `NaN`/`Infinity` encode as `null`, and the field is omitted only when absent or empty. A mandate value with no JSON representation fails the call with an error naming the key — the SDK never silently drops or alters a mandate. Exports a `Mandate` type for typing your own mandate values. Never put cardholder data in a mandate. See [Integration Guide](guides/integration_guide.md#mandates).
+
+- **Full payment method response passthrough**: completed results from `createCreditCard`, `createBankAccount`, payment/ACH bottom sheets, and recache now include the native Spreedly `paymentMethodResponse` (transaction + payment_method fields), plus `shouldRetain`, `state`, and `paymentMethodUpdatedAt` when present. `mapPaymentResult()` is unchanged for UI outcomes; read the full payload from the raw promise/event result. See [Integration Guide](guides/integration_guide.md#api-reference).
+
+### 🔄 Changed
+
+- AC-65: Add mandate passthrough to headless tokenization
+
+### 📦 Native SDK Versions
+
+| Platform | SDK                  | Version |
+| -------- | -------------------- | ------- |
+| Android  | checkout-android     | 1.3.0   |
+| iOS      | checkout-ios-package | 1.6.1   |
+
+---
+
 ## [1.2.0] - 2026-08-04
 
 ### Added
