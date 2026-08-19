@@ -17,6 +17,7 @@
     "@spreedly/react-native-checkout-stripe-apm": "1.2.1",
     "@spreedly/react-native-checkout-stripe-radar": "1.2.1",
     "@spreedly/react-native-checkout-threeds": "1.2.1",
+    "@spreedly/react-native-checkout-click-to-pay": "1.2.1",
     "react": "19.0.0",
     "react-native": "0.79.2",
     "react-native-config": "^1.5.9",

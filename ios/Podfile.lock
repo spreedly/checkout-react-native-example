@@ -1844,9 +1844,9 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - SocketRocket (0.7.1)
-  - SpreedlyBraintree (1.5.0):
+  - SpreedlyBraintree (1.6.1):
     - SpreedlyCore
-  - SpreedlyBraintreeAPM (1.1.0):
+  - SpreedlyBraintreeAPM (1.2.1):
     - Braintree (~> 7.0)
     - DoubleConversion
     - glog
@@ -1874,7 +1874,7 @@ PODS:
     - SpreedlyCore
     - SpreedlySecurity
     - Yoga
-  - SpreedlyCheckout (1.1.0):
+  - SpreedlyCheckout (1.2.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1901,7 +1901,34 @@ PODS:
     - SpreedlySecurity
     - SpreedlyUI
     - Yoga
-  - SpreedlyCheckoutStripeAPM (1.1.0):
+  - SpreedlyCheckoutClickToPay (1.2.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SpreedlyClickToPay
+    - SpreedlyCore
+    - SpreedlySecurity
+    - Yoga
+  - SpreedlyCheckoutStripeAPM (1.2.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1929,7 +1956,7 @@ PODS:
     - SpreedlyStripeAPM
     - StripePaymentSheet (~> 25.0)
     - Yoga
-  - SpreedlyCheckoutStripeRadar (1.1.0):
+  - SpreedlyCheckoutStripeRadar (1.2.1):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1956,13 +1983,17 @@ PODS:
     - SpreedlySecurity
     - SpreedlyStripeRadar
     - Yoga
-  - SpreedlyCore (1.5.0)
-  - SpreedlySecurity (1.5.0)
-  - SpreedlyStripeAPM (1.5.0):
+  - SpreedlyClickToPay (1.6.1):
     - SpreedlyCore
-  - SpreedlyStripeRadar (1.5.0):
+    - SpreedlySecurity
+    - SpreedlyUI
+  - SpreedlyCore (1.6.1)
+  - SpreedlySecurity (1.6.1)
+  - SpreedlyStripeAPM (1.6.1):
     - SpreedlyCore
-  - SpreedlyUI (1.5.0):
+  - SpreedlyStripeRadar (1.6.1):
+    - SpreedlyCore
+  - SpreedlyUI (1.6.1):
     - SpreedlyCore
     - SpreedlySecurity
   - StripeApplePay (25.17.0):
@@ -2064,16 +2095,18 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - "SpreedlyBraintree (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.5.0`)"
+  - "SpreedlyBraintree (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
   - "SpreedlyBraintreeAPM (from `../node_modules/@spreedly/react-native-checkout-braintree-apm`)"
   - "SpreedlyCheckout (from `../node_modules/@spreedly/react-native-checkout`)"
+  - "SpreedlyCheckoutClickToPay (from `../node_modules/@spreedly/react-native-checkout-click-to-pay`)"
   - "SpreedlyCheckoutStripeAPM (from `../node_modules/@spreedly/react-native-checkout-stripe-apm`)"
   - "SpreedlyCheckoutStripeRadar (from `../node_modules/@spreedly/react-native-checkout-stripe-radar`)"
-  - "SpreedlyCore (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.5.0`)"
-  - "SpreedlySecurity (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.5.0`)"
-  - "SpreedlyStripeAPM (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.5.0`)"
-  - "SpreedlyStripeRadar (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.5.0`)"
-  - "SpreedlyUI (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.5.0`)"
+  - "SpreedlyClickToPay (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
+  - "SpreedlyCore (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
+  - "SpreedlySecurity (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
+  - "SpreedlyStripeAPM (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
+  - "SpreedlyStripeRadar (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
+  - "SpreedlyUI (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
   - StripePaymentSheet (~> 25.0)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -2240,30 +2273,35 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   SpreedlyBraintree:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
   SpreedlyBraintreeAPM:
     :path: "../node_modules/@spreedly/react-native-checkout-braintree-apm"
   SpreedlyCheckout:
     :path: "../node_modules/@spreedly/react-native-checkout"
+  SpreedlyCheckoutClickToPay:
+    :path: "../node_modules/@spreedly/react-native-checkout-click-to-pay"
   SpreedlyCheckoutStripeAPM:
     :path: "../node_modules/@spreedly/react-native-checkout-stripe-apm"
   SpreedlyCheckoutStripeRadar:
     :path: "../node_modules/@spreedly/react-native-checkout-stripe-radar"
+  SpreedlyClickToPay:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.6.1
   SpreedlyCore:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
   SpreedlySecurity:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
   SpreedlyStripeAPM:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
   SpreedlyStripeRadar:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
   SpreedlyUI:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
@@ -2273,22 +2311,25 @@ CHECKOUT OPTIONS:
     :git: https://bitbucket.org/forter-mobile/forter-ios.git
   SpreedlyBraintree:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
+  SpreedlyClickToPay:
+    :git: "git@github.com:spreedly/checkout-ios-package.git"
+    :tag: 1.6.1
   SpreedlyCore:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
   SpreedlySecurity:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
   SpreedlyStripeAPM:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
   SpreedlyStripeRadar:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
   SpreedlyUI:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.5.0
+    :tag: 1.6.1
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
@@ -2367,16 +2408,18 @@ SPEC CHECKSUMS:
   RNGestureHandler: 80235a0cb70eed222da3e28cd392ac5c252beae7
   RNScreens: f38464ec1e83bda5820c3b05ccf4908e3841c5cc
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  SpreedlyBraintree: 61ca90eb3f8cfa746410b5306bb1c0aaead7bd75
-  SpreedlyBraintreeAPM: 5b5c4453ab7bceafc5504b79d26acc915a483691
-  SpreedlyCheckout: 950b99980f6821aca2c2cb17d82c205b41897053
-  SpreedlyCheckoutStripeAPM: ac1a9680fa4c5271eb79bb2042b886454e738b91
-  SpreedlyCheckoutStripeRadar: 24389dc433028459c48c83dc2891c24e8ff2cf30
-  SpreedlyCore: a7cfcc7bd1cc1d1e6a69420b3e8c06c6ae92074c
-  SpreedlySecurity: 3f6655f18e37f42601ffaa8f6efef06f23841cd3
-  SpreedlyStripeAPM: 206249801fee5a84eb8e5c8ff7758370811d5b35
-  SpreedlyStripeRadar: d2b3e1eceae382f9fa53e8ab27354be2c3dbfe4b
-  SpreedlyUI: 2fb456c3d25eddf33e237714ac2c77626e656918
+  SpreedlyBraintree: 747c36b4cd1586eb349341b27113e60422e2200a
+  SpreedlyBraintreeAPM: 65e33ee954aaa04584f2eaed8410620b1807c260
+  SpreedlyCheckout: a07054510e291e44a6d1042ad84ad8a4113d17b3
+  SpreedlyCheckoutClickToPay: dac18eb7ba87c0afbad5509e6297d5253bb9ffaf
+  SpreedlyCheckoutStripeAPM: b883e9cbb98d6c04188a4ea8c09e3f148b87eeca
+  SpreedlyCheckoutStripeRadar: 8f4124d0c2edfeaad018a048d0b1e6470dad2113
+  SpreedlyClickToPay: f7b8c08709db9f54a87140646c542956eae4da23
+  SpreedlyCore: ea374eea4b6e2bb23115b7235fe5584fbf5e8d40
+  SpreedlySecurity: 1f48d7e719324884745b20846a2ca75a02227474
+  SpreedlyStripeAPM: ce14cdd2a0e00401a2a5e94e6345a7460479dd16
+  SpreedlyStripeRadar: 2e42d0808d2f58a8e55586d19bec1266f0fc2b56
+  SpreedlyUI: 3e1fe34facfae0a1fafca8bbd833aa1a7f3ca05d
   StripeApplePay: 7b1b6e86eb75be5d4bcf109c34224adf38000fe2
   StripeCore: 60849de0ae448eb9a7ed4ee8208acce78832b255
   StripePayments: befce228ec3545503c6ac54603b7e5a7cdb01a06

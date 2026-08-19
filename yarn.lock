@@ -2084,6 +2084,11 @@
   resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-braintree-apm/1.2.1/445da546cbccc105af63ecb278e5d05207e04a3b#445da546cbccc105af63ecb278e5d05207e04a3b"
   integrity sha512-VDxzWy5/sfqZkEyq+btjgH6VTSwl18ISa9rEXS8Cxw8dTB+JX7sRNNXYvDcRVrUxGMFQyrdWLuTcYSzHCMAe5w==
 
+"@spreedly/react-native-checkout-click-to-pay@1.2.1":
+  version "1.2.1"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-click-to-pay/1.2.1/c53caee8ac0159fbc9afa967d897806b5a27c695#c53caee8ac0159fbc9afa967d897806b5a27c695"
+  integrity sha512-C5EDyuXiUN+EyaLTYt1ImZlNcbOeqrDC5qXgj1MjeDbnx+35bGYK6FcuffqWgJueflQE+G4/yaLNdrGAE1PE0w==
+
 "@spreedly/react-native-checkout-stripe-apm@1.2.1":
   version "1.2.1"
   resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-apm/1.2.1/5bad659342d3d32c63e60265eb5ec462cff84852#5bad659342d3d32c63e60265eb5ec462cff84852"
