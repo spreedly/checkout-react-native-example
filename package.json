@@ -48,5 +48,9 @@
   },
   "engines": {
     "node": ">=18"
+  },
+  "resolutions": {
+    "nanoid": "3.3.18",
+    "image-size": "npm:image-size-next@1.2.2"
   }
 }
