@@ -2079,35 +2079,35 @@
   dependencies:
     "@sinonjs/commons" "^3.0.0"
 
-"@spreedly/react-native-checkout-braintree-apm@1.2.1":
-  version "1.2.1"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-braintree-apm/1.2.1/445da546cbccc105af63ecb278e5d05207e04a3b#445da546cbccc105af63ecb278e5d05207e04a3b"
-  integrity sha512-VDxzWy5/sfqZkEyq+btjgH6VTSwl18ISa9rEXS8Cxw8dTB+JX7sRNNXYvDcRVrUxGMFQyrdWLuTcYSzHCMAe5w==
+"@spreedly/react-native-checkout-braintree-apm@1.3.0":
+  version "1.3.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-braintree-apm/1.3.0/9ed4c6f3967de11e299813b5f35761ca7798092d#9ed4c6f3967de11e299813b5f35761ca7798092d"
+  integrity sha512-FTxWyNJLLwYJ8at7hyw1Q3HiomLPmBoIgKGedUrjBr0FlY+gaLCghfoN7GPmPmDgA7DC3M8zf0DK4TIj9W28sQ==
 
-"@spreedly/react-native-checkout-click-to-pay@1.2.1":
-  version "1.2.1"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-click-to-pay/1.2.1/c53caee8ac0159fbc9afa967d897806b5a27c695#c53caee8ac0159fbc9afa967d897806b5a27c695"
-  integrity sha512-C5EDyuXiUN+EyaLTYt1ImZlNcbOeqrDC5qXgj1MjeDbnx+35bGYK6FcuffqWgJueflQE+G4/yaLNdrGAE1PE0w==
+"@spreedly/react-native-checkout-click-to-pay@1.3.0":
+  version "1.3.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-click-to-pay/1.3.0/41c3c3fddc46fea840e07c8b3c5e6a5c1e4f7793#41c3c3fddc46fea840e07c8b3c5e6a5c1e4f7793"
+  integrity sha512-1v7nuOhaFmA7jV0k6s6Gj5VOXlDJnizM9E6Rs6u7zii+3D80BRlCi8/PtTYBY5dlm8AYi+2HwSwtVdGYz7SjHQ==
 
-"@spreedly/react-native-checkout-stripe-apm@1.2.1":
-  version "1.2.1"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-apm/1.2.1/5bad659342d3d32c63e60265eb5ec462cff84852#5bad659342d3d32c63e60265eb5ec462cff84852"
-  integrity sha512-W0KvpEpHqEBLn+Mb3440T3e2hRp7HZ0eShRrxbs3Xu7wlEOqLeCdqOjYeCQWoSTE7Zi2OvPn9rVtxwv6gwBx0A==
+"@spreedly/react-native-checkout-stripe-apm@1.3.0":
+  version "1.3.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-apm/1.3.0/0f8233a316c1da32d1e4b968d52ce376e383d807#0f8233a316c1da32d1e4b968d52ce376e383d807"
+  integrity sha512-laL2qL4sblusCtB4mmCWI1Tqwt2f6j2PMHNybQY1WawQsQtSsBqTWqM3nnJ0iEp468ksoV2HE2JXbscpkT2v/g==
 
-"@spreedly/react-native-checkout-stripe-radar@1.2.1":
-  version "1.2.1"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-radar/1.2.1/762b7b00c95374a37f198784fc261292ea0c67f3#762b7b00c95374a37f198784fc261292ea0c67f3"
-  integrity sha512-qOI7cUOmlpUJgUeWMAadSWBW6J0pWZ5p1JDIH4D3xQNhaq1f6VpqfXcsrwzUGS5IM0x3C9ba2wUsz+HyBzwFvQ==
+"@spreedly/react-native-checkout-stripe-radar@1.3.0":
+  version "1.3.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-stripe-radar/1.3.0/43be091deb8d8fdfe240bd33ffb5d3afb0e4f0cb#43be091deb8d8fdfe240bd33ffb5d3afb0e4f0cb"
+  integrity sha512-CFs61KciFg8r+mDEB6P+v7oASI6Zo0h419c5S5dzCMxEQSJPk1Q6zNnXJzqC994IR6d88SDJm/+PkkA8uit44Q==
 
-"@spreedly/react-native-checkout-threeds@1.2.1":
-  version "1.2.1"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-threeds/1.2.1/6041824071e61a59d4736f0e9a3a2e024574f117#6041824071e61a59d4736f0e9a3a2e024574f117"
-  integrity sha512-KNp+ux6SV0rwYiZLppy/4BdstLv1KHvb8p89f7wMGVyW/27vW/J4/AOapLgXfe3W0YyRwpA8mflRWKdyNqU8gA==
+"@spreedly/react-native-checkout-threeds@1.3.0":
+  version "1.3.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout-threeds/1.3.0/92e842a6b96f1c5d5c46af26b208a2f61042f242#92e842a6b96f1c5d5c46af26b208a2f61042f242"
+  integrity sha512-SZTHbksGXytDGlnFEQIJPbS+X3Pmq4wpc777/fiVcN66uCUTQo1sMqZR50ZHI0sSUx6IJ7koI6/DR/nJChyduQ==
 
-"@spreedly/react-native-checkout@1.2.1":
-  version "1.2.1"
-  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout/1.2.1/738d4c3be3b4c8d6025a9f3df39856996cb036ce#738d4c3be3b4c8d6025a9f3df39856996cb036ce"
-  integrity sha512-7wmhki0uzz8+aRdviBaq5ws1oqVdQiknV7Qx0W9Y669NbH4b255jpSJE3ngd8+YhRCtbOajvTk9NcJoMAQG82A==
+"@spreedly/react-native-checkout@1.3.0":
+  version "1.3.0"
+  resolved "https://npm.pkg.github.com/download/@spreedly/react-native-checkout/1.3.0/7b623cac545424d688347cce81d1bc9ab361fce6#7b623cac545424d688347cce81d1bc9ab361fce6"
+  integrity sha512-riBCc7uxbuISZqtXUN0KdwwcKUeg46/2xRbRRYO2cSD/iZNa8WgchJSr+wPs0Xf1NAgyu2KwWncM9SNOulNs8g==
 
 "@types/babel__core@^7.1.14":
   version "7.20.5"
@@ -4109,7 +4109,7 @@ ignore@^7.0.5:
   resolved "https://registry.yarnpkg.com/ignore/-/ignore-7.0.5.tgz#4cb5f6cd7d4c7ab0365738c7aea888baa6d7efd9"
   integrity sha512-Hs59xBNfUIunMFgWAbGX5cq6893IbWg4KnrjbYwX3tx0ztorVgTDA6B2sxf8ejHJ4wz8BqGUMYlnzNBer5NvGg==
 
-image-size@^1.0.2, "image-size@npm:image-size-next@1.2.2":
+image-size@^1.0.2:
   version "1.2.2"
   resolved "https://registry.yarnpkg.com/image-size-next/-/image-size-next-1.2.2.tgz#40997f20d5918fed93717c7cb1acc58b7e15d361"
   integrity sha512-Pd3CJ2+Ifk2H2jWikkoz2BSZgnuF3Qsea4gQmj2gtiOtYpGWBl7elj8EXnFMiY5PaYNruTTLD0hQ0UWK7pz9xA==
@@ -5362,7 +5362,7 @@ ms@2.1.3, ms@^2.1.3:
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.1.3.tgz#574c8138ce1d2b5861f0b44579dbadd60c6615b2"
   integrity sha512-6FlzubTLZG3J2a/NVCAleEhjzq5oxgHyaCU9yYXvcLsvoVaHJq/s5xXI6/XXP6tz7R9xAOtHnSO/tXtF3WRTlA==
 
-nanoid@3.3.18, nanoid@^3.3.11:
+nanoid@^3.3.11:
   version "3.3.18"
   resolved "https://registry.yarnpkg.com/nanoid/-/nanoid-3.3.18.tgz#f66a2de1199ffde0fcf21c8a5f13106b1c081913"
   integrity sha512-DTg4MJbGMWkfi6VZFdNt2/caMbQy4Ou+Op/hJQvGEWcnVfoA1QA+xzRKAzw9jD6+GVOOeYr/mIcuDSdug6F6+w==
@@ -5837,13 +5837,12 @@ react-native-config@^1.5.9:
   resolved "https://registry.yarnpkg.com/react-native-config/-/react-native-config-1.6.1.tgz#f8428829fda74384484d773fe36820159c559159"
   integrity sha512-HvKtxr6/Tq3iMdFx5REYZsjCtPi0RxQOMCs15+DqrUPTNFtWHuEuh+zw7fJp+dmuO79YMfdtlsPWIGTHtaXwjg==
 
-react-native-gesture-handler@^2.28.0:
-  version "2.31.1"
-  resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.31.1.tgz#0881209146ad272350f86277eccf189e5b44353f"
-  integrity sha512-wQDlECdEzHhYKTnQXFnSqWUtJ5TS3MGQi7EWvQczTnEVKfk6XVSBecnpWAoI/CqlYQ7IWMJEyutY6BxwEBoxeg==
+react-native-gesture-handler@2.30.1:
+  version "2.30.1"
+  resolved "https://registry.yarnpkg.com/react-native-gesture-handler/-/react-native-gesture-handler-2.30.1.tgz#d930b8b8870cd2f5cc0c967acf94c8891ada42de"
+  integrity sha512-xIUBDo5ktmJs++0fZlavQNvDEE4PsihWhSeJsJtoz4Q6p0MiTM9TgrTgfEgzRR36qGPytFoeq+ShLrVwGdpUdA==
   dependencies:
     "@egjs/hammerjs" "^2.0.17"
-    "@types/react-test-renderer" "^19.1.0"
     hoist-non-react-statics "^3.3.0"
     invariant "^2.2.4"
 

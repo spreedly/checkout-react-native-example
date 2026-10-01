@@ -197,15 +197,14 @@ buildscript {
         compileSdkVersion = 36
         targetSdkVersion = 34
         ndkVersion = "27.1.12297006"
-        kotlinVersion = "2.3.10"
-        androidGradlePluginVersion = "8.12.0"  // match your RN release
+        kotlinVersion = "2.1.20" // minimum supported version
     }
     repositories {
         google()
         mavenCentral()
     }
     dependencies {
-        classpath("com.android.tools.build:gradle:${androidGradlePluginVersion}")
+        classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
         classpath("org.jetbrains.kotlin:kotlin-serialization:${kotlinVersion}")
@@ -214,7 +213,26 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+```
 
+Set **Gradle 8.11.1+** in `android/gradle/wrapper/gradle-wrapper.properties`. Version rationale and compatibility matrix: [RN 0.79+ requirements](rn_079_requirement.md).
+
+**If Gradle reports that the Android Gradle Plugin is too old**, add an explicit version to the root `android/build.gradle`:
+
+```gradle
+buildscript {
+    ext {
+        androidGradlePluginVersion = "8.12.0"
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:${androidGradlePluginVersion}")
+    }
+}
+```
+
+**Optional workaround for Kotlin metadata-version errors:** If you still see errors from precompiled dependencies, add this to the root `android/build.gradle`:
+
+````gradle
 subprojects { subproject ->
     subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         compilerOptions {
@@ -222,9 +240,6 @@ subprojects { subproject ->
         }
     }
 }
-```
-
-Set **Gradle 8.11.1+** in `android/gradle/wrapper/gradle-wrapper.properties`. Version rationale and compatibility matrix: [RN 0.79+ requirements](rn_079_requirement.md).
 
 **3DS on Android:** Core no longer depends on `checkout-threeds`. Card-only apps need only `GITHUB_USERNAME` / `GITHUB_TOKEN`. To use Global or Gateway-Specific 3DS on Android, install `@spreedly/react-native-checkout-threeds`. iOS 3DS stays in core — do not add the threeds npm package for iOS.
 
@@ -237,7 +252,7 @@ Add to your project-root `.env` (same file as `GITHUB_USERNAME`/`GITHUB_TOKEN`):
 ```bash
 FORTER_USERNAME=<forter-maven-username>
 FORTER_PASSWORD=<forter-maven-password>
-```
+````
 
 - Get these from your Spreedly representative — they're separate from `FORTER_SITE_ID` (the runtime fraud-signal ID passed to `initSdk`).
 - Required only when `@spreedly/react-native-checkout-threeds` is installed. Card-only Android apps that skip the threeds package don't need them.
@@ -1191,7 +1206,7 @@ Ensure `android/gradle/wrapper/gradle-wrapper.properties` has Gradle **8.11.1+**
 
 ```gradle
 buildscript {
-    ext { kotlinVersion = "2.3.10" }
+    ext { kotlinVersion = "2.1.20" } // minimum supported version
     dependencies {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${kotlinVersion}")
         classpath("org.jetbrains.kotlin:kotlin-serialization:${kotlinVersion}")
@@ -1202,19 +1217,31 @@ buildscript {
 
 Use `compilerOptions { freeCompilerArgs.add(...) }` — not the deprecated `kotlinOptions { freeCompilerArgs += ... }` which causes `sourceInformation` duplicates.
 
+If you still see Kotlin metadata-version errors from precompiled dependencies, try this in the root `android/build.gradle`:
+
+```gradle
+subprojects { subproject ->
+    subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        compilerOptions {
+            freeCompilerArgs.add("-Xskip-metadata-version-check")
+        }
+    }
+}
+```
+
 Details: [RN 0.79+ requirements](rn_079_requirement.md).
 
 ### `checkDebugAarMetadata` / `androidx.browser` failures
 
 **Problem:** Build fails during `:app:checkDebugAarMetadata` requiring higher `compileSdkVersion`.
 
-**Solution:** Set `compileSdkVersion = 36` and use AGP **8.10.1+** with Gradle **8.11.1+** in your root `android/build.gradle`. See [§ 5](#5-android-setup).
+**Solution:** Set `compileSdkVersion = 36` and use AGP **8.12.0+** with Gradle **8.11.1+** in your root `android/build.gradle`. See [§ 5](#5-android-setup).
 
-### Android Lint failures with Kotlin 2.3
+### Android Lint failures with Kotlin 2.1
 
 **Problem:** `Unexpected failure during lint analysis` or `KaCallableMemberCall` class/interface errors.
 
-**Solution:** The SDK's published `android/build.gradle` includes lint configuration to handle this. Verify your `kotlinVersion = "2.3.10"` is set correctly, then:
+**Solution:** The SDK's published `android/build.gradle` includes lint configuration to handle this. Verify your `kotlinVersion = "2.1.20"` or newer is set correctly, then:
 
 ```bash
 cd android

@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## [1.3.0] - 2026-09-29
+
+### 🔄 Changed
+
+  - Chore: Changed Kotlin version from 2.3.10 to 2.1.20 stable version
+  - Fix: joi, fast-uri, js-yaml version updated, smol-toml added in resolutions and other vulnerabilities fixes
+
+### 📦 Native SDK Versions
+
+| Platform | SDK                  | Version |
+| -------- | -------------------- | ------- |
+| Android  | checkout-android     | 1.4.0 |
+| iOS      | checkout-ios-package | 1.6.1 |
+
+---
+
+### 🔄 Changed
+
+- Android Kotlin support now uses **Kotlin 2.1.20** as the minimum supported version. Updated the Android package Gradle configuration and integration guidance to keep Kotlin, serialization, and Compose compiler plugins aligned.
+
 ## [1.2.1] - 2026-08-17
 
 ### Added
