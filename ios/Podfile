@@ -50,5 +50,17 @@ target 'CheckoutReactNativeExample' do
         end
       end
     end
+
+    # Xcode 27+: supported simulator deployment targets start at 15.0.
+    # Third-party pods (Stripe/Braintree/etc.) still declare 13.x/14.x.
+    min_deployment_target = '15.0'
+    installer.pods_project.targets.each do |target|
+      target.build_configurations.each do |config|
+        current = config.build_settings['IPHONEOS_DEPLOYMENT_TARGET']
+        if current.nil? || Gem::Version.new(current) < Gem::Version.new(min_deployment_target)
+          config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_deployment_target
+        end
+      end
+    end
   end
 end
