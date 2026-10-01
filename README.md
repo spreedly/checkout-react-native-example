@@ -4,7 +4,7 @@
 
 **Demonstration only — not for production.** This sample app shows integration patterns for the [Spreedly Checkout React Native SDK](https://github.com/spreedly/checkout-react-native-packages). Do not ship it as-is to end users.
 
-Synced from SDK release **1.2.1** (tag `v1.2.1`).
+Synced from SDK release **1.3.0** (tag `v1.3.0`).
 
 This example demonstrates payment flows using the Spreedly Checkout SDK, including card payments, 3D Secure, offsite payments, Stripe APM, Stripe Radar, Click to Pay, Braintree, EBANX, and ACH.
 

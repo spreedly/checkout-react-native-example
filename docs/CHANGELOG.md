@@ -1,5 +1,24 @@
 # CHANGELOG
 
+## [1.3.0] - 2026-09-29
+
+### Fixed
+
+- joi, fast-uri, js-yaml version updated, smol-toml added in resolutions and other vulnerabilities fixes
+
+### Changed
+
+- Chore: Android Kotlin support now uses Kotlin 2.1.20 as the minimum supported version.
+
+### Native SDK Versions
+
+| Platform | SDK                  | Version |
+| -------- | -------------------- | ------- |
+| Android  | checkout-android     | 1.4.0 |
+| iOS      | checkout-ios-package | 1.6.1 |
+
+---
+
 ## [1.2.1] - 2026-08-17
 
 ### Added
@@ -8,11 +27,11 @@
 
 - **Full payment method response passthrough**: completed results from `createCreditCard`, `createBankAccount`, payment/ACH bottom sheets, and recache now include the native Spreedly `paymentMethodResponse` (transaction + payment_method fields), plus `shouldRetain`, `state`, and `paymentMethodUpdatedAt` when present. `mapPaymentResult()` is unchanged for UI outcomes; read the full payload from the raw promise/event result. See [Integration Guide](guides/integration_guide.md#api-reference).
 
-### 🔄 Changed
+### Changed
 
 - AC-65: Add mandate passthrough to headless tokenization
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -27,12 +46,12 @@
 
 - **Click to Pay package** (`@spreedly/react-native-checkout-click-to-pay`): Mastercard Click to Pay with branded button, prepare flow, and custom themes. See [Click to Pay Guide](guides/click_to_pay_guide.md).
 
-### 🔄 Changed
+### Changed
 
 - `spreedly_post_install(installer)` now also disables Xcode 17+ explicit modules (`SWIFT_ENABLE_EXPLICIT_MODULES` / `CLANG_ENABLE_EXPLICIT_MODULES`) and pins `-Onone`/`wholemodule` Swift optimization for Stripe pods, working around a Swift 6.2.1+ compiler crash. These were previously boilerplate merchants had to copy into their own Podfile's `post_install`; they're now applied automatically by the one-line SDK call. See [Integration Guide](guides/integration_guide.md) and [Stripe APM Guide](guides/stripe_apm_guide.md).
 - Threeds documentations updated for developer & merchants
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -57,7 +76,7 @@
 
 - **Android 3DS**: `checkout-threeds` is no longer a transitive dependency of core. Apps that use Global or Gateway-Specific 3DS on Android must install `@spreedly/react-native-checkout-threeds`. iOS is unchanged.
 
-### 🔄 Changed
+### Changed
 
 - Documentations refactoring
 - Extract Android checkout threeds into optional package
@@ -120,12 +139,12 @@
 
 ## [1.0.9] - 2026-05-13
 
-### 🔄 Changed
+### Changed
 
 - Feat: React Native 0.79 baseline and Dependabot Gradle ignores
 - Chore: Consolidate Dependabot Android bumps and follow-redirects
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -136,11 +155,11 @@
 
 ## [1.0.8] - 2026-05-07
 
-### 🔄 Changed
+### Changed
 
 - Fix: prepare release cleanup
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -151,12 +170,12 @@
 
 ## [1.0.7] - 2026-05-07
 
-### 🔄 Changed
+### Changed
 
 - Fix: updated prepare release workflow
 - Fix: Tag release workflow stable checksums and GPG identity
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -167,7 +186,7 @@
 
 ## [1.0.6]
 
-### 🔄 Changed
+### Changed
 
 - Feat: Tag-driven release system with RC and stable pipelines
 - Feat: Dev channel auto-publish on merge to main and release branches
@@ -175,7 +194,7 @@
 - Feat: Prepare-release workflow for automated version bump PRs
 - Feat: Maintenance branch CI for release/N.x branches
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -186,12 +205,12 @@
 
 ## [1.0.5] - 2026-05-04
 
-### 🔄 Changed
+### Changed
 
 - Fix: Distribution changelog sync via PR
 - Fix: gpg signed and verified commit
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -202,13 +221,13 @@
 
 ## [1.0.3] - 2026-04-30
 
-### 🔄 Changed
+### Changed
 
 - Fix: Release pipeline hardening and pre-commit reliability
 - Fix: CHANGELOG.md copy path in release pipeline
 - Chore: Add dependency-review workflow for PR vulnerability gating
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -219,7 +238,7 @@
 
 ## [1.0.2] - 2026-04-29
 
-### 🔄 Changed
+### Changed
 
 - Fix: dependabot config updates and security vulnerablity fix
 - Fix: Scope Dependabot to SDK and fix example keyboard layout
@@ -233,7 +252,7 @@
 - Feat: App distribution workflows and Xcode Cloud integration
 - Chore: Bump Kotlin 2.3.10 and Spreedly Android SDK 0.13.0
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -244,12 +263,12 @@
 
 ## [1.0.0] - 2026-04-06
 
-### 🔄 Changed
+### Changed
 
 - Feat: Added go-live docs and ci runbooks
 - Feat: Monorepo setup for dependency seperation
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -260,11 +279,11 @@
 
 ## [0.3.1-beta.1] - 2026-04-02
 
-### 🐛 Fixed
+### Fixed
 
 - Update codegenconfig for spreedly core package
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -275,25 +294,25 @@
 
 ## [0.3.1-beta.0] - 2026-04-02
 
-### ✨ Added
+### Added
 
 - Workflow and integration config refactoring
 - Documentation updates
 - Modular dependency approch added
 
-### 🐛 Fixed
+### Fixed
 
 - Update app distribution workflow to match mono repo architecture
 - Release docs updated
 - Dependabot workflow fix
 - Packages export fix
 
-### 🔄 Changed
+### Changed
 
 - Feat: Added gitleaks config to CI Workflow
 - Fix: 3ds gateway race condition fix
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -304,14 +323,14 @@
 
 ## [0.3.0] - 2026-03-19
 
-### 🐛 Fixed
+### Fixed
 
 - Dependabot codeql vulnerablities fix
 - DataDog sdkPlatform logging added
 - Workflows optimized
 - PCI Compliant audit and related fixes
 
-### 🔄 Changed
+### Changed
 
 - latest react native version support added
 - documentations refactoring
@@ -320,7 +339,7 @@
 - ebanx payments
 - Offsite payments
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -331,16 +350,16 @@
 
 ## [0.2.5] - 2026-02-09
 
-### 🐛 Fixed
+### Fixed
 
 - Dependabot fix
 
-### 🔄 Changed
+### Changed
 
 - Feat/hc 1030 3ds gateway
 - Fix/documents review
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -351,11 +370,11 @@
 
 ## [0.2.1] - 2026-01-28
 
-### ✨ Added
+### Added
 
 - Empty expiry date switch
 
-### 🐛 Fixed
+### Fixed
 
 - Test coverage improved
 - Dependabot alerts fixed
@@ -364,11 +383,11 @@
 - Console and debugger restriction to production
 - Dark theme android fixed and testcases updated
 
-### 🔄 Changed
+### Changed
 
 - 3DS Implementation
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -379,12 +398,12 @@
 
 ## [0.2.0] - 2025-12-31
 
-### ✨ Added
+### Added
 
 - Recaching CVV
 - Retaining CVV
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -395,11 +414,11 @@
 
 ## [0.0.6] - 2025-12-30
 
-### 🐛 Fixed
+### Fixed
 
 - Bug fixes and improvements
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -410,24 +429,24 @@
 
 ## [0.0.5] - 2025-11-13
 
-### ✨ Added
+### Added
 
 - Central Logging to Datadog
 - DAST scan workflow
 - Security documentation
 
-### 🐛 Fixed
+### Fixed
 
 - Runners updated, CodeQL issue fix
 - OSS dependency reviewed and turbo library removed
 
-### 🔄 Changed
+### Changed
 
 - Dark theme support
 - Screenshot/Screen recording prevention
 - Security checklist fixes
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -438,18 +457,18 @@
 
 ## [0.0.4] - 2025-11-04
 
-### 🐛 Fixed
+### Fixed
 
 - Artifact inspection logs added
 - Sourcemap not distributed
 - Documentation updated to data safety section format
 
-### 🔄 Changed
+### Changed
 
 - Changelog and versioning improvements
 - Using committed lock files in CI
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -460,7 +479,7 @@
 
 ## [0.0.3] - 2025-11-03
 
-### ✨ Added
+### Added
 
 - Changelog to release process
 - SDK release setup
@@ -468,18 +487,18 @@
 - Keyboard next button functionality for both platforms
 - Integration tests
 
-### 🐛 Fixed
+### Fixed
 
 - Bug fixes and stability improvements
 - Theme colors fix
 - Integration documentation updates
 
-### 🔄 Changed
+### Changed
 
 - Version bump for both platforms
 - Theming fixes and improvements
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -490,7 +509,7 @@
 
 ## [0.0.2] - 2025-10-01
 
-### ✨ Added
+### Added
 
 - Initial React Native SDK setup
 - Android SDK initialization with TextField and Checkout button
@@ -510,18 +529,18 @@
 - CI/CD for lint checks
 - CodeQL workflow added
 
-### 🐛 Fixed
+### Fixed
 
 - Year format fix for Android
 - Android and iOS logs fix
 - Payment sheet crash support for missing props
 
-### 🔄 Changed
+### Changed
 
 - Package name to com.spreedly.rn
 - Setup documentation improvements
 
-### 📦 Native SDK Versions
+### Native SDK Versions
 
 | Platform | SDK                  | Version |
 | -------- | -------------------- | ------- |
@@ -532,7 +551,7 @@
 
 ## [0.0.1] - 2025-09-01
 
-### ✨ Added
+### Added
 
 - Initial project setup
 - React Native SDK foundation
