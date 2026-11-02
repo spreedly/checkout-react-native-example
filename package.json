@@ -8,7 +8,7 @@
     "lint": "eslint .",
     "start": "react-native start",
     "test": "jest",
-    "postinstall": "patch-package || true"
+    "postinstall": "patch-package --patch-dir xcode-patches || true"
   },
   "dependencies": {
     "@react-navigation/native": "^7.1.17",
