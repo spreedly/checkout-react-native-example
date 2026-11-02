@@ -1,22 +1,22 @@
 PODS:
   - boost (1.84.0)
-  - Braintree (7.5.0):
-    - Braintree/Card (= 7.5.0)
-    - Braintree/Core (= 7.5.0)
-    - Braintree/PayPal (= 7.5.0)
-  - Braintree/Card (7.5.0):
+  - Braintree (7.9.0):
+    - Braintree/Card (= 7.9.0)
+    - Braintree/Core (= 7.9.0)
+    - Braintree/PayPal (= 7.9.0)
+  - Braintree/Card (7.9.0):
     - Braintree/Core
-  - Braintree/Core (7.5.0)
-  - Braintree/DataCollector (7.5.0):
+  - Braintree/Core (7.9.0)
+  - Braintree/DataCollector (7.9.0):
     - Braintree/Core
-  - Braintree/PayPal (7.5.0):
+  - Braintree/PayPal (7.9.0):
     - Braintree/Core
     - Braintree/DataCollector
   - DoubleConversion (1.1.6)
   - fast_float (6.1.4)
   - FBLazyVector (0.79.2)
   - fmt (11.0.2)
-  - Forter3DS (2.1.0)
+  - Forter3DS (2.1.3)
   - glog (0.3.5)
   - hermes-engine (0.79.2):
     - hermes-engine/Pre-built (= 0.79.2)
@@ -1844,9 +1844,9 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - SocketRocket (0.7.1)
-  - SpreedlyBraintree (1.6.1):
+  - SpreedlyBraintree (1.7.0):
     - SpreedlyCore
-  - SpreedlyBraintreeAPM (1.3.0):
+  - SpreedlyBraintreeAPM (1.4.0):
     - Braintree (~> 7.0)
     - DoubleConversion
     - glog
@@ -1874,7 +1874,7 @@ PODS:
     - SpreedlyCore
     - SpreedlySecurity
     - Yoga
-  - SpreedlyCheckout (1.3.0):
+  - SpreedlyCheckout (1.4.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1901,7 +1901,7 @@ PODS:
     - SpreedlySecurity
     - SpreedlyUI
     - Yoga
-  - SpreedlyCheckoutClickToPay (1.3.0):
+  - SpreedlyCheckoutClickToPay (1.4.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1928,7 +1928,7 @@ PODS:
     - SpreedlyCore
     - SpreedlySecurity
     - Yoga
-  - SpreedlyCheckoutStripeAPM (1.3.0):
+  - SpreedlyCheckoutStripeAPM (1.4.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1956,7 +1956,7 @@ PODS:
     - SpreedlyStripeAPM
     - StripePaymentSheet (~> 25.0)
     - Yoga
-  - SpreedlyCheckoutStripeRadar (1.3.0):
+  - SpreedlyCheckoutStripeRadar (1.4.0):
     - DoubleConversion
     - glog
     - hermes-engine
@@ -1983,17 +1983,17 @@ PODS:
     - SpreedlySecurity
     - SpreedlyStripeRadar
     - Yoga
-  - SpreedlyClickToPay (1.6.1):
+  - SpreedlyClickToPay (1.7.0):
     - SpreedlyCore
     - SpreedlySecurity
     - SpreedlyUI
-  - SpreedlyCore (1.6.1)
-  - SpreedlySecurity (1.6.1)
-  - SpreedlyStripeAPM (1.6.1):
+  - SpreedlyCore (1.7.0)
+  - SpreedlySecurity (1.7.0)
+  - SpreedlyStripeAPM (1.7.0):
     - SpreedlyCore
-  - SpreedlyStripeRadar (1.6.1):
+  - SpreedlyStripeRadar (1.7.0):
     - SpreedlyCore
-  - SpreedlyUI (1.6.1):
+  - SpreedlyUI (1.7.0):
     - SpreedlyCore
     - SpreedlySecurity
   - StripeApplePay (25.17.0):
@@ -2095,18 +2095,18 @@ DEPENDENCIES:
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - RNScreens (from `../node_modules/react-native-screens`)
-  - "SpreedlyBraintree (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
+  - "SpreedlyBraintree (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.7.0`)"
   - "SpreedlyBraintreeAPM (from `../node_modules/@spreedly/react-native-checkout-braintree-apm`)"
   - "SpreedlyCheckout (from `../node_modules/@spreedly/react-native-checkout`)"
   - "SpreedlyCheckoutClickToPay (from `../node_modules/@spreedly/react-native-checkout-click-to-pay`)"
   - "SpreedlyCheckoutStripeAPM (from `../node_modules/@spreedly/react-native-checkout-stripe-apm`)"
   - "SpreedlyCheckoutStripeRadar (from `../node_modules/@spreedly/react-native-checkout-stripe-radar`)"
-  - "SpreedlyClickToPay (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
-  - "SpreedlyCore (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
-  - "SpreedlySecurity (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
-  - "SpreedlyStripeAPM (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
-  - "SpreedlyStripeRadar (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
-  - "SpreedlyUI (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.6.1`)"
+  - "SpreedlyClickToPay (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.7.0`)"
+  - "SpreedlyCore (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.7.0`)"
+  - "SpreedlySecurity (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.7.0`)"
+  - "SpreedlyStripeAPM (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.7.0`)"
+  - "SpreedlyStripeRadar (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.7.0`)"
+  - "SpreedlyUI (from `git@github.com:spreedly/checkout-ios-package.git`, tag `1.7.0`)"
   - StripePaymentSheet (~> 25.0)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
@@ -2273,7 +2273,7 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-screens"
   SpreedlyBraintree:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlyBraintreeAPM:
     :path: "../node_modules/@spreedly/react-native-checkout-braintree-apm"
   SpreedlyCheckout:
@@ -2286,59 +2286,59 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@spreedly/react-native-checkout-stripe-radar"
   SpreedlyClickToPay:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlyCore:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlySecurity:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlyStripeAPM:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlyStripeRadar:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlyUI:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   Yoga:
     :path: "../node_modules/react-native/ReactCommon/yoga"
 
 CHECKOUT OPTIONS:
   Forter3DS:
-    :commit: 1a195a32b1f4b8ed729e098ebbce9810a237607c
+    :commit: 5281dc0d99dab65ebccbfb97d08fb4c7b8dcfc61
     :git: https://bitbucket.org/forter-mobile/forter-ios.git
   SpreedlyBraintree:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlyClickToPay:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlyCore:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlySecurity:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlyStripeAPM:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlyStripeRadar:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
   SpreedlyUI:
     :git: "git@github.com:spreedly/checkout-ios-package.git"
-    :tag: 1.6.1
+    :tag: 1.7.0
 
 SPEC CHECKSUMS:
   boost: 7e761d76ca2ce687f7cc98e698152abd03a18f90
-  Braintree: 56e8980f4934e8858d065c21f4979ed08a3a884a
+  Braintree: 7faff0834394bc38d9d1f20b9cab4be29878fd46
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: 06eeec4fe712a76acc9376682e4808b05ce978b6
   FBLazyVector: 84b955f7b4da8b895faf5946f73748267347c975
   fmt: a40bb5bd0294ea969aaaba240a927bd33d878cdd
-  Forter3DS: 37a5b36373613322e67d096a22720cd813cfc44b
+  Forter3DS: eea2ad8874ccd03cfa29f6c772f2ca392519990a
   glog: 5683914934d5b6e4240e497e0f4a3b42d1854183
   hermes-engine: 314be5250afa5692b57b4dd1705959e1973a8ebe
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
@@ -2408,18 +2408,18 @@ SPEC CHECKSUMS:
   RNGestureHandler: 8fed246f57afc899dff3e34c7853a59d84783d58
   RNScreens: f38464ec1e83bda5820c3b05ccf4908e3841c5cc
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
-  SpreedlyBraintree: 747c36b4cd1586eb349341b27113e60422e2200a
-  SpreedlyBraintreeAPM: 016c2db2dcd28fb32a3e9d8e33d471b6199c65a3
-  SpreedlyCheckout: ca567b9b25744c37a4fac50527ed5ca3a52b8408
-  SpreedlyCheckoutClickToPay: 05a49a48e43326c7cb96c852ba218db148229b2f
-  SpreedlyCheckoutStripeAPM: 09f461dea087eeea3d86df239ad34a5e083fc0dc
-  SpreedlyCheckoutStripeRadar: d06d6c5a7340eb3af15ba9f9468a970ce120e388
-  SpreedlyClickToPay: f7b8c08709db9f54a87140646c542956eae4da23
-  SpreedlyCore: ea374eea4b6e2bb23115b7235fe5584fbf5e8d40
-  SpreedlySecurity: 1f48d7e719324884745b20846a2ca75a02227474
-  SpreedlyStripeAPM: ce14cdd2a0e00401a2a5e94e6345a7460479dd16
-  SpreedlyStripeRadar: 2e42d0808d2f58a8e55586d19bec1266f0fc2b56
-  SpreedlyUI: 3e1fe34facfae0a1fafca8bbd833aa1a7f3ca05d
+  SpreedlyBraintree: e1f61a2cee291e2826731e36f4698b48429e0e9e
+  SpreedlyBraintreeAPM: ac5e1f5fc0aadde2a664a5bdf03b8056a1f0676b
+  SpreedlyCheckout: 10c11bebf39afe6bd341048a3c7b81a8997aade7
+  SpreedlyCheckoutClickToPay: 9aee186e2f80a50347bbd63da31a6f880f42bda6
+  SpreedlyCheckoutStripeAPM: 20055d2cec8f2152495ae5e589bb84abcdce4389
+  SpreedlyCheckoutStripeRadar: 795e602ef0b11f1b417f842cdbe50ae89504166e
+  SpreedlyClickToPay: 6abaa8f9a397bd613efc47c1010679639a6a11e8
+  SpreedlyCore: 7be01e6db375e5fa0ad8c2a8d75de2ac0495731e
+  SpreedlySecurity: 6d80c6c241e812a553cc5eacd68dcd54cd925677
+  SpreedlyStripeAPM: f31b5b67a4d4dd916b359a30c7d721897338ba03
+  SpreedlyStripeRadar: 6889769e901c0530170042efbd09568f38e06008
+  SpreedlyUI: 3fa6cf5dd22c71109b960dca1154113c006a45c7
   StripeApplePay: 7b1b6e86eb75be5d4bcf109c34224adf38000fe2
   StripeCore: 60849de0ae448eb9a7ed4ee8208acce78832b255
   StripePayments: befce228ec3545503c6ac54603b7e5a7cdb01a06
@@ -2428,6 +2428,6 @@ SPEC CHECKSUMS:
   StripeUICore: 124b860ab571114c2dec947d7b66a11e0d3238b6
   Yoga: c758bfb934100bb4bf9cbaccb52557cee35e8bdf
 
-PODFILE CHECKSUM: 8e07b58fae2924fece39b14e38fd13ffc1f54ca7
+PODFILE CHECKSUM: 1101352a0f9b457ab3ebf5e3aabb651b3552dc8e
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.17.0
