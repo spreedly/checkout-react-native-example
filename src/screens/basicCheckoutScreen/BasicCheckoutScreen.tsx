@@ -1,4 +1,10 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import {
   View,
   Text,
@@ -7,7 +13,6 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  TextInput,
   useColorScheme,
 } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
@@ -26,6 +31,9 @@ import {
   type CardNumberFormatName,
   type HostedFieldStatePayload,
   type HostedCardDisplayStatePayload,
+  runCustomValidationBeforeSubmit,
+  removeAllValidations,
+  CustomValidatableFields,
 } from '@spreedly/react-native-checkout';
 import {
   DarkThemeConfig,
@@ -36,32 +44,33 @@ import { createStyles } from './Styles';
 import { AppStyles } from '../../styles/AppStyles';
 import { isRequiredFor } from '../../utils/FieldUtils';
 import { submitCheckout } from '../../utils/CheckoutUtil';
-import CustomField from '../../components/customField/CustomField';
 import CustomCheckbox from '../../components/customCheckbox/CustomCheckbox';
 import ErrorView from '../../components/errorView/ErrorView';
 import { retainCVV } from '../../network/retainCvv';
 import { navigateToNextField } from '../../utils/FocusUtils';
 import BasicCheckoutFieldStateInspector from './BasicCheckoutFieldStateInspector';
+import AdditionalFieldCatalogueCards from '../../components/additionalFieldCatalogue/AdditionalFieldCatalogueCards';
+import { DemoCustomRulePickerRow } from '../../components/additionalFieldCatalogue/DemoCustomRulePicker';
 import {
-  INSPECTOR_FULL_NAME_FIELD,
+  AdditionalFieldCatalogueDemo,
+  type AdditionalFieldToggleRow,
+} from '../../utils/additionalFieldCatalogueSupport';
+import {
+  activeRulesSummary,
+  applyDemoValidationSelections,
+  DemoCustomValidationKind,
+  type DemoCustomValidationKindValue,
+} from '../../utils/demoCustomValidationRecipes';
+import {
   DEFAULT_LAST_EVENT_SUMMARY,
   DEFAULT_ON_CHANGE_READOUT,
   appendEventLog,
   buildAggregateValidationReadout,
   buildEventLogLine,
   countRegisteredFields,
-  formatOnChangeReadout,
   globalDisplayMismatch,
   inspectorFieldTypes,
 } from './fieldStateInspectorUtils';
-
-interface FormData {
-  fullName: string;
-}
-
-interface FormErrors {
-  fullName?: string;
-}
 
 function normalizeCardNumberFormat(raw: string): CardNumberFormatName {
   const upper = raw.trim().toUpperCase();
@@ -70,13 +79,41 @@ function normalizeCardNumberFormat(raw: string): CardNumberFormatName {
   return 'PRETTY';
 }
 
+const CUSTOM_VALIDATION_SUBMIT_ERROR =
+  'Fix invalid additional fields before submitting';
+
 const BasicCheckoutScreen: React.FC = () => {
   const { isLoading, initError, initSpreedly } = useSpreedlyInit();
   const [paymentToken, setPaymentToken] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
+  const errorBannerYRef = useRef(0);
 
   const isDark = useColorScheme() === 'dark';
   const styles = createStyles(isDark);
+
+  const revealSubmitFeedback = useCallback(() => {
+    requestAnimationFrame(() => {
+      const y = errorBannerYRef.current;
+      if (y > 0) {
+        scrollRef.current?.scrollTo({
+          y: Math.max(0, y - 24),
+          animated: true,
+        });
+      } else {
+        scrollRef.current?.scrollToEnd({ animated: true });
+      }
+    });
+  }, []);
+
+  const showSubmitError = useCallback(
+    (message: string) => {
+      setPaymentToken(null);
+      setErrorMessage(message);
+      revealSubmitFeedback();
+    },
+    [revealSubmitFeedback]
+  );
 
   const [allowBlankName, setAllowBlankName] = useState(false);
   const [allowExpiredDate, setAllowExpiredDate] = useState(false);
@@ -107,14 +144,38 @@ const BasicCheckoutScreen: React.FC = () => {
   const [onChangeReadout, setOnChangeReadout] = useState(
     DEFAULT_ON_CHANGE_READOUT
   );
+  const [catalogueRows, setCatalogueRows] = useState<
+    AdditionalFieldToggleRow[]
+  >(() => AdditionalFieldCatalogueDemo.defaultRows());
+  const enabledCatalogueRows = useMemo(
+    () => catalogueRows.filter((r) => r.isEnabled),
+    [catalogueRows]
+  );
+  const firstCatalogueRow = enabledCatalogueRows[0];
+  const [showCatalogueConfig, setShowCatalogueConfig] = useState(false);
+  const [fullNameCustomRule, setFullNameCustomRule] =
+    useState<DemoCustomValidationKindValue>(DemoCustomValidationKind.none);
+  const [fullNameIsValid, setFullNameIsValid] = useState(false);
 
-  const fullNameRef = useRef<TextInput>(null);
+  const syncValidators = useCallback(
+    (
+      rows: AdditionalFieldToggleRow[],
+      nameRule: DemoCustomValidationKindValue
+    ) => {
+      const selections =
+        AdditionalFieldCatalogueDemo.customValidationSelections(rows);
+      selections[CustomValidatableFields.FULL_NAME] = nameRule;
+      applyDemoValidationSelections(selections);
+    },
+    []
+  );
 
   useEffect(() => {
-    if (focusedField === FormFieldTypes.NAME && fullNameRef.current) {
-      fullNameRef.current.focus();
-    }
-  }, [focusedField]);
+    syncValidators(catalogueRows, fullNameCustomRule);
+    return () => {
+      removeAllValidations();
+    };
+  }, [catalogueRows, fullNameCustomRule, syncValidators]);
 
   const refreshGlobalDisplayState = useCallback(async () => {
     if (isLoading || initError) return;
@@ -142,9 +203,9 @@ const BasicCheckoutScreen: React.FC = () => {
     setAllowBlankName(value);
     SpreedlyCore.setParam('ALLOW_BLANK_NAME', value);
     if (value) {
-      setFormErrors((prev) => {
+      setFieldValidation((prev) => {
         const next = { ...prev };
-        delete next.fullName;
+        delete next[FormFieldTypes.NAME];
         return next;
       });
     }
@@ -187,11 +248,9 @@ const BasicCheckoutScreen: React.FC = () => {
     Record<string, boolean>
   >({});
 
-  const [formData, setFormData] = useState<FormData>({ fullName: '' });
-  const [formErrors, setFormErrors] = useState<FormErrors>({});
-
   const fields: FieldDescriptor[] = React.useMemo(() => {
     const baseFields: FieldDescriptor[] = [
+      { type: FormFieldTypes.NAME, required: !allowBlankName },
       { type: FormFieldTypes.CARD, required: true },
       { type: FormFieldTypes.CVV, required: true },
     ];
@@ -215,13 +274,22 @@ const BasicCheckoutScreen: React.FC = () => {
       });
     }
 
-    return baseFields;
-  }, [combinedExpiryDate, yearFormat, allowBlankDate]);
+    return [
+      ...baseFields,
+      ...AdditionalFieldCatalogueDemo.toOtherFields(catalogueRows),
+    ];
+  }, [
+    combinedExpiryDate,
+    yearFormat,
+    allowBlankDate,
+    allowBlankName,
+    catalogueRows,
+  ]);
 
-  const isFullNameValid = (): boolean => {
+  const isFullNameValid = useCallback((): boolean => {
     if (allowBlankName) return true;
-    return !formErrors.fullName && formData.fullName.trim().length >= 2;
-  };
+    return fullNameIsValid || fieldValidation[FormFieldTypes.NAME] === true;
+  }, [allowBlankName, fullNameIsValid, fieldValidation]);
 
   const isFormValidUtil = (): boolean => {
     const customFieldsValid = isFullNameValid();
@@ -237,9 +305,7 @@ const BasicCheckoutScreen: React.FC = () => {
       fields,
       combinedExpiryDate
     );
-    const fullNameValid =
-      allowBlankName ||
-      (!formErrors.fullName && formData.fullName.trim().length >= 2);
+    const fullNameValid = isFullNameValid();
     const formValid =
       fullNameValid && ValidationManager.isFormValid(fields, fieldValidation);
     const readout = buildAggregateValidationReadout({
@@ -252,14 +318,7 @@ const BasicCheckoutScreen: React.FC = () => {
     setAggregateValidationReadout((prev) =>
       prev === readout ? prev : readout
     );
-  }, [
-    fields,
-    combinedExpiryDate,
-    fieldValidation,
-    allowBlankName,
-    formErrors.fullName,
-    formData.fullName,
-  ]);
+  }, [fields, combinedExpiryDate, fieldValidation, isFullNameValid]);
 
   const resetCheckoutToInitialState = useCallback(() => {
     if (isLoading || initError) return;
@@ -283,8 +342,9 @@ const BasicCheckoutScreen: React.FC = () => {
     setAggregateValidationReadout('');
     setOnChangeReadout(DEFAULT_ON_CHANGE_READOUT);
     setFieldValidation({});
-    setFormData({ fullName: '' });
-    setFormErrors({});
+    setFullNameIsValid(false);
+    setFullNameCustomRule(DemoCustomValidationKind.none);
+    setCatalogueRows(AdditionalFieldCatalogueDemo.defaultRows());
 
     SpreedlyCore.resetPaymentState();
     SpreedlyCore.setParam('ALLOW_BLANK_NAME', false);
@@ -343,31 +403,6 @@ const BasicCheckoutScreen: React.FC = () => {
     globalDisplayState
   );
 
-  const handleFieldChange = (fieldName: keyof FormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [fieldName]: value }));
-
-    if (fieldName === 'fullName') {
-      setOnChangeReadout(
-        formatOnChangeReadout(INSPECTOR_FULL_NAME_FIELD, value.trim())
-      );
-      setFormErrors((prev) => {
-        const next = { ...prev };
-        const trimmedValue = value.trim();
-        if (allowBlankName) {
-          delete next.fullName;
-        } else if (trimmedValue === '') {
-          next.fullName = 'Full name is required';
-        } else if (trimmedValue.length < 2) {
-          next.fullName = 'Full name must be at least 2 characters';
-        } else {
-          delete next.fullName;
-        }
-        return next;
-      });
-      refreshAggregateValidationReadout();
-    }
-  };
-
   const clearHostedFieldsAfterReset = async () => {
     setLastCardFieldState(null);
     setLastCvcFieldState(null);
@@ -377,8 +412,7 @@ const BasicCheckoutScreen: React.FC = () => {
     setOnChangeReadout(DEFAULT_ON_CHANGE_READOUT);
     setFieldValidation({});
     setFocusedField(null);
-    setFormData({ fullName: '' });
-    setFormErrors({});
+    setFullNameIsValid(false);
     setSaveCardForFuture(false);
     setHostedFieldsKey((k) => k + 1);
     await refreshGlobalDisplayState();
@@ -408,49 +442,52 @@ const BasicCheckoutScreen: React.FC = () => {
     if (isLoading) return;
 
     if (!isFormValidUtil()) {
-      setPaymentToken(null);
-      setErrorMessage('Please fill in all required fields correctly');
+      showSubmitError('Please fill in all required fields correctly');
       return;
     }
 
-    const outcome = await submitCheckout(fields, {
-      additionalFields: {
-        FULL_NAME: formData.fullName.trim(),
-      },
-      metadata: { orderId: '123' },
-      ...(eligibleForCardUpdater ? { eligibleForCardUpdater: true } : {}),
-    });
-    const mapped = mapPaymentResult(outcome);
+    try {
+      syncValidators(catalogueRows, fullNameCustomRule);
+      await runCustomValidationBeforeSubmit();
+      // No early return: createCreditCard re-runs custom validators and is what flips the
+      // SDK into showing field-level errors. Bailing here leaves only the banner.
 
-    switch (mapped.kind) {
-      case 'failed':
-        setPaymentToken(null);
-        setErrorMessage(mapped.message);
-        break;
-      case 'success':
-        setErrorMessage(null);
-        setPaymentToken(mapped.token);
+      const outcome = await submitCheckout(fields, {
+        metadata: { orderId: '123' },
+        ...(eligibleForCardUpdater ? { eligibleForCardUpdater: true } : {}),
+      });
+      const mapped = mapPaymentResult(outcome);
 
-        if (saveCardForFuture) {
-          try {
-            await retainCVV(mapped.token);
-          } catch {
-            console.error('Failed to retain CVV:');
+      switch (mapped.kind) {
+        case 'failed':
+          showSubmitError(mapped.message);
+          break;
+        case 'success':
+          setErrorMessage(null);
+          setPaymentToken(mapped.token);
+          revealSubmitFeedback();
+
+          if (saveCardForFuture) {
+            try {
+              await retainCVV(mapped.token);
+            } catch {
+              console.error('Failed to retain CVV:');
+            }
           }
-        }
 
-        await clearHostedFieldsAfterReset().catch(() => {});
-        break;
-      case 'canceled':
-        setPaymentToken(null);
-        setErrorMessage('Payment was canceled');
-        break;
-      case 'validation':
-        setPaymentToken(null);
-        setErrorMessage(mapped.message);
-        break;
-      default:
-        break;
+          await clearHostedFieldsAfterReset().catch(() => {});
+          break;
+        case 'canceled':
+          showSubmitError('Payment was canceled');
+          break;
+        case 'validation':
+          showSubmitError(mapped.message);
+          break;
+        default:
+          break;
+      }
+    } catch {
+      showSubmitError(CUSTOM_VALIDATION_SUBMIT_ERROR);
     }
   };
 
@@ -471,6 +508,7 @@ const BasicCheckoutScreen: React.FC = () => {
       keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
     >
       <ScrollView
+        ref={scrollRef}
         testID="basic-checkout-scroll"
         style={styles.container}
         contentContainerStyle={styles.scrollContentContainer}
@@ -480,8 +518,44 @@ const BasicCheckoutScreen: React.FC = () => {
         scrollEventThrottle={16}
       >
         <Text style={styles.title} testID="payment-info-title">
-          Payment Information
+          Custom Form with Headless Components
         </Text>
+        <Text style={styles.configTitle}>
+          {Platform.OS === 'android'
+            ? 'Custom form built with SPLTextField. Use Field configuration groups, then Choose individual fields for Enable / Req / Custom validation. Full name presets run at Pay; catalogue rules run on blur + Pay.'
+            : 'Custom form built with SPLTextField. Use Optional address groups for quick enable, or Show Additional Fields Configuration for per-field Enable / Required / Custom rule. Full name Custom rule and catalogue rules run on blur + Pay.'}
+        </Text>
+
+        <View style={styles.configContainer}>
+          <Text style={styles.configTitle}>Custom validation</Text>
+          <DemoCustomRulePickerRow
+            title="Full name"
+            value={fullNameCustomRule}
+            formFieldType={null}
+            onChange={setFullNameCustomRule}
+            testID="customForm_fullName_customRule"
+            isDark={!!isDark}
+          />
+        </View>
+
+        <AdditionalFieldCatalogueCards
+          rows={catalogueRows}
+          onChange={setCatalogueRows}
+          showConfig={showCatalogueConfig}
+          onToggleShowConfig={() => setShowCatalogueConfig((v) => !v)}
+          accessibilityPrefix="customForm"
+          isDark={!!isDark}
+        />
+        {Platform.OS === 'ios' ? (
+          <Text style={styles.configTitle} testID="basic-active-rules">
+            {activeRulesSummary({
+              ...AdditionalFieldCatalogueDemo.customValidationSelections(
+                catalogueRows
+              ),
+              [CustomValidatableFields.FULL_NAME]: fullNameCustomRule,
+            })}
+          </Text>
+        ) : null}
 
         <View style={styles.configContainer}>
           <Text style={styles.configTitle} testID="config-options-title">
@@ -655,22 +729,29 @@ const BasicCheckoutScreen: React.FC = () => {
           )}
         </View>
 
-        <View style={AppStyles.section}>
-          <CustomField
-            ref={fullNameRef}
-            placeholder="Full Name"
-            title="Full Name"
-            value={formData.fullName}
-            onChangeText={(value) => handleFieldChange('fullName', value)}
-            isRequired={!allowBlankName}
-            error={formErrors.fullName}
-            maxLength={350}
-            testID="full-name-input"
-            onSubmitEditing={() => {
-              navigateToNextField(FormFieldTypes.CARD, setFocusedField);
-            }}
-          />
-        </View>
+        <SPLTextField
+          key={`${hostedFieldKeyPrefix}-name`}
+          testID="spreedly-full-name-field"
+          style={AppStyles.splTextField}
+          formFieldType={FormFieldTypes.NAME}
+          label="Card Holder Name"
+          title="Card Holder Name"
+          theme={DefaultThemeConfig}
+          darkTheme={DarkThemeConfig}
+          enableAutofill={enableAutofill}
+          enableCustomValidationOnBlur
+          isRequired={!allowBlankName}
+          imeAction={ImeActions.Next}
+          shouldFocus={focusedField === FormFieldTypes.NAME}
+          onValidationChange={(valid) => {
+            setFullNameIsValid(valid);
+            handleValidationChange(FormFieldTypes.NAME)(valid);
+            refreshAggregateValidationReadout();
+          }}
+          onImeAction={() => {
+            navigateToNextField(FormFieldTypes.CARD, setFocusedField);
+          }}
+        />
 
         <SPLTextField
           key={`${hostedFieldKeyPrefix}-card`}
@@ -793,8 +874,15 @@ const BasicCheckoutScreen: React.FC = () => {
           formFieldType={FormFieldTypes.CVV}
           label="CVV"
           title="CVV"
-          imeAction={ImeActions.Done}
+          imeAction={firstCatalogueRow ? ImeActions.Next : ImeActions.Done}
           shouldFocus={focusedField === FormFieldTypes.CVV}
+          onImeAction={
+            firstCatalogueRow
+              ? () => {
+                  navigateToNextField(firstCatalogueRow.type, setFocusedField);
+                }
+              : undefined
+          }
           theme={DefaultThemeConfig}
           darkTheme={DarkThemeConfig}
           enableAutofill={enableAutofill}
@@ -802,6 +890,35 @@ const BasicCheckoutScreen: React.FC = () => {
           onValidationChange={handleValidationChange(FormFieldTypes.CVV)}
           onFieldStateChange={handleFieldStateChange}
         />
+
+        {enabledCatalogueRows.map((row, index) => {
+          const nextRow = enabledCatalogueRows[index + 1];
+          return (
+            <SPLTextField
+              key={`${hostedFieldKeyPrefix}-catalogue-${row.id}`}
+              style={AppStyles.splTextField}
+              formFieldType={row.type}
+              label={row.title}
+              title={row.title}
+              theme={DefaultThemeConfig}
+              darkTheme={DarkThemeConfig}
+              enableAutofill={enableAutofill}
+              isRequired={row.isRequired}
+              enableCustomValidationOnBlur
+              imeAction={nextRow ? ImeActions.Next : ImeActions.Done}
+              shouldFocus={focusedField === row.type}
+              onImeAction={
+                nextRow
+                  ? () => {
+                      navigateToNextField(nextRow.type, setFocusedField);
+                    }
+                  : undefined
+              }
+              onValidationChange={handleValidationChange(row.type)}
+              testID={`customForm_hosted_${row.id}`}
+            />
+          );
+        })}
 
         <BasicCheckoutFieldStateInspector
           lastCardFieldState={lastCardFieldState}
@@ -823,6 +940,29 @@ const BasicCheckoutScreen: React.FC = () => {
             onValueChange={setSaveCardForFuture}
             testID="save-card-checkbox"
           />
+        </View>
+
+        <View
+          onLayout={(event) => {
+            errorBannerYRef.current = event.nativeEvent.layout.y;
+          }}
+        >
+          {errorMessage ? (
+            <View style={styles.errorContainer} testID="error-container">
+              <Text style={styles.errorText} testID="error-message-text">
+                {errorMessage}
+              </Text>
+            </View>
+          ) : paymentToken ? (
+            <View style={styles.resultContainer} testID="result-container">
+              <Text style={styles.resultTitle} testID="result-title">
+                Payment Token:
+              </Text>
+              <Text style={styles.tokenText} testID="payment-token-text">
+                {paymentToken}
+              </Text>
+            </View>
+          ) : null}
         </View>
 
         <View style={styles.cardContainer}>
@@ -852,23 +992,6 @@ const BasicCheckoutScreen: React.FC = () => {
             style={styles.tryAnotherRequestButton}
           />
         )}
-
-        {errorMessage ? (
-          <View style={styles.errorContainer} testID="error-container">
-            <Text style={styles.errorText} testID="error-message-text">
-              {errorMessage}
-            </Text>
-          </View>
-        ) : paymentToken ? (
-          <View style={styles.resultContainer} testID="result-container">
-            <Text style={styles.resultTitle} testID="result-title">
-              Payment Token:
-            </Text>
-            <Text style={styles.tokenText} testID="payment-token-text">
-              {paymentToken}
-            </Text>
-          </View>
-        ) : null}
       </ScrollView>
     </KeyboardAvoidingView>
   );
