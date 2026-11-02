@@ -110,9 +110,45 @@ Headless `SPLTextField` components support **hosted display** controls through t
 - **`SpreedlyCore.toggleMask()`** — toggle masked vs plain display on the SDK singleton (card number and CVV masking are **coupled** when fields opt in to observation).
 - **`SpreedlyCore.getHostedCardDisplayState()`** — read the current format and mask flags.
 - **`SpreedlyCore.areAllFieldsValid(fieldTypes)`** — ask native validation for the listed `FormFieldTypes` string ids before you call `createCreditCard` or your own submit path.
-- **`SPLTextField` props** — `enableAutofill`, `forceMaskOnLifecycleStop`, `onFieldStateChange`, `onFocusChanged`.
+- **`SPLTextField` props** — `enableAutofill`, `forceMaskOnLifecycleStop`, `enableCustomValidationOnBlur`, `onFieldStateChange`, `onFocusChanged`.
 
 Use **`enableAutofill`** (default `true`) to allow or block OS autofill and saved-card suggestions on each field. Keyboard layout comes from **`formFieldType`**. This package does not expose **`keyboardType`** or **`textContentType`** props. See [Keyboard and autofill behavior](#keyboard-and-autofill-behavior).
+
+### Merchant custom field validators
+
+Register allowlisted catalogue validators with the thin JS bridge (logic runs in your callback; native owns blur / Pay / tokenize timing):
+
+```typescript
+import {
+  addValidation,
+  removeValidation,
+  runCustomValidationBeforeSubmit,
+  CustomValidatableFields,
+  FormFieldTypes,
+} from '@spreedly/react-native-checkout';
+
+addValidation(CustomValidatableFields.ZIP, (value, fields) => {
+  if (value.trim().length < 5) {
+    return { isValid: false, errorMessage: 'ZIP too short' };
+  }
+  return { isValid: true };
+});
+
+// Headless Pay path: run before createCreditCard, then areAllFieldsValid
+const ok = await runCustomValidationBeforeSubmit();
+if (!ok) return;
+
+// Hosted field blur (iOS opt-in; Android runs when a validator is registered)
+<SPLTextField
+  formFieldType={FormFieldTypes.ZIP}
+  enableCustomValidationOnBlur
+  label="ZIP"
+/>
+
+removeValidation(CustomValidatableFields.ZIP);
+```
+
+Use `CustomValidatableFields` wire keys (`zip`, `email`, `shipping_city`, …) — not CHD / ACH. Express (`paymentBottomSheet`) runs custom validators on Pay itself; headless should call `runCustomValidationBeforeSubmit` first. ACH (`createBankAccount`) does not invoke merchant custom validators.
 
 `onFieldStateChange` delivers **merchant-safe** snapshots (`HostedFieldStatePayload`): event kind, validity, focus, scheme hint, lengths, **`iin`** (6- or 8-digit prefix on CARD) — **not** raw PAN or full card number. For full BIN/IIN after tokenization, use **`issuerIdentificationNumber`** on payment method API responses.
 

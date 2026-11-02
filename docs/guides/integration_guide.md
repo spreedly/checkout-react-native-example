@@ -116,6 +116,10 @@ import {
   PaymentBottomSheet,
   FormFieldTypes,
   AdditionalFields,
+  addValidation,
+  removeValidation,
+  runCustomValidationBeforeSubmit,
+  CustomValidatableFields,
   SpreedlyEventEmitter,
   SpreedlyEventTypes,
   mapPaymentResult,
@@ -700,6 +704,43 @@ Check whether `initSdk` has completed.
 
 Pre-submit validation across mounted `SPLTextField` instances.
 
+### Merchant custom field validators
+
+Register allowlisted catalogue validators. Your callback owns the rule; native Spreedly owns blur / Pay / tokenize timing. Do not put CHD or ACH fields in this API.
+
+```typescript
+import {
+  addValidation,
+  removeValidation,
+  runCustomValidationBeforeSubmit,
+  CustomValidatableFields,
+} from '@spreedly/react-native-checkout';
+
+addValidation(CustomValidatableFields.ZIP, (value, fields) => {
+  if (value.trim().length < 5) {
+    return { isValid: false, errorMessage: 'ZIP too short' };
+  }
+  return { isValid: true };
+});
+
+const ok = await runCustomValidationBeforeSubmit();
+if (!ok) return;
+
+removeValidation(CustomValidatableFields.ZIP);
+```
+
+| Export                                               | Notes                                                                                                                                                                                 |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `addValidation(field, validator)`                    | Forwards to native `Spreedly.addValidation`. `field` is a `CustomValidatableFields` wire key (`zip`, `email`, `shipping_city`, …).                                                    |
+| `removeValidation(field)`                            | Forwards to native `Spreedly.removeValidation`.                                                                                                                                       |
+| `removeAllValidations()`                             | JS helper that calls `removeValidation` for every registered field.                                                                                                                   |
+| `runCustomValidationBeforeSubmit(additionalFields?)` | Returns `true` when every registered validator passed. Call on the **headless** path before `createCreditCard`. Express (`paymentBottomSheet`) already runs custom validators on Pay. |
+| `CustomValidatableFields`                            | 29 allowlisted wire keys matching native iOS / Android.                                                                                                                               |
+
+**Platform notes:** Android hosted fields run a registered validator on blur automatically. iOS hosted fields need `enableCustomValidationOnBlur` on `SPLTextField`. ACH (`createBankAccount`) does not invoke merchant custom validators.
+
+Full snippet and blur prop: [Hosted Fields — Merchant custom field validators](hosted_fields_guide.md#merchant-custom-field-validators).
+
 ### `SpreedlyCore.resetPaymentState(): void`
 
 Clear hosted state, validation, and display. See [Hosted Fields — `resetPaymentState`](hosted_fields_guide.md#resetpaymentstate).
@@ -733,24 +774,25 @@ Secure hosted field component. Required props: `formFieldType`, `label`.
 />
 ```
 
-| Prop                        | Required | Notes                                                                                                              |
-| --------------------------- | -------- | ------------------------------------------------------------------------------------------------------------------ |
-| `formFieldType`             | Yes      | Field id — e.g. `FormFieldTypes.CARD`                                                                              |
-| `label`                     | Yes      | In-field placeholder/caption (not `placeholder`)                                                                   |
-| `title`                     | No       | Text above the field — **iOS only**                                                                                |
-| `errorMessage`              | No       | Merchant-controlled error banner below the field                                                                   |
-| `theme` / `darkTheme`       | No       | `CustomThemeConfig` color overrides                                                                                |
-| `isRequired`                | No       | Native required validation (default `true`)                                                                        |
-| `yearFormat`                | No       | `'2'` or `'4'` for expiry fields                                                                                   |
-| `enableAutofill`            | No       | OS autofill (default `true`)                                                                                       |
-| `forceMaskOnLifecycleStop`  | No       | Mask PAN on app background (default `true`)                                                                        |
-| `shouldFocus`               | No       | Request focus on mount                                                                                             |
-| `imeAction` / `onImeAction` | No       | IME Next/Done + keyboard submit                                                                                    |
-| `onFieldStateChange`        | No       | `HostedFieldStatePayload` — scheme, lengths, validity, mask flags                                                  |
-| `onValidationChange`        | No       | `(isValid: boolean) => void`                                                                                       |
-| `onFocusChanged`            | No       | `(focused: boolean) => void`                                                                                       |
-| `onContentSizeChange`       | No       | Layout callback                                                                                                    |
-| `cardPanTrailingIcons`      | No       | Custom brand icons — see [Hosted Fields — custom card brand icons](hosted_fields_guide.md#custom-card-brand-icons) |
+| Prop                           | Required | Notes                                                                                                              |
+| ------------------------------ | -------- | ------------------------------------------------------------------------------------------------------------------ |
+| `formFieldType`                | Yes      | Field id — e.g. `FormFieldTypes.CARD`                                                                              |
+| `label`                        | Yes      | In-field placeholder/caption (not `placeholder`)                                                                   |
+| `title`                        | No       | Text above the field — **iOS only**                                                                                |
+| `errorMessage`                 | No       | Merchant-controlled error banner below the field                                                                   |
+| `theme` / `darkTheme`          | No       | `CustomThemeConfig` color overrides                                                                                |
+| `isRequired`                   | No       | Native required validation (default `true`)                                                                        |
+| `yearFormat`                   | No       | `'2'` or `'4'` for expiry fields                                                                                   |
+| `enableAutofill`               | No       | OS autofill (default `true`)                                                                                       |
+| `forceMaskOnLifecycleStop`     | No       | Mask PAN on app background (default `true`)                                                                        |
+| `shouldFocus`                  | No       | Request focus on mount                                                                                             |
+| `imeAction` / `onImeAction`    | No       | IME Next/Done + keyboard submit                                                                                    |
+| `onFieldStateChange`           | No       | `HostedFieldStatePayload` — scheme, lengths, validity, mask flags                                                  |
+| `onValidationChange`           | No       | `(isValid: boolean) => void`                                                                                       |
+| `onFocusChanged`               | No       | `(focused: boolean) => void`                                                                                       |
+| `onContentSizeChange`          | No       | Layout callback                                                                                                    |
+| `cardPanTrailingIcons`         | No       | Custom brand icons — see [Hosted Fields — custom card brand icons](hosted_fields_guide.md#custom-card-brand-icons) |
+| `enableCustomValidationOnBlur` | No       | iOS: run registered custom validators on blur. Android: no-op — blur runs when a validator is registered.          |
 
 Full props and platform behavior: [Hosted Fields — SPLTextField props reference](hosted_fields_guide.md#spltextfield-props-reference).
 
@@ -766,34 +808,68 @@ Full props and platform behavior: [Hosted Fields — SPLTextField props referenc
 
 **Other fields** (can use `SPLTextField` or standard `TextInput` with `additionalFields`):
 
-| Constant         | Field                |
-| ---------------- | -------------------- |
-| `MONTH`          | Expiration month     |
-| `YEAR`           | Expiration year      |
-| `YEAR_SECONDARY` | Secondary year field |
-| `NAME`           | Cardholder name      |
-| `ADDRESS_LINE_1` | Address line 1       |
-| `ADDRESS_LINE_2` | Address line 2       |
-| `CITY`           | City                 |
-| `STATE`          | State / Province     |
-| `ZIP`            | Postal code          |
+| Constant                             | Field                         |
+| ------------------------------------ | ----------------------------- |
+| `MONTH`                              | Expiration month              |
+| `YEAR`                               | Expiration year               |
+| `YEAR_SECONDARY`                     | Secondary year field          |
+| `NAME`                               | Cardholder name               |
+| `ADDRESS_LINE_1`                     | Address line 1                |
+| `ADDRESS_LINE_2`                     | Address line 2                |
+| `CITY`                               | City                          |
+| `STATE`                              | State / Province              |
+| `ZIP`                                | Postal code                   |
+| `EMAIL`                              | Email address                 |
+| `COMPANY`                            | Company                       |
+| `COUNTRY`                            | Country                       |
+| `PHONE_NUMBER`                       | Phone number                  |
+| `HOUSE_NUMBER_OR_NAME`               | House number or name          |
+| `STREET`                             | Street                        |
+| `STREET_LINE_2`                      | Street line 2                 |
+| `PHONE_NUMBER_COUNTRY_CODE`          | Phone country code            |
+| `PHONE_NUMBER_AREA_CODE`             | Phone area code               |
+| `SHIPPING_ADDRESS_1`                 | Shipping address line 1       |
+| `SHIPPING_ADDRESS_2`                 | Shipping address line 2       |
+| `SHIPPING_CITY`                      | Shipping city                 |
+| `SHIPPING_STATE`                     | Shipping state                |
+| `SHIPPING_ZIP`                       | Shipping postal code          |
+| `SHIPPING_COUNTRY`                   | Shipping country              |
+| `SHIPPING_PHONE_NUMBER`              | Shipping phone                |
+| `SHIPPING_HOUSE_NUMBER_OR_NAME`      | Shipping house number or name |
+| `SHIPPING_STREET`                    | Shipping street               |
+| `SHIPPING_STREET_LINE_2`             | Shipping street line 2        |
+| `SHIPPING_PHONE_NUMBER_COUNTRY_CODE` | Shipping phone country code   |
+| `SHIPPING_PHONE_NUMBER_AREA_CODE`    | Shipping phone area code      |
+
+`FormFieldTypes` also includes `FIRST_NAME`, `LAST_NAME`, and `FULL_NAME` for hosted name layouts.
 
 ### `AdditionalFields`
 
-Includes all `FormFieldTypes` plus:
+Includes hosted catalogue fields used with Express `otherFields` / hosted additional fields (same string constants as `FormFieldTypes` for overlapping keys), including contact, street-split, phone codes, and shipping twins:
 
-| Constant                | Field                   |
-| ----------------------- | ----------------------- |
-| `COUNTRY`               | Country                 |
-| `PHONE_NUMBER`          | Phone number            |
-| `EMAIL`                 | Email address           |
-| `SHIPPING_ADDRESS_1`    | Shipping address line 1 |
-| `SHIPPING_ADDRESS_2`    | Shipping address line 2 |
-| `SHIPPING_CITY`         | Shipping city           |
-| `SHIPPING_STATE`        | Shipping state          |
-| `SHIPPING_ZIP`          | Shipping postal code    |
-| `SHIPPING_COUNTRY`      | Shipping country        |
-| `SHIPPING_PHONE_NUMBER` | Shipping phone          |
+| Constant                             | Field                         |
+| ------------------------------------ | ----------------------------- |
+| `COUNTRY`                            | Country                       |
+| `PHONE_NUMBER`                       | Phone number                  |
+| `EMAIL`                              | Email address                 |
+| `COMPANY`                            | Company                       |
+| `HOUSE_NUMBER_OR_NAME`               | House number or name          |
+| `STREET`                             | Street                        |
+| `STREET_LINE_2`                      | Street line 2                 |
+| `PHONE_NUMBER_COUNTRY_CODE`          | Phone country code            |
+| `PHONE_NUMBER_AREA_CODE`             | Phone area code               |
+| `SHIPPING_ADDRESS_1`                 | Shipping address line 1       |
+| `SHIPPING_ADDRESS_2`                 | Shipping address line 2       |
+| `SHIPPING_CITY`                      | Shipping city                 |
+| `SHIPPING_STATE`                     | Shipping state                |
+| `SHIPPING_ZIP`                       | Shipping postal code          |
+| `SHIPPING_COUNTRY`                   | Shipping country              |
+| `SHIPPING_PHONE_NUMBER`              | Shipping phone                |
+| `SHIPPING_HOUSE_NUMBER_OR_NAME`      | Shipping house number or name |
+| `SHIPPING_STREET`                    | Shipping street               |
+| `SHIPPING_STREET_LINE_2`             | Shipping street line 2        |
+| `SHIPPING_PHONE_NUMBER_COUNTRY_CODE` | Shipping phone country code   |
+| `SHIPPING_PHONE_NUMBER_AREA_CODE`    | Shipping phone area code      |
 
 ### Events (`SpreedlyEventTypes`)
 
@@ -809,18 +885,20 @@ const SpreedlyEventTypes = {
   GATEWAY_SPECIFIC_3DS_CHALLENGE_READY: 'onGatewaySpecific3DSChallengeReady',
   GATEWAY_SPECIFIC_3DS_RESULT: 'onGatewaySpecific3DSResult',
   OFFSITE_PAYMENT_RESULT: 'onOffsitePaymentResult',
+  CUSTOM_FIELD_VALIDATION: 'onCustomFieldValidation',
 } as const;
 ```
 
 **Event payload types:**
 
-| Event                         | Payload type                                                             | Guide                                         |
-| ----------------------------- | ------------------------------------------------------------------------ | --------------------------------------------- |
-| `PAYMENT_BOTTOM_SHEET_RESULT` | `PaymentResultRN` — use `mapPaymentResult()`                             | [Express Checkout](express_checkout_guide.md) |
-| `RECACHE_RESULT`              | `RecacheResult` (`status: 'completed' \| 'failed' \| 'canceled' \| ...`) | [CVV Recaching](cvv_recaching_guide.md)       |
-| `THREE_DS_CHALLENGE_RESULT`   | `ThreeDSChallengeResult` (see below)                                     | [3DS Guide](3ds_guide.md)                     |
-| `GATEWAY_SPECIFIC_3DS_*`      | Gateway-specific typed events                                            | [3DS Gateway Guide](3ds_gateway_guide.md)     |
-| `OFFSITE_PAYMENT_RESULT`      | `OffsitePaymentResult` (`status`, `transactionToken`)                    | [Offsite Payments](offsite_payments_guide.md) |
+| Event                         | Payload type                                                                                                                          | Guide                                                                    |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `PAYMENT_BOTTOM_SHEET_RESULT` | `PaymentResultRN` — use `mapPaymentResult()`                                                                                          | [Express Checkout](express_checkout_guide.md)                            |
+| `RECACHE_RESULT`              | `RecacheResult` (`status: 'completed' \| 'failed' \| 'canceled' \| ...`)                                                              | [CVV Recaching](cvv_recaching_guide.md)                                  |
+| `THREE_DS_CHALLENGE_RESULT`   | `ThreeDSChallengeResult` (see below)                                                                                                  | [3DS Guide](3ds_guide.md)                                                |
+| `GATEWAY_SPECIFIC_3DS_*`      | Gateway-specific typed events                                                                                                         | [3DS Gateway Guide](3ds_gateway_guide.md)                                |
+| `OFFSITE_PAYMENT_RESULT`      | `OffsitePaymentResult` (`status`, `transactionToken`)                                                                                 | [Offsite Payments](offsite_payments_guide.md)                            |
+| `CUSTOM_FIELD_VALIDATION`     | Internal bridge payload (`requestId`, `field`, `value`, `fields`). Prefer `addValidation` — the JS bridge already handles this event. | [Hosted Fields](hosted_fields_guide.md#merchant-custom-field-validators) |
 
 **3DS challenge result type:**
 

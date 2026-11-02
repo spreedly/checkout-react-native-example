@@ -17,6 +17,13 @@ export const SWITCH_CONSTANTS = {
 
 export const createStyles = (isDark: boolean) =>
   StyleSheet.create({
+    hitTarget: {
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    switchScaled: {
+      transform: [{ scale: 0.85 }],
+    },
     container: {
       flexDirection: 'row',
       alignItems: 'center',
