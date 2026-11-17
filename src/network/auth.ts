@@ -1,5 +1,6 @@
 import Config from 'react-native-config';
 import { logError, logInfo } from '@spreedly/react-native-checkout';
+import { httpErrorFromResponse } from '../utils/httpError';
 
 export type AuthParams = {
   nonce: string;
@@ -51,13 +52,32 @@ export async function fetchAuthParams(): Promise<AuthParams> {
     );
 
     if (!response.ok) {
-      const text = await response.text().catch(() => '');
-      throw new Error(
-        `Failed to fetch auth params: ${response.status} ${text}`
+      const error = await httpErrorFromResponse(
+        response,
+        'connect to the checkout server'
       );
+      logError(error, {
+        context: 'fetchAuthParams',
+        status: error.status,
+        body: error.bodyExcerpt,
+      });
+      throw error;
     }
 
-    const data = await response.json();
+    let data: any;
+    try {
+      data = await response.json();
+    } catch (parseError) {
+      logError(
+        parseError instanceof Error
+          ? parseError
+          : new Error(String(parseError)),
+        { context: 'fetchAuthParams', status: response.status }
+      );
+      throw new Error(
+        "Couldn't connect to the checkout server. It returned an unexpected response. Please try again."
+      );
+    }
 
     const nonce = String(data?.nonce ?? '');
     const signature = String(data?.signature ?? '');
@@ -72,14 +92,15 @@ export async function fetchAuthParams(): Promise<AuthParams> {
       !certificateToken ||
       !Number.isFinite(timestamp)
     ) {
-      const error = new Error('Invalid auth params received from server');
-      logError(error, {
+      logError(new Error('Invalid auth params received from server'), {
         hasNonce: !!nonce,
         hasSignature: !!signature,
         hasCertificateToken: !!certificateToken,
         hasValidTimestamp: Number.isFinite(timestamp),
       });
-      throw error;
+      throw new Error(
+        "Couldn't connect to the checkout server. It returned incomplete authentication details. Please try again."
+      );
     }
 
     logInfo('AuthParams', 'Successfully fetched auth params', {

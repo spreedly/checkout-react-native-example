@@ -6,6 +6,7 @@ import { scaledFont } from '../../styles/typography';
 interface ErrorViewProps {
   message: string;
   onAction: () => void;
+  title?: string;
   actionText?: string;
   testID?: string;
 }
@@ -13,6 +14,7 @@ interface ErrorViewProps {
 const ErrorView: React.FC<ErrorViewProps> = ({
   message,
   onAction,
+  title = 'Something went wrong',
   actionText = 'Retry',
   testID = 'error-view',
 }) => {
@@ -21,7 +23,19 @@ const ErrorView: React.FC<ErrorViewProps> = ({
 
   return (
     <View style={styles.container} testID={testID}>
-      <Text style={styles.text}>{message}</Text>
+      <View accessible accessibilityRole="alert" style={styles.content}>
+        <Text style={styles.title} testID={`${testID}-title`}>
+          {title}
+        </Text>
+        {/* Cap the length so an unexpected long message can't fill the screen. */}
+        <Text
+          style={styles.message}
+          numberOfLines={6}
+          testID={`${testID}-message`}
+        >
+          {message}
+        </Text>
+      </View>
       <CustomButton
         title={actionText}
         onPress={onAction}
@@ -39,15 +53,27 @@ const createStyles = (isDark: boolean) =>
       justifyContent: 'center',
       alignItems: 'center',
       backgroundColor: isDark ? '#111827' : '#F5F5F5',
-      padding: 16,
+      padding: 24,
     },
-    text: {
+    content: {
+      alignItems: 'center',
+      maxWidth: 420,
+    },
+    title: {
+      fontSize: scaledFont(18),
+      fontWeight: '600',
+      color: isDark ? '#F9FAFB' : '#111827',
+      textAlign: 'center',
+      marginBottom: 8,
+    },
+    message: {
       fontSize: scaledFont(14),
-      color: isDark ? '#FCA5A5' : '#DC2626',
+      lineHeight: scaledFont(20),
+      color: isDark ? '#D1D5DB' : '#4B5563',
       textAlign: 'center',
     },
     button: {
-      marginTop: 16,
+      marginTop: 24,
       width: '60%',
     },
   });

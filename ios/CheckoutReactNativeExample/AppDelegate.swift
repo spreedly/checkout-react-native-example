@@ -30,14 +30,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     reactNativeDelegate = delegate
     reactNativeFactory = factory
 
-    window = UIWindow(frame: UIScreen.main.bounds)
-
-    factory.startReactNative(
-      withModuleName: "CheckoutReactNativeExample",
-      in: window,
-      launchOptions: launchOptions
-    )
-
+    // The window and React Native root are created in SceneDelegate
+    // (UIScene life cycle is required by the Xcode 27 / iOS 27 SDK).
     return true
   }
 
@@ -46,6 +40,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     open url: URL,
     options: [UIApplication.OpenURLOptionsKey: Any] = [:]
   ) -> Bool {
+    handleOpenURL(url)
+  }
+
+  @discardableResult
+  func handleOpenURL(_ url: URL) -> Bool {
     #if canImport(SpreedlyBraintree)
     if BraintreeURLHandler.handleOpen(url: url) {
       return true

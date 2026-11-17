@@ -1,5 +1,6 @@
 import Config from 'react-native-config';
 import { logError, logInfo } from '@spreedly/react-native-checkout';
+import { HttpRequestError, httpErrorFromResponse } from '../utils/httpError';
 
 export interface PaymentMethod {
   id: string;
@@ -38,12 +39,14 @@ export async function fetchPaymentMethods(): Promise<PaymentMethod[]> {
     );
 
     if (!response.ok) {
-      const text = await response.text().catch(() => '');
-      const error = new Error(
-        `Failed to fetch payment methods: ${response.status} ${text}`
+      const error = await httpErrorFromResponse(
+        response,
+        'load saved payment methods'
       );
       logError(error, {
-        status: response.status,
+        context: 'fetchPaymentMethods',
+        status: error.status,
+        body: error.bodyExcerpt,
       });
       throw error;
     }
@@ -84,7 +87,7 @@ export async function fetchPaymentMethods(): Promise<PaymentMethod[]> {
     return paymentMethods;
   } catch (error) {
     // Log error if not already logged
-    if (error instanceof Error && !error.message.includes('Failed to fetch')) {
+    if (error instanceof Error && !(error instanceof HttpRequestError)) {
       logError(error, {
         endpoint: '/api/v1/payment_methods',
       });
