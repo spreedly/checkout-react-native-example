@@ -26,7 +26,7 @@ The React Native Checkout SDK replaces WebView-based payment flows with:
 - Mastercard Click to Pay (`@spreedly/react-native-checkout-click-to-pay`)
 - CVV recaching for saved cards
 - Screen capture protection (`ScreenSecurity`)
-- Built-in telemetry (Datadog; sensitive values sanitized)
+- Built-in telemetry (Datadog; on by default, sensitive values sanitized, can be reduced — see [Telemetry and logging](../integration_guide.md#telemetry-and-logging))
 
 ---
 
@@ -86,7 +86,7 @@ await SpreedlyCore.initSdk({
 });
 ```
 
-Your server should expose an endpoint (for example `/api/v1/auth/params`) that returns `nonce`, `signature`, `certificateToken`, and `timestamp`. Never generate the HMAC signature in client-side code.
+Your server should expose an endpoint (for example `/api/v1/auth/params`) that returns `nonce`, `signature`, `certificateToken`, and `timestamp`. The `signature` is an RSA-SHA256 signature created on your server with your certificate's private key; see [Authentication parameters](../integration_guide.md#authentication-parameters). Never sign in client-side code, and never ship the private key in the app.
 
 ---
 
@@ -229,12 +229,12 @@ Per-field lifecycle: **`forceMaskOnLifecycleStop`** on **`SPLTextField`** — se
 
 ### Global lifecycle events
 
-| iFrame API / pattern          | React Native equivalent                             | Status              | What to do                                                                                            | See also                                                            |
-| ----------------------------- | --------------------------------------------------- | ------------------- | ----------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| `ready` event                 | `SpreedlyCore.isSdkInitialized()`                   | **Different model** | See Core table.                                                                                       | —                                                                   |
-| `numberSet` / `cvvSet` events | `onFieldStateChange` (`isEmpty`, `INPUT`)           | **Different model** | Derive "field has content" from **`isEmpty`** and validation state.                                   | [Hosted Fields](../hosted_fields_guide.md)                          |
-| `sourceSet` (express channel) | —                                                   | **Web only**        | Web express channel only. On RN use **`paymentBottomSheet`** or embedded **`PaymentBottomSheet`**.    | [Express Checkout](../express_checkout_guide.md)                    |
-| `consoleError` event          | `setupGlobalErrorHandler` / Datadog logging helpers | **Different model** | Use **`logError`**, **`logException`** from **`@spreedly/react-native-checkout`**. Never log PAN/CVV. | [Central Logging Guide](../../development/CENTRAL_LOGGING_GUIDE.md) |
+| iFrame API / pattern          | React Native equivalent                             | Status              | What to do                                                                                                                     | See also                                                               |
+| ----------------------------- | --------------------------------------------------- | ------------------- | ------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| `ready` event                 | `SpreedlyCore.isSdkInitialized()`                   | **Different model** | See Core table.                                                                                                                | —                                                                      |
+| `numberSet` / `cvvSet` events | `onFieldStateChange` (`isEmpty`, `INPUT`)           | **Different model** | Derive "field has content" from **`isEmpty`** and validation state.                                                            | [Hosted Fields](../hosted_fields_guide.md)                             |
+| `sourceSet` (express channel) | —                                                   | **Web only**        | Web express channel only. On RN use **`paymentBottomSheet`** or embedded **`PaymentBottomSheet`**.                             | [Express Checkout](../express_checkout_guide.md)                       |
+| `consoleError` event          | `setupGlobalErrorHandler` / Datadog logging helpers | **Different model** | Use **`logError`** (or opt in to **`setupGlobalErrorHandler`**) from **`@spreedly/react-native-checkout`**. Never log PAN/CVV. | [Telemetry and logging](../integration_guide.md#telemetry-and-logging) |
 
 ### 3D Secure
 

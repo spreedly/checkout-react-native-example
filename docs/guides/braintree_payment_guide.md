@@ -2,18 +2,16 @@
 
 Use this guide when you add **PayPal** or **Venmo** through a Braintree gateway in Spreedly. For project setup (Gradle, Podfile, `initSdk`, env vars), use the [Integration guide](integration_guide.md) first.
 
-**See also:** [MONOREPO.md](../development/MONOREPO.md) for how core vs satellite packages split native dependencies.
+**Packages and native dependencies:** core (`@spreedly/react-native-checkout`) holds the shared SDK. Satellite packages such as `@spreedly/react-native-checkout-braintree-apm` add their own native SDKs, which are linked into your app only when you install that package.
 
 ## Table of contents
 
 - [Overview](#overview)
 - [Prerequisites](#prerequisites)
 - [Packages](#packages)
-- [Native dependencies](#native-dependencies)
 - [Platform setup](#platform-setup)
 - [API reference](#api-reference)
 - [Integration flow](#integration-flow)
-- [Example app](#example-app)
 - [Errors and troubleshooting](#errors-and-troubleshooting)
 
 ---
@@ -107,7 +105,7 @@ func application(
 }
 ```
 
-Reference: [example/ios/SpreedlyCheckoutExample/AppDelegate.swift](../../example/ios/SpreedlyCheckoutExample/AppDelegate.swift).
+Reference: [`AppDelegate.swift` in the example app](https://github.com/spreedly/checkout-react-native-example/blob/main/ios/CheckoutReactNativeExample/AppDelegate.swift).
 
 After return, the native layer completes the flow; results are delivered to JS via `BraintreeAPM.addListener` (see below).
 

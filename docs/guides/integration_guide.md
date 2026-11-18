@@ -94,7 +94,7 @@ yarn add @spreedly/react-native-checkout
 # or: npm install @spreedly/react-native-checkout
 ```
 
-**Optional satellite packages** (see [MONOREPO](../development/MONOREPO.md)):
+**Optional satellite packages.** Each one adds its own native SDKs, which are linked into your app only when you install that package:
 
 ```bash
 yarn add @spreedly/react-native-checkout-stripe-apm
@@ -236,7 +236,7 @@ buildscript {
 
 **Optional workaround for Kotlin metadata-version errors:** If you still see errors from precompiled dependencies, add this to the root `android/build.gradle`:
 
-````gradle
+```gradle
 subprojects { subproject ->
     subproject.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
         compilerOptions {
@@ -244,6 +244,7 @@ subprojects { subproject ->
         }
     }
 }
+```
 
 **3DS on Android:** Core no longer depends on `checkout-threeds`. Card-only apps need only `GITHUB_USERNAME` / `GITHUB_TOKEN`. To use Global or Gateway-Specific 3DS on Android, install `@spreedly/react-native-checkout-threeds`. iOS 3DS stays in core — do not add the threeds npm package for iOS.
 
@@ -256,11 +257,11 @@ Add to your project-root `.env` (same file as `GITHUB_USERNAME`/`GITHUB_TOKEN`):
 ```bash
 FORTER_USERNAME=<forter-maven-username>
 FORTER_PASSWORD=<forter-maven-password>
-````
+```
 
 - Get these from your Spreedly representative — they're separate from `FORTER_SITE_ID` (the runtime fraud-signal ID passed to `initSdk`).
 - Required only when `@spreedly/react-native-checkout-threeds` is installed. Card-only Android apps that skip the threeds package don't need them.
-- `packages/core/scripts/spreedly_github_setup.gradle` reads `FORTER_USERNAME`/`FORTER_PASSWORD` from `.env` (or the environment) and registers the Forter Maven repository only when both are present and the threeds package is installed — no manual `build.gradle` edits needed.
+- `spreedly_github_setup.gradle` (in `@spreedly/react-native-checkout/scripts/`) reads `FORTER_USERNAME`/`FORTER_PASSWORD` from `.env` (or the environment) and registers the Forter Maven repository only when both are present and the threeds package is installed — no manual `build.gradle` edits needed.
 - Treat these as secrets: never commit them, never log them, and keep `.env` in `.gitignore`.
 
 **Verify:**
@@ -428,21 +429,21 @@ Full API, validation, and security rules: [Hosted Fields Guide](hosted_fields_gu
 
 Your backend should expose an endpoint (e.g. `/api/v1/auth/params`) that returns:
 
-| Field              | Description                    |
-| ------------------ | ------------------------------ |
-| `nonce`            | Unique per request             |
-| `signature`        | HMAC from your Spreedly secret |
-| `certificateToken` | Session certificate            |
-| `timestamp`        | Unix time used in signing      |
+| Field              | Description                                                                                                                |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------- |
+| `nonce`            | Unique value per request, for example a UUID                                                                               |
+| `signature`        | Base64-encoded RSA-SHA256 signature of `nonce + timestamp + certificateToken`, created with your certificate's private key |
+| `certificateToken` | The token Spreedly returns when you upload your certificate                                                                |
+| `timestamp`        | Unix time in seconds, the same value that was signed                                                                       |
 
-Example response:
+Example response (synthetic values):
 
 ```json
 {
-  "nonce": "abc123",
-  "signature": "hmac_sha256_signature",
-  "certificateToken": "cert_token_abc123",
-  "timestamp": 1640995200
+  "nonce": "5b0c9d3e-7f42-4a1b-9c6d-2e8f0a1b3c4d",
+  "signature": "BASE64_RSA_SHA256_SIGNATURE",
+  "certificateToken": "YOUR_CERTIFICATE_TOKEN",
+  "timestamp": "1640995200"
 }
 ```
 
@@ -525,6 +526,42 @@ function handleError(result: PaymentResultRN) {
 ```
 
 See [Express Checkout — Error handling](express_checkout_guide.md#error-handling) for user-facing copy patterns.
+
+---
+
+## Telemetry and logging
+
+The SDK sends operational telemetry to Datadog **by default**, so Spreedly can monitor SDK health and failures. You don't need to configure anything for it to run. Card numbers, CVV and expiry dates are never sent. For the full list of what is sent, see [Unified Privacy — Diagnostic telemetry](unified_privacy.md#diagnostic-telemetry).
+
+### Reduce telemetry
+
+Use `SpreedlyCore.setDatadogLogLevel`:
+
+| Call                                              | Telemetry sent to Datadog                                           |
+| ------------------------------------------------- | ------------------------------------------------------------------- |
+| Default (no call)                                 | All events and logs (debug level and up on iOS, verbose on Android) |
+| `SpreedlyCore.setDatadogLogLevel(LogLevel.ERROR)` | Errors only                                                         |
+
+Call it **before** `initSdk` and **again after `initSdk` resolves**:
+
+```typescript
+import { SpreedlyCore, LogLevel } from '@spreedly/react-native-checkout';
+
+SpreedlyCore.setDatadogLogLevel(LogLevel.ERROR); // iOS: applies before the first event
+await SpreedlyCore.initSdk(options);
+SpreedlyCore.setDatadogLogLevel(LogLevel.ERROR); // Android: applies once the SDK is initialized
+```
+
+- **iOS** applies the level immediately, so calling it before `initSdk` also covers the initialization events.
+- **Android** applies the level only after the SDK is initialized. The events sent during the first `initSdk` (initialization and configuration) go out before the level can change. The level then stays in effect for later `initSdk` calls.
+- The level applies to the whole app. End users have no separate in-SDK opt-out; you control telemetry through this call.
+
+### Console logs and log helpers
+
+- `SpreedlyCore.setLogLevel(level)` controls SDK logs in the device console (Xcode / Logcat) only. It does not change telemetry. Use `LogLevel.DEBUG` while testing.
+- `logError`, `logDebug`, `logInfo`, `logWarn` and `logVerbose` send your own messages to Spreedly's telemetry, at the level you set with `setDatadogLogLevel`.
+- `setupGlobalErrorHandler()` is opt-in. Once called, it also sends unhandled JavaScript errors (message and stack).
+- Log text is sanitized before it is sent, but sanitizing is pattern-based: never pass card data, tokens or shopper personal data to these helpers.
 
 ---
 
@@ -975,6 +1012,13 @@ interface GlobalThemeOptions {
 ### Enums and constants
 
 ```typescript
+enum LogLevel {
+  VERBOSE = 'VERBOSE',
+  DEBUG = 'DEBUG',
+  INFO = 'INFO',
+  WARN = 'WARN',
+  ERROR = 'ERROR',
+}
 enum YearFormat {
   TwoDigit = '2',
   FourDigit = '4',
@@ -1003,30 +1047,30 @@ const ImeActions = {
 
 Complete list of merchant-facing features in the React Native Checkout SDK. Use this to confirm your integration covers every flow you need.
 
-| Capability                                    | API / Component                                                                       | Guide                                                                                                |
-| --------------------------------------------- | ------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **Express Checkout** (pre-built bottom sheet) | `SpreedlyCore.paymentBottomSheet()` or `<PaymentBottomSheet />`                       | [Express Checkout](express_checkout_guide.md)                                                        |
-| **Hosted Fields** (custom card form)          | `<SPLTextField>` + `SpreedlyCore.createCreditCard()`                                  | [Hosted Fields](hosted_fields_guide.md)                                                              |
-| **PAN masking / format toggle**               | `setNumberFormat()`, `toggleMask()`, `getHostedCardDisplayState()`                    | [Hosted Fields — PAN display](hosted_fields_guide.md#pan-display-masking-and-hosted-field-snapshots) |
-| **Field state observation**                   | `onFieldStateChange` → `HostedFieldStatePayload` (scheme, IIN, lengths, validity)     | [Hosted Fields — props](hosted_fields_guide.md#spltextfield-props-reference)                         |
-| **Pre-submit validation**                     | `areAllFieldsValid(fieldTypes)`, `onValidationChange` per field                       | [Hosted Fields — validation](hosted_fields_guide.md#pre-submit-native-validation-areallfieldsvalid)  |
-| **Validation parameters**                     | `setParam(ValidationParameter, value)`                                                | [Global configuration](#global-configuration-optional)                                               |
-| **Form reset**                                | `resetPaymentState()`                                                                 | [Hosted Fields — reset](hosted_fields_guide.md#resetpaymentstate)                                    |
-| **Custom card brand icons**                   | `cardPanTrailingIcons` prop on `SPLTextField`                                         | [Hosted Fields — icons](hosted_fields_guide.md#custom-card-brand-icons)                              |
-| **Theming / dark mode**                       | `setGlobalTheme()`, per-component `theme` / `darkTheme`                               | [Theme Guide](theme_guide.md)                                                                        |
-| **3D Secure (Forter global)**                 | `showThreeDSChallenge()`, `hideThreeDSChallenge()`                                    | [3DS Guide](3ds_guide.md)                                                                            |
-| **3D Secure (gateway-specific)**              | `GatewaySpecific3DS` class                                                            | [3DS Gateway Guide](3ds_gateway_guide.md)                                                            |
-| **ACH bank account (drop-in sheet)**          | `achBankAccountBottomSheet()`                                                         | [ACH Bank Account](ach_bank_account_guide.md)                                                        |
-| **ACH bank account (custom form)**            | `<SPLTextField>` + `createBankAccount()`                                              | [ACH Bank Account](ach_bank_account_guide.md)                                                        |
-| **CVV recaching**                             | `recachePaymentMethod()`                                                              | [CVV Recaching](cvv_recaching_guide.md)                                                              |
-| **Stripe APM** (iDEAL, Bancontact, etc.)      | `StripeAPM.presentCheckout()` from `@spreedly/react-native-checkout-stripe-apm`       | [Stripe APM](stripe_apm_guide.md)                                                                    |
-| **Braintree APM** (PayPal, Venmo)             | `BraintreeAPM.presentCheckout()` from `@spreedly/react-native-checkout-braintree-apm` | [Braintree Payments](braintree_payment_guide.md)                                                     |
-| **Offsite payments** (PIX, Boleto, etc.)      | `OffsitePayment` object                                                               | [Offsite Payments](offsite_payments_guide.md)                                                        |
-| **Screen capture protection**                 | `ScreenSecurity.activateProtection()` / `.deactivateProtection()`                     | [Security](security.md)                                                                              |
-| **Screenshot / recording detection**          | `ScreenSecurity.addScreenshotListener()`, `addScreenRecordingListener()`              | [Security](security.md)                                                                              |
-| **Logging / telemetry**                       | `logError()`, `logDebug()`, `logInfo()`, `logWarn()`, `setupGlobalErrorHandler()`     | [Central Logging](../development/CENTRAL_LOGGING_GUIDE.md)                                           |
-| **Form-level validation helper**              | `ValidationManager.isFormValid(fields, fieldValidation)`                              | [Hosted Fields](hosted_fields_guide.md)                                                              |
-| **Payment result mapping**                    | `mapPaymentResult()` → `MappedOutcome`                                                | [Payment result handling](#payment-result-handling)                                                  |
+| Capability                                    | API / Component                                                                                                            | Guide                                                                                                |
+| --------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Express Checkout** (pre-built bottom sheet) | `SpreedlyCore.paymentBottomSheet()` or `<PaymentBottomSheet />`                                                            | [Express Checkout](express_checkout_guide.md)                                                        |
+| **Hosted Fields** (custom card form)          | `<SPLTextField>` + `SpreedlyCore.createCreditCard()`                                                                       | [Hosted Fields](hosted_fields_guide.md)                                                              |
+| **PAN masking / format toggle**               | `setNumberFormat()`, `toggleMask()`, `getHostedCardDisplayState()`                                                         | [Hosted Fields — PAN display](hosted_fields_guide.md#pan-display-masking-and-hosted-field-snapshots) |
+| **Field state observation**                   | `onFieldStateChange` → `HostedFieldStatePayload` (scheme, IIN, lengths, validity)                                          | [Hosted Fields — props](hosted_fields_guide.md#spltextfield-props-reference)                         |
+| **Pre-submit validation**                     | `areAllFieldsValid(fieldTypes)`, `onValidationChange` per field                                                            | [Hosted Fields — validation](hosted_fields_guide.md#pre-submit-native-validation-areallfieldsvalid)  |
+| **Validation parameters**                     | `setParam(ValidationParameter, value)`                                                                                     | [Global configuration](#global-configuration-optional)                                               |
+| **Form reset**                                | `resetPaymentState()`                                                                                                      | [Hosted Fields — reset](hosted_fields_guide.md#resetpaymentstate)                                    |
+| **Custom card brand icons**                   | `cardPanTrailingIcons` prop on `SPLTextField`                                                                              | [Hosted Fields — icons](hosted_fields_guide.md#custom-card-brand-icons)                              |
+| **Theming / dark mode**                       | `setGlobalTheme()`, per-component `theme` / `darkTheme`                                                                    | [Theme Guide](theme_guide.md)                                                                        |
+| **3D Secure (Forter global)**                 | `showThreeDSChallenge()`, `hideThreeDSChallenge()`                                                                         | [3DS Guide](3ds_guide.md)                                                                            |
+| **3D Secure (gateway-specific)**              | `GatewaySpecific3DS` class                                                                                                 | [3DS Gateway Guide](3ds_gateway_guide.md)                                                            |
+| **ACH bank account (drop-in sheet)**          | `achBankAccountBottomSheet()`                                                                                              | [ACH Bank Account](ach_bank_account_guide.md)                                                        |
+| **ACH bank account (custom form)**            | `<SPLTextField>` + `createBankAccount()`                                                                                   | [ACH Bank Account](ach_bank_account_guide.md)                                                        |
+| **CVV recaching**                             | `recachePaymentMethod()`                                                                                                   | [CVV Recaching](cvv_recaching_guide.md)                                                              |
+| **Stripe APM** (iDEAL, Bancontact, etc.)      | `StripeAPM.presentCheckout()` from `@spreedly/react-native-checkout-stripe-apm`                                            | [Stripe APM](stripe_apm_guide.md)                                                                    |
+| **Braintree APM** (PayPal, Venmo)             | `BraintreeAPM.presentCheckout()` from `@spreedly/react-native-checkout-braintree-apm`                                      | [Braintree Payments](braintree_payment_guide.md)                                                     |
+| **Offsite payments** (PIX, Boleto, etc.)      | `OffsitePayment` object                                                                                                    | [Offsite Payments](offsite_payments_guide.md)                                                        |
+| **Screen capture protection**                 | `ScreenSecurity.activateProtection()` / `.deactivateProtection()`                                                          | [Security](security.md)                                                                              |
+| **Screenshot / recording detection**          | `ScreenSecurity.addScreenshotListener()`, `addScreenRecordingListener()`                                                   | [Security](security.md)                                                                              |
+| **Logging / telemetry**                       | `setDatadogLogLevel()`, `setLogLevel()`, `logError()`, `logDebug()`, `logInfo()`, `logWarn()`, `setupGlobalErrorHandler()` | [Telemetry and logging](#telemetry-and-logging)                                                      |
+| **Form-level validation helper**              | `ValidationManager.isFormValid(fields, fieldValidation)`                                                                   | [Hosted Fields](hosted_fields_guide.md)                                                              |
+| **Payment result mapping**                    | `mapPaymentResult()` → `MappedOutcome`                                                                                     | [Payment result handling](#payment-result-handling)                                                  |
 
 ---
 
