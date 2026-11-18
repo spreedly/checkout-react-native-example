@@ -48,7 +48,7 @@ This document covers **vulnerability reporting**. For PCI-aligned integration pr
 | Screen capture / recording / multitasking snapshot protection | Use `ScreenSecurity.activateProtection()` from `@spreedly/react-native-checkout` on payment screens                            |
 | Hosted field callbacks (merchant-safe payloads, IIN prefix)   | [Hosted Fields — PAN display and field state](../guides/hosted_fields_guide.md#pan-display-masking-and-hosted-field-snapshots) |
 | No programmatic PAN/CVV injection                             | [From legacy — Planned differences](./migration/from-legacy.md#planned-differences)                                            |
-| Logging and observability (no sensitive values in logs)       | [Central Logging Guide](../development/CENTRAL_LOGGING_GUIDE.md)                                                               |
+| Logging and observability (no sensitive values in logs)       | [Integration Guide — Telemetry and logging](integration_guide.md#telemetry-and-logging) and the rule below this table          |
 
 Never log, persist, or display full PAN, CVV, bank account numbers, routing numbers, or signing secrets in production apps.
 

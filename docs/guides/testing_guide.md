@@ -281,29 +281,26 @@ adb logcat | grep -E "(Spreedly|SpreedlyCheckout)"
 
 Filter the Xcode console by `Spreedly` to see SDK log output.
 
-## Verifying Telemetry (Datadog)
+## Telemetry and SDK logs during testing
 
-The SDK sends telemetry to Datadog automatically via native platform logging.
+The SDK sends diagnostic telemetry to Spreedly by default (see [Diagnostic telemetry](unified_privacy.md#diagnostic-telemetry)). This telemetry is not available in your own tools. To check SDK behavior during testing:
 
-1. **Datadog console** -- Go to [Datadog Logs](https://app.datadoghq.com/logs) and filter by the native layer service name for each platform:
-   - Android native logs: `service:checkout-android-sdk`
-   - iOS native logs: `service:checkout-ios-sdk`
-
-2. **Expected events** -- After a payment flow, you should see events like SDK initialization, payment method creation, and flow completion.
-
-3. **Timing** -- Logs upload approximately every 5 seconds. Wait briefly after a flow before checking Datadog.
-
-For telemetry setup and troubleshooting, see [Central Logging Guide](../development/CENTRAL_LOGGING_GUIDE.md).
+1. **Turn on SDK console logs** -- SDK console output is off by default. While testing, call `SpreedlyCore.setLogLevel(LogLevel.DEBUG)` and read the logs in Logcat or the Xcode console as shown above. This doesn't change telemetry.
+2. **Test with telemetry reduced** -- If your app will ship with `SpreedlyCore.setDatadogLogLevel(LogLevel.ERROR)`, test with the same setting. See [Integration Guide — Telemetry and logging](integration_guide.md#telemetry-and-logging).
+3. **Contacting Spreedly support** -- Include the approximate time (UTC), platform and OS version, SDK version and your environment key, so Spreedly can find the matching telemetry.
 
 ## Running the Example App
 
-The SDK includes an example app (`example/`) with screens for every payment flow. This is the fastest way to verify SDK behavior end-to-end.
+The public [example app](https://github.com/spreedly/checkout-react-native-example) has screens for every payment flow. This is the fastest way to verify SDK behavior end-to-end.
 
-1. Clone the repo, create `.env` with your credentials
-2. Install dependencies: `yarn`
-3. Start Metro: `yarn example start`
-4. Run on Android: `yarn example android`
-5. Run on iOS: `yarn example ios`
+1. Clone `https://github.com/spreedly/checkout-react-native-example.git`
+2. Copy `.env.example` to `.env` and fill in your credentials
+3. Install dependencies with `GITHUB_TOKEN` exported: `yarn install`
+4. iOS only: `cd ios && pod install && cd ..`
+5. Start Metro: `yarn start`
+6. Run on Android: `yarn android`, or on iOS: `yarn ios`
+
+See the example app's README for prerequisites.
 
 The example app includes screens for: Express Checkout (Payment Bottom Sheet), Hosted Fields, ACH Bank Account (drop-in sheet and custom form), CVV Recaching, 3DS Challenge, 3DS Gateway-Specific, Offsite Payments, EBANX, Stripe APM, Stripe Radar, and Braintree APM.
 
@@ -315,4 +312,4 @@ The example app includes screens for: Express Checkout (Payment Bottom Sheet), H
 - [Security](security.md) -- Screenshot protection,, data handling, PCI compliance and vulnerability reporting policy
 - [Security](security.md) -- Screen capture protection via `ScreenSecurity`
 - [Hosted Fields — PAN display and field state](hosted_fields_guide.md#pan-display-masking-and-hosted-field-snapshots) -- Merchant-safe field callbacks
-- [Central Logging Guide](../development/CENTRAL_LOGGING_GUIDE.md) -- Datadog setup and verification
+- [Integration Guide -- Telemetry and logging](integration_guide.md#telemetry-and-logging) -- Reduce SDK telemetry

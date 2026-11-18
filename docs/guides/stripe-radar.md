@@ -37,7 +37,7 @@ Android Gradle sync pulls `com.spreedly:checkout-stripe-radar` when the npm pack
 
 When using CocoaPods with static linking (the default in React Native), Stripe resource bundles may be named differently at runtime than what the embedded Stripe SDK expects. Without the bundle rename step, `createRadarSession` can return `null` at runtime.
 
-Use the same Run Script as Stripe APM — `apply_spreedly_stripe_support` from `packages/core/scripts/spreedly_stripe_bundle_support.rb` (loaded automatically when you `load` `spreedly_pods_setup.rb`). Call it in your Podfile `post_install` block:
+Use the same Run Script as Stripe APM — `apply_spreedly_stripe_support` from `@spreedly/react-native-checkout/scripts/spreedly_stripe_bundle_support.rb` (loaded automatically when you `load` `spreedly_pods_setup.rb`). Call it in your Podfile `post_install` block:
 
 ```ruby
 post_install do |installer|

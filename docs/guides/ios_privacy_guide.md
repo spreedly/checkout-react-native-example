@@ -1,7 +1,7 @@
 # iOS Privacy Requirements Guide
 
-**Version:** 2.0  
-**Last Updated:** March 2026
+**Version:** 2.1  
+**Last Updated:** November 2026
 
 Complete guide for iOS privacy compliance when using the Spreedly SDK.
 
@@ -16,9 +16,7 @@ Two required components:
 
 ## Part 1: Privacy Manifest
 
-### Implementation Status
-
-**Implemented:** `packages/core/ios/PrivacyInfo.xcprivacy` is included and bundled automatically
+The SDK ships a privacy manifest (`PrivacyInfo.xcprivacy`) in its `SpreedlyCheckout` resource bundle.
 
 ### What It Declares
 
@@ -30,7 +28,9 @@ Two required components:
 
 **Data Collection:**
 
-- None
+- None declared. Part 2 lists the App Store Connect answers for the data the SDK collects.
+
+The diagnostic telemetry is not linked to the user's identity and is used only for SDK reliability monitoring. Declare it in App Store Connect because Datadog retains the events: flow and error events as other diagnostic data, durations as performance data, and field focus and blur events as product interaction.
 
 **Tracking:**
 
@@ -38,28 +38,22 @@ Two required components:
 
 ### Integration
 
-**For SDK Developers:**
-
-- Already implemented in `packages/core/ios/PrivacyInfo.xcprivacy`
-- Automatically bundled via CocoaPods
-
-**For App Developers:**
-
-- Privacy manifest auto-included with SDK
+- The privacy manifest is bundled with the SDK through CocoaPods; you don't add it to your app
 - Your app may need its own manifest for app-specific APIs
 
 ---
 
 ## Part 2: App Store Connect Privacy Labels
 
+App Store privacy labels cover data collected by the third-party SDKs an app includes. The Spreedly SDK collects payment data for tokenization and sends [diagnostic telemetry](unified_privacy.md#diagnostic-telemetry), which is on by default. The sections below map this data to App Store Connect privacy labels.
+
 ### Quick Reference
 
-| Category            | Answer                                |
-| ------------------- | ------------------------------------- |
-| **Data Collection** | Yes (Payment information)             |
-| **Data Sharing**    | Yes (Shared with Spreedly)            |
-| **Tracking**        | No                                    |
-| **Purpose**         | Payment processing, App functionality |
+| Category            | Answer                                                                       |
+| ------------------- | ---------------------------------------------------------------------------- |
+| **Data Collection** | Yes (Payment info; contact info your app passes; diagnostics and usage data) |
+| **Tracking**        | No                                                                           |
+| **Purpose**         | App Functionality; Analytics (Product Interaction only)                      |
 
 ### Section 1: Data Collection
 
@@ -67,21 +61,34 @@ Two required components:
 
 **Financial Information → Payment Info:**
 
-- Card number, CVV, expiration date
+- Card number, CVV, expiration date, and bank account details
 - Linked to User: Yes
 - Used for Tracking: No
-- Purpose: App Functionality, Payment Processing
+- Purpose: App Functionality
 
-### Section 2: Data Sharing
+**Contact Info → Name, Email Address, Phone Number, Physical Address** (only the ones your app passes to the SDK, such as cardholder name or billing address):
 
-**Answer:** **YES**
+- Linked to User: Yes
+- Used for Tracking: No
+- Purpose: App Functionality
 
-**Shared With: Spreedly**
+**Diagnostics → Other Diagnostic Data, Performance Data** (SDK telemetry):
 
-- Type: Service Provider
-- Purpose: Payment Processing
-- Data: Financial Information (Payment Info)
-- Privacy Policy: https://www.spreedly.com/privacy
+- Linked to User: No
+- Used for Tracking: No
+- Purpose: App Functionality
+
+**Usage Data → Product Interaction** (SDK telemetry: payment form field focus and blur, field type only, never the field contents):
+
+- Linked to User: No
+- Used for Tracking: No
+- Purpose: Analytics
+
+Telemetry is on by default. Lowering it with `SpreedlyCore.setDatadogLogLevel(LogLevel.ERROR)` (see [Telemetry and logging](integration_guide.md#telemetry-and-logging)) reduces what is sent but does not stop it, so keep the Diagnostics and Usage Data types above declared. Datadog may record the IP address of the upload.
+
+### Section 2: Third Parties
+
+Data the SDK sends to Spreedly is declared as collected data in Section 1. Payment data goes to Spreedly for tokenization ([Spreedly Privacy Policy](https://www.spreedly.com/privacy)); diagnostic telemetry goes to Datadog, which processes it on Spreedly's behalf.
 
 ### Section 3: Tracking
 
@@ -95,23 +102,24 @@ Two required components:
 
 **Purpose:**
 
-- App Functionality (Required)
-- Payment Processing (Required)
-- Not for Analytics, Advertising, or Personalization
+- App Functionality: payment info, contact info, other diagnostic data and performance data
+- Analytics: product interaction only (SDK telemetry)
+- Payment info is not used for Analytics, Advertising, or Personalization
 
-**Is Collection Optional?** **NO**
-
-- Required for payment processing functionality
+**Optional disclosure:** Not applicable. This data is collected automatically as part of your app's payment functionality, so it does not meet Apple's criteria for optional disclosure.
 
 ### Verification Checklist
 
 - [ ] Financial information marked as "Yes"
 - [ ] Payment Info subcategory selected
-- [ ] Spreedly declared as third-party with privacy link
 - [ ] Tracking marked as "No"
-- [ ] Purpose listed as "Payment Processing" and "App Functionality"
-- [ ] Linked to user marked as "Yes"
-- [ ] Required for functionality marked as "Yes"
+- [ ] Purpose listed as "App Functionality" for Payment Info
+- [ ] Linked to user marked as "Yes" for Payment Info
+- [ ] Contact Info types your app passes to the SDK declared (Linked: Yes)
+- [ ] Other Diagnostic Data and Performance Data declared (Linked: No, App Functionality)
+- [ ] Product Interaction declared (Linked: No, Analytics)
+
+**Note:** App Store privacy disclosures are the responsibility of the app developer; review them with your compliance team.
 
 ---
 
@@ -131,7 +139,7 @@ If storing payment tokens:
 
 - [Unified Privacy Policy](unified_privacy.md) - Complete practices
 - [Apple Privacy Labels](https://developer.apple.com/app-store/app-privacy-details/)
-- [Privacy Manifests](https://developer.apple.com/documentation/bundleresources/privacy_manifests)
+- [Privacy Manifests](https://developer.apple.com/documentation/bundleresources/privacy-manifest-files)
 
 ---
 

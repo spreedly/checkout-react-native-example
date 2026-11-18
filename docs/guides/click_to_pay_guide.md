@@ -373,17 +373,17 @@ CVV is passed to native at step 4 and is not sent over the JS event bridge.
 
 ## PCI and sensitive data
 
-| Rule                   | Detail                                                                                                                           |
-| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| **No PAN/CVV in JS**   | Card entry, OTP UI, and CVV collection stay in native SDK UI or pass-through native methods                                      |
-| **MC button WebView**  | `ClickToPayButton` renders MC artwork in a hardened native WebView — no card data in React state                                 |
-| **CVV in events**      | Never included in `ClickToPay.addListener` payloads                                                                              |
-| **CVV in React state** | Do not keep CVV in state longer than needed (merchant-hosted path)                                                               |
-| **No logging**         | Never log tokens, CVV, OTP values, or full event payloads — see [Central Logging Guide](../development/CENTRAL_LOGGING_GUIDE.md) |
-| **Token display**      | Do not show full payment method tokens in UI; forward to your backend over HTTPS                                                 |
-| **Token storage**      | Do not persist tokens in AsyncStorage, UserDefaults, or client-side caches                                                       |
-| **Screen capture**     | `ScreenSecurity.activateProtection()` on merchant checkout screens; native sheet uses SDK protection                             |
-| **Auth secrets**       | Keep environment keys and signing secrets server-side; fetch fresh auth in `onPrepareForPresentation` or before `present`        |
+| Rule                   | Detail                                                                                                                              |
+| ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| **No PAN/CVV in JS**   | Card entry, OTP UI, and CVV collection stay in native SDK UI or pass-through native methods                                         |
+| **MC button WebView**  | `ClickToPayButton` renders MC artwork in a hardened native WebView — no card data in React state                                    |
+| **CVV in events**      | Never included in `ClickToPay.addListener` payloads                                                                                 |
+| **CVV in React state** | Do not keep CVV in state longer than needed (merchant-hosted path)                                                                  |
+| **No logging**         | Never log tokens, CVV, OTP values, or full event payloads — see [Telemetry and logging](integration_guide.md#telemetry-and-logging) |
+| **Token display**      | Do not show full payment method tokens in UI; forward to your backend over HTTPS                                                    |
+| **Token storage**      | Do not persist tokens in AsyncStorage, UserDefaults, or client-side caches                                                          |
+| **Screen capture**     | `ScreenSecurity.activateProtection()` on merchant checkout screens; native sheet uses SDK protection                                |
+| **Auth secrets**       | Keep environment keys and signing secrets server-side; fetch fresh auth in `onPrepareForPresentation` or before `present`           |
 
 See [Security](security.md) for vulnerability reporting.
 

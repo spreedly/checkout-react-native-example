@@ -31,7 +31,7 @@ Both paths tokenize bank details through the Spreedly secure field layer. Routin
 
 1. Complete [Integration Guide](integration_guide.md) setup (`SpreedlyCore.initSdk()`).
 2. Enable screenshot protection on payment screens: `ScreenSecurity.activateProtection()`.
-3. Refresh signing parameters from your backend before each tokenization attempt (see [Auth parameters](integration_guide.md#fetch-fresh-auth-parameters-before-checkout)).
+3. Refresh signing parameters from your backend before each tokenization attempt (see [Auth parameters](integration_guide.md#authentication-parameters)).
 
 ## Drop-in sheet
 
