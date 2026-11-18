@@ -44,7 +44,7 @@ export const useSpreedlyInit = () => {
     } catch (err) {
       const errorMessage =
         err instanceof Error ? err.message : 'Failed to initialize SDK';
-      console.error('Failed to initialize Spreedly:', errorMessage);
+      console.warn('Failed to initialize Spreedly:', errorMessage);
       setInitError(errorMessage);
     } finally {
       setIsLoading(false);
